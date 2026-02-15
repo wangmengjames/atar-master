@@ -183,13 +183,12 @@ export default function CivTreeView({ progress, onSelectNode, onViewportChange }
             const from = positions[preId];
             const to = positions[node.id];
             if (!from || !to) return null;
-            const mx = (from.x + to.x) / 2;
             const fromStatus = computeNodeStatus(preId, ALL_NODES.find(n => n.id === preId)?.prerequisites ?? [], progress);
             const isActive = fromStatus === 'completed' || fromStatus === 'mastered';
             return (
               <path
                 key={`${preId}-${node.id}`}
-                d={`M ${from.x + NODE_RADIUS} ${from.y} C ${mx} ${from.y}, ${mx} ${to.y}, ${to.x - NODE_RADIUS} ${to.y}`}
+                d={`M ${from.x + NODE_RADIUS} ${from.y} L ${to.x - NODE_RADIUS} ${to.y}`}
                 fill="none"
                 stroke={isActive ? '#4B5563' : '#1F2937'}
                 strokeWidth={2}

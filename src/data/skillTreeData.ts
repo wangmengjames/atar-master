@@ -356,43 +356,42 @@ const Y11_A9: SkillTreeNode = {
   questionTypes: ['Probability Distributions', 'Discrete Distributions', 'Discrete Random Variables', 'Expected Value'],
 };
 
-// ── Year 12 — Methods Units 3&4 (tier: 4) ──────────────────────
+// ── Year 12 — Methods Units 3&4 (tier: 4) — 6 Core Topics ──────
 
-const Y12_FUNCTIONS: SkillTreeNode = {
-  id: 'y12-functions',
-  title: 'Functions & Graphs',
-  description: 'Exponential, logarithmic, circular (sin/cos/tan) functions, transformations, modelling.',
-  prerequisites: ['y11-a3-domain-range', 'y11-a4-transformations', 'y11-a5-trigonometry'],
+const Y12_A1: SkillTreeNode = {
+  id: 'y12-a1-algebra-functions',
+  title: 'A1: Algebra & Functions',
+  description: 'Advanced functions (exponential, log, circular), transformations, modelling, polynomial division, solving equations.',
+  prerequisites: ['y11-a2-quadratics', 'y11-a3-domain-range', 'y11-a5-trigonometry', 'y11-a6-logs-indices'],
   topic: Topic.FUNCTIONS,
   difficulty: 4,
   tier: 4,
   position: { x: 4, y: 0 },
   questions: [],
-  questionTypes: [],
+  questionTypes: [
+    'Domain and Range', 'Domain', 'Range', 'Function Properties', 'Function Evaluation',
+    'Functions', 'Functions and Relations', 'Properties of Functions', 'Piecewise Functions',
+    'Rational Functions', 'Graphing Rationals', 'Rectangular Hyperbola', 'Asymptotes',
+    'Limiting Behaviour', 'Intercepts', 'Modelling', 'Undefined Expressions',
+    'Transformations', 'Perpendicular Lines',
+    'Circular Functions', 'Trig Functions', 'Trig Asymptotes', 'Periodic Functions',
+    'Trigonometry', 'Trigonometric Identities', 'Trigonometric Equations', 'Periodicity',
+    'Composite Functions', 'Domain of Composite Functions', 'Composite Graphs',
+    'Composite Inequalities', 'Function Operations', 'Function Addition', 'Functional Equations',
+    'Inverse Functions',
+    'Polynomial Approximation', 'Remainder Theorem',
+  ],
 };
 
-const Y12_ALGEBRA: SkillTreeNode = {
-  id: 'y12-algebra',
-  title: 'Algebra & Structure',
-  description: 'Advanced algebra, polynomial division, solving exponential/log/trig equations.',
-  prerequisites: ['y11-a1-linear', 'y11-a2-quadratics', 'y11-a6-logs-indices'],
-  topic: Topic.FUNCTIONS,
-  difficulty: 4,
-  tier: 4,
-  position: { x: 4, y: 1 },
-  questions: [],
-  questionTypes: [],
-};
-
-const Y12_CALCULUS: SkillTreeNode = {
-  id: 'y12-calculus',
-  title: 'Calculus',
-  description: 'Chain/product/quotient rules, applications (tangent lines, optimization, related rates), anti-differentiation, definite integrals, area under/between curves.',
-  prerequisites: ['y11-a7-differentiation', 'y11-a8-integration'],
+const Y12_A2: SkillTreeNode = {
+  id: 'y12-a2-differentiation',
+  title: 'A2: Differentiation',
+  description: 'Chain/product/quotient rules, tangent lines, stationary points, curve sketching, optimization, related rates.',
+  prerequisites: ['y11-a7-differentiation'],
   topic: Topic.CALCULUS,
   difficulty: 4,
   tier: 4,
-  position: { x: 4, y: 2 },
+  position: { x: 4, y: 1 },
   questions: [],
   questionTypes: [
     'Chain Rule', 'Product Rule', 'Quotient Rule',
@@ -400,20 +399,42 @@ const Y12_CALCULUS: SkillTreeNode = {
     'Stationary Points', 'Nature of Stationary Points', 'Turning Points', 'Points of Inflection',
     'Optimisation', 'Optimization', 'Distance Optimisation', 'Transformations and Optimisation', 'Min Distance',
     'Intersection Analysis', 'Intersections', 'Proof',
+    'Derivatives', 'Differentiation', 'Gradient',
+    'Derivatives of Hybrid Functions', 'Exponential Derivatives',
+    'Derivative Graphs', 'Derivatives and Graphs', 'Derivative and Graph',
+    'Graph of Derivative', 'Graphing Derivatives', 'Second Derivative',
+    'Differentiability', 'Continuity and Differentiability', 'Continuity',
+    'Function Analysis', 'Increasing Functions', 'Increasing/Decreasing', 'Odd Functions',
+    'Average Rate of Change', 'Rates of Change',
+    'Newton\'s Method', 'Newton',
+  ],
+};
+
+const Y12_A3: SkillTreeNode = {
+  id: 'y12-a3-integration',
+  title: 'A3: Integration',
+  description: 'Anti-differentiation rules, definite integrals, fundamental theorem, area under/between curves.',
+  prerequisites: ['y11-a8-integration'],
+  topic: Topic.CALCULUS,
+  difficulty: 4,
+  tier: 4,
+  position: { x: 4, y: 2 },
+  questions: [],
+  questionTypes: [
     'Anti-differentiation', 'Antidifferentiation', 'Integration',
     'Definite Integrals', 'Definite Integral', 'Fundamental Theorem of Calculus',
     'Integration Properties', 'Integral Properties', 'Trapezium Rule', 'Riemann Sums',
-    'Newton\'s Method', 'Newton', 'Partial Fractions', 'Approximation',
+    'Partial Fractions', 'Approximation',
     'Area Between Curves', 'Areas Under Curves', 'Area Under Curve', 'Area under Curve',
     'Area under curve', 'Area', 'Transformations and Integrals',
     'Average Value', 'Applications',
   ],
 };
 
-const Y12_PROBABILITY: SkillTreeNode = {
-  id: 'y12-probability',
-  title: 'Probability & Stats',
-  description: 'Continuous random variables, PDF/CDF, normal distribution, confidence intervals, sample proportions, statistical inference.',
+const Y12_A4: SkillTreeNode = {
+  id: 'y12-a4-discrete-prob',
+  title: 'A4: Discrete Probability',
+  description: 'Discrete random variables, binomial distribution, expected value, variance, probability rules.',
   prerequisites: ['y11-a9-combinatorics'],
   topic: Topic.PROBABILITY,
   difficulty: 4,
@@ -421,14 +442,42 @@ const Y12_PROBABILITY: SkillTreeNode = {
   position: { x: 4, y: 3 },
   questions: [],
   questionTypes: [
+    'Probability Distributions', 'Discrete Distributions', 'Discrete Random Variables', 'Expected Value',
+    'Binomial Distribution', 'Binomial Probability', 'Binomial Parameters',
+    'Geometric Distribution',
+  ],
+};
+
+const Y12_A5: SkillTreeNode = {
+  id: 'y12-a5-continuous-prob',
+  title: 'A5: Continuous Prob & Stats',
+  description: 'Continuous random variables, PDF/CDF, normal distribution, confidence intervals, sample proportions, statistical inference.',
+  prerequisites: ['y11-a9-combinatorics'],
+  topic: Topic.PROBABILITY,
+  difficulty: 4,
+  tier: 4,
+  position: { x: 4, y: 4 },
+  questions: [],
+  questionTypes: [
     'Continuous PDF', 'Continuous Distributions', 'Continuous Random Variables',
     'Continuous Distribution', 'Transformations of PDF',
     'Transformations of Random Variables',
     'Normal Distribution',
-    'Binomial Distribution', 'Binomial Probability', 'Binomial Parameters',
-    'Geometric Distribution',
     'Confidence Intervals', 'Sample Proportions', 'Sampling Distribution',
   ],
+};
+
+const Y12_A6: SkillTreeNode = {
+  id: 'y12-a6-pseudocode',
+  title: 'A6: Pseudocode',
+  description: 'Algorithmic thinking, pseudocode interpretation, loops, conditionals, numerical methods.',
+  prerequisites: ['y11-a1-linear'],
+  topic: Topic.FUNCTIONS,
+  difficulty: 4,
+  tier: 4,
+  position: { x: 4, y: 5 },
+  questions: [],
+  questionTypes: ['Algorithms'],
 };
 
 // ── VCE Exam (tier: 5) ─────────────────────────────────────────
@@ -437,7 +486,7 @@ const VCE_EXAM1: SkillTreeNode = {
   id: 'vce-exam1',
   title: 'Exam 1 (Tech-Free)',
   description: 'All topics, no CAS calculator allowed.',
-  prerequisites: ['y12-functions', 'y12-algebra', 'y12-calculus', 'y12-probability'],
+  prerequisites: ['y12-a1-algebra-functions', 'y12-a2-differentiation', 'y12-a3-integration', 'y12-a4-discrete-prob', 'y12-a5-continuous-prob', 'y12-a6-pseudocode'],
   topic: Topic.CALCULUS,
   difficulty: 5,
   tier: 5,
@@ -450,7 +499,7 @@ const VCE_EXAM2: SkillTreeNode = {
   id: 'vce-exam2',
   title: 'Exam 2 (Tech-Active)',
   description: 'All topics, CAS calculator allowed.',
-  prerequisites: ['y12-functions', 'y12-algebra', 'y12-calculus', 'y12-probability'],
+  prerequisites: ['y12-a1-algebra-functions', 'y12-a2-differentiation', 'y12-a3-integration', 'y12-a4-discrete-prob', 'y12-a5-continuous-prob', 'y12-a6-pseudocode'],
   topic: Topic.CALCULUS,
   difficulty: 5,
   tier: 5,
@@ -472,8 +521,8 @@ const ALL_NODES: SkillTreeNode[] = [
   Y10A_ALGEBRA, Y10A_PROBABILITY,
   // Year 11 (A1-A9)
   Y11_A1, Y11_A2, Y11_A3, Y11_A4, Y11_A5, Y11_A6, Y11_A7, Y11_A8, Y11_A9,
-  // Year 12
-  Y12_FUNCTIONS, Y12_ALGEBRA, Y12_CALCULUS, Y12_PROBABILITY,
+  // Year 12 (A1-A6)
+  Y12_A1, Y12_A2, Y12_A3, Y12_A4, Y12_A5, Y12_A6,
   // VCE Exam
   VCE_EXAM1, VCE_EXAM2,
 ];

@@ -97,11 +97,13 @@ const NODE_TO_TRAINING: Record<string, string[]> = {
   'y11-a7-differentiation': ['derivatives', 'diff-rules'],
   'y11-a8-integration': ['anti-diff'],
   'y11-a9-combinatorics': ['binomial-dist', 'cond-prob'],
-  // Year 12
-  'y12-functions': ['circular-fn', 'exponential-fn'],
-  'y12-algebra': ['polynomial-fn'],
-  'y12-calculus': ['tangent-lines', 'stationary-pts', 'optimisation', 'anti-diff', 'definite-int', 'area-curves', 'avg-rate'],
-  'y12-probability': ['continuous-pdf', 'normal-dist', 'confidence-int', 'sample-prop'],
+  // Year 12 (A1-A6)
+  'y12-a1-algebra-functions': ['circular-fn', 'exponential-fn', 'polynomial-fn', 'domain-range', 'composite-fn', 'inverse-fn', 'transformations'],
+  'y12-a2-differentiation': ['derivatives', 'diff-rules', 'tangent-lines', 'stationary-pts', 'optimisation', 'avg-rate'],
+  'y12-a3-integration': ['anti-diff', 'definite-int', 'area-curves'],
+  'y12-a4-discrete-prob': ['binomial-dist', 'cond-prob'],
+  'y12-a5-continuous-prob': ['continuous-pdf', 'normal-dist', 'confidence-int', 'sample-prop'],
+  'y12-a6-pseudocode': [],
   // VCE Exam — no training, exam questions only
   'vce-exam1': [],
   'vce-exam2': [],
