@@ -20,8 +20,9 @@ const TeacherDashboardPage = lazy(() => import('./pages/TeacherDashboardPage'));
 const AuthPage = lazy(() => import('./pages/AuthPage'));
 const PricingPage = lazy(() => import('./pages/PricingPage'));
 const SuccessPage = lazy(() => import('./pages/SuccessPage'));
+const TopicLandingPage = lazy(() => import('./pages/TopicLandingPage'));
 
-const FOOTER_PAGES = ['/', '/exams', '/pricing'];
+const FOOTER_PAGES = ['/', '/exams', '/pricing', '/topics'];
 
 function PageWrapper({ children }: { children: React.ReactNode }) {
   const location = useLocation();
@@ -31,7 +32,7 @@ function PageWrapper({ children }: { children: React.ReactNode }) {
 function AppLayout() {
   const location = useLocation();
   const isLanding = location.pathname === '/';
-  const showFooter = FOOTER_PAGES.includes(location.pathname);
+  const showFooter = FOOTER_PAGES.includes(location.pathname) || location.pathname.startsWith('/topics/');
 
   return (
     <div className="min-h-screen bg-gh-canvas text-gh-text-primary font-sans flex flex-col">
@@ -46,6 +47,7 @@ function AppLayout() {
               <Route path="/auth" element={<AuthPage />} />
               <Route path="/pricing" element={<PricingPage />} />
               <Route path="/success" element={<SuccessPage />} />
+              <Route path="/topics/:slug" element={<TopicLandingPage />} />
               <Route path="/skill-tree" element={<AuthGuard><SkillTreePage /></AuthGuard>} />
               <Route path="/exams" element={<AuthGuard><ExamsPage /></AuthGuard>} />
               <Route path="/exam-viewer" element={<AuthGuard><ExamViewerPage /></AuthGuard>} />

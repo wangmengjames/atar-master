@@ -1,0 +1,308 @@
+/**
+ * SEO Landing Page data for each Skill Tree node.
+ * Used by TopicLandingPage to render indexable pages for Google.
+ */
+
+export interface SeoPage {
+  slug: string;
+  nodeId: string;
+  title: string;
+  metaDescription: string;
+  h1: string;
+  keywords: string[];
+  intro: string;
+}
+
+export const SEO_PAGES: SeoPage[] = [
+  // ── Year 8 ──
+  {
+    slug: 'year-8-number',
+    nodeId: 'y8-number',
+    title: 'Year 8 Number – Integers, Rationals & Exponent Laws | ATAR Master',
+    metaDescription: 'Master Year 8 Number topics including integers, rationals, irrationals, exponent laws, ratios, percentages and rates. Free practice questions aligned to VCAA.',
+    h1: 'Year 8 Number: Integers, Rationals & Exponent Laws',
+    keywords: ['year 8 number', 'integers', 'rationals', 'exponent laws', 'ratios', 'percentages', 'VCAA maths', 'year 8 maths'],
+    intro: 'Build a strong foundation in Year 8 Number — covering integers, rational and irrational numbers, exponent laws with positive integers, ratios, percentages, and rates. These concepts form the basis for all higher-level VCE Mathematical Methods topics.',
+  },
+  {
+    slug: 'year-8-algebra',
+    nodeId: 'y8-algebra',
+    title: 'Year 8 Algebra – Linear Expressions & Equations | ATAR Master',
+    metaDescription: 'Learn Year 8 Algebra: simplify, expand and factorise linear expressions, solve linear equations and inequalities, graph linear relations on the Cartesian plane.',
+    h1: 'Year 8 Algebra: Linear Expressions, Equations & Graphs',
+    keywords: ['year 8 algebra', 'linear expressions', 'linear equations', 'inequalities', 'Cartesian plane', 'VCAA', 'year 8 maths'],
+    intro: 'Master the fundamentals of algebra in Year 8 — simplifying, expanding and factorising linear expressions, solving linear equations and inequalities, and graphing linear relations on the Cartesian plane.',
+  },
+  {
+    slug: 'year-8-statistics',
+    nodeId: 'y8-statistics',
+    title: 'Year 8 Statistics – Data Displays & Measures of Centre | ATAR Master',
+    metaDescription: 'Explore Year 8 Statistics: data displays, measures of centre and spread, and comparing data sets. Practice with VCAA-aligned questions.',
+    h1: 'Year 8 Statistics: Data Displays & Measures of Centre',
+    keywords: ['year 8 statistics', 'data displays', 'measures of centre', 'measures of spread', 'comparing data sets', 'VCAA'],
+    intro: 'Develop your statistical literacy in Year 8 — learn to create and interpret data displays, calculate measures of centre and spread, and compare data sets effectively.',
+  },
+  {
+    slug: 'year-8-probability',
+    nodeId: 'y8-probability',
+    title: 'Year 8 Probability – Experiments & Sample Spaces | ATAR Master',
+    metaDescription: 'Learn Year 8 Probability: experiments, outcomes, sample spaces and relative frequency. Build foundations for VCE probability topics.',
+    h1: 'Year 8 Probability: Experiments, Outcomes & Sample Spaces',
+    keywords: ['year 8 probability', 'sample spaces', 'relative frequency', 'outcomes', 'experiments', 'VCAA maths'],
+    intro: 'Start your probability journey in Year 8 — understand experiments, outcomes, sample spaces and relative frequency. These fundamentals are essential for VCE Mathematical Methods.',
+  },
+  // ── Year 9 ──
+  {
+    slug: 'year-9-number',
+    nodeId: 'y9-number',
+    title: 'Year 9 Number – Index Laws, Surds & Scientific Notation | ATAR Master',
+    metaDescription: 'Master Year 9 Number: extended index laws, zero and negative exponents, surds, scientific notation and simple interest calculations.',
+    h1: 'Year 9 Number: Index Laws, Surds & Scientific Notation',
+    keywords: ['year 9 number', 'index laws', 'surds', 'scientific notation', 'negative exponents', 'simple interest', 'VCAA'],
+    intro: 'Extend your number skills in Year 9 — explore index laws with zero and negative exponents, work with surds, use scientific notation, and calculate simple interest.',
+  },
+  {
+    slug: 'year-9-algebra',
+    nodeId: 'y9-algebra',
+    title: 'Year 9 Algebra – Binomial Products & Quadratics | ATAR Master',
+    metaDescription: 'Learn Year 9 Algebra: expand binomial products, factorise monic quadratics, sketch linear graphs, and explore gradient, midpoint and distance formulas.',
+    h1: 'Year 9 Algebra: Binomial Products, Quadratics & Linear Graphs',
+    keywords: ['year 9 algebra', 'binomial products', 'monic quadratics', 'gradient', 'midpoint', 'distance formula', 'non-linear relations'],
+    intro: 'Advance your algebra in Year 9 — expand binomial products, factorise monic quadratics, sketch linear graphs using gradient, and get introduced to non-linear relations.',
+  },
+  {
+    slug: 'year-9-statistics',
+    nodeId: 'y9-statistics',
+    title: 'Year 9 Statistics – Scatter Plots & Comparative Displays | ATAR Master',
+    metaDescription: 'Explore Year 9 Statistics: comparative data displays, scatter plots and back-to-back stem plots for analysing bivariate data.',
+    h1: 'Year 9 Statistics: Scatter Plots & Comparative Data Displays',
+    keywords: ['year 9 statistics', 'scatter plots', 'back-to-back stem plots', 'comparative data', 'bivariate data', 'VCAA'],
+    intro: 'Deepen your statistical analysis in Year 9 — create comparative data displays, interpret scatter plots, and use back-to-back stem plots.',
+  },
+  {
+    slug: 'year-9-probability',
+    nodeId: 'y9-probability',
+    title: 'Year 9 Probability – Venn & Tree Diagrams | ATAR Master',
+    metaDescription: 'Master Year 9 Probability: two-step experiments, Venn diagrams, tree diagrams and relative frequency from experiments.',
+    h1: 'Year 9 Probability: Two-Step Experiments, Venn & Tree Diagrams',
+    keywords: ['year 9 probability', 'Venn diagrams', 'tree diagrams', 'two-step experiments', 'relative frequency', 'VCAA'],
+    intro: 'Expand your probability knowledge in Year 9 — tackle two-step experiments using Venn diagrams and tree diagrams, and estimate probabilities from experimental data.',
+  },
+  // ── Year 10 ──
+  {
+    slug: 'year-10-number',
+    nodeId: 'y10-number',
+    title: 'Year 10 Number – Surds & Financial Maths | ATAR Master',
+    metaDescription: 'Learn Year 10 Number: surds, irrational numbers, compound interest and depreciation. Essential financial maths for VCE preparation.',
+    h1: 'Year 10 Number: Surds, Irrationals & Financial Mathematics',
+    keywords: ['year 10 number', 'surds', 'irrational numbers', 'compound interest', 'depreciation', 'financial maths', 'VCAA'],
+    intro: 'Master Year 10 Number — work with surds and irrational numbers, and apply financial mathematics including compound interest and depreciation.',
+  },
+  {
+    slug: 'year-10-algebra',
+    nodeId: 'y10-algebra',
+    title: 'Year 10 Algebra – Quadratics, Polynomials & Exponentials | ATAR Master',
+    metaDescription: 'Master Year 10 Algebra: quadratic equations, polynomial and exponential functions, simultaneous equations and parabola features.',
+    h1: 'Year 10 Algebra: Quadratic Equations, Polynomials & Exponentials',
+    keywords: ['year 10 algebra', 'quadratic equations', 'quadratic formula', 'polynomials', 'exponential functions', 'simultaneous equations', 'parabola', 'VCAA'],
+    intro: 'Take your algebra to the next level in Year 10 — solve quadratic equations using the null factor law and quadratic formula, explore polynomial and exponential functions, and master simultaneous equations.',
+  },
+  {
+    slug: 'year-10-statistics',
+    nodeId: 'y10-statistics',
+    title: 'Year 10 Statistics – Bivariate Data & Correlation | ATAR Master',
+    metaDescription: 'Explore Year 10 Statistics: bivariate data analysis, line of best fit, correlation coefficients and time series analysis.',
+    h1: 'Year 10 Statistics: Bivariate Data, Correlation & Time Series',
+    keywords: ['year 10 statistics', 'bivariate data', 'line of best fit', 'correlation', 'time series', 'VCAA maths'],
+    intro: 'Analyse bivariate data in Year 10 — fit lines of best fit, interpret correlation, and work with time series data.',
+  },
+  {
+    slug: 'year-10-probability',
+    nodeId: 'y10-probability',
+    title: 'Year 10 Probability – Conditional Probability & Independence | ATAR Master',
+    metaDescription: 'Learn Year 10 Probability: conditional probability, independence, combinations and counting techniques for VCE preparation.',
+    h1: 'Year 10 Probability: Conditional Probability & Independence',
+    keywords: ['year 10 probability', 'conditional probability', 'independence', 'combinations', 'counting', 'Bayes theorem', 'VCAA'],
+    intro: 'Master conditional probability and independence in Year 10 — learn counting techniques and combinations that prepare you for VCE-level probability.',
+  },
+  // ── Year 10A ──
+  {
+    slug: 'year-10a-algebra-extension',
+    nodeId: 'y10a-algebra',
+    title: 'Year 10A Algebra Extension – Logarithms & Inverse Functions | ATAR Master',
+    metaDescription: 'Year 10A Algebra Extension: composite and inverse functions, logarithms introduction, sequences, series and circle equations.',
+    h1: 'Year 10A Algebra Extension: Composite Functions, Logarithms & Series',
+    keywords: ['year 10A algebra', 'composite functions', 'inverse functions', 'logarithms', 'sequences', 'series', 'circle equations', 'VCAA'],
+    intro: 'Go beyond the standard curriculum with Year 10A Algebra Extension — explore composite and inverse functions, get introduced to logarithms, and study sequences, series and circle equations.',
+  },
+  {
+    slug: 'year-10a-probability-extension',
+    nodeId: 'y10a-probability',
+    title: 'Year 10A Probability Extension – Permutations & Combinations | ATAR Master',
+    metaDescription: 'Year 10A Probability Extension: permutations, combinations (nCr) and binomial coefficients. Essential for VCE Methods probability.',
+    h1: 'Year 10A Probability Extension: Permutations & Combinations',
+    keywords: ['year 10A probability', 'permutations', 'combinations', 'nCr', 'binomial coefficients', 'counting principles', 'VCAA'],
+    intro: 'Prepare for VCE-level probability with Year 10A Extension — master permutations, combinations (nCr), and binomial coefficients.',
+  },
+  // ── Year 11 ──
+  {
+    slug: 'year-11-linear-graphs-algebra',
+    nodeId: 'y11-a1-linear',
+    title: 'Year 11 Linear Graphs & Algebra – VCE Methods Units 1&2 | ATAR Master',
+    metaDescription: 'VCE Methods Year 11: linear equations, simultaneous equations, linear graphs, gradient, intercepts, distance and midpoint formulas.',
+    h1: 'Year 11 Linear Graphs & Algebra (VCE Methods Units 1&2)',
+    keywords: ['year 11 linear graphs', 'VCE methods', 'simultaneous equations', 'gradient', 'intercepts', 'distance formula', 'midpoint', 'units 1 2'],
+    intro: 'Begin your VCE Mathematical Methods journey with linear graphs and algebra — master linear equations, simultaneous equations, gradients, intercepts, and distance and midpoint formulas.',
+  },
+  {
+    slug: 'year-11-quadratics-cubics-quartics',
+    nodeId: 'y11-a2-quadratics',
+    title: 'Year 11 Quadratics, Cubics & Quartics – VCE Methods | ATAR Master',
+    metaDescription: 'VCE Methods Year 11: quadratic, cubic and quartic functions, factoring techniques, graph sketching, turning points and the discriminant.',
+    h1: 'Year 11 Quadratics, Cubics & Quartics (VCE Methods Units 1&2)',
+    keywords: ['year 11 quadratics', 'cubic functions', 'quartic functions', 'discriminant', 'turning points', 'VCE methods', 'polynomial graphs'],
+    intro: 'Master polynomial functions in VCE Methods Units 1&2 — study quadratic, cubic and quartic functions, learn factoring techniques, sketch graphs and analyse turning points using the discriminant.',
+  },
+  {
+    slug: 'year-11-domain-range-functions',
+    nodeId: 'y11-a3-domain-range',
+    title: 'Year 11 Domain, Range & Functions – VCE Methods | ATAR Master',
+    metaDescription: 'VCE Methods Year 11: domain and range, function notation, composite functions, inverse functions and piecewise functions.',
+    h1: 'Year 11 Domain, Range & Functions (VCE Methods Units 1&2)',
+    keywords: ['domain and range', 'composite functions', 'inverse functions', 'piecewise functions', 'function notation', 'VCE methods', 'year 11'],
+    intro: 'Understand the language of functions in VCE Methods — learn domain and range, function notation, composite functions, inverse functions and piecewise functions.',
+  },
+  {
+    slug: 'year-11-transformations',
+    nodeId: 'y11-a4-transformations',
+    title: 'Year 11 Functions & Transformations – VCE Methods | ATAR Master',
+    metaDescription: 'VCE Methods Year 11: dilations, reflections and translations of graphs. Master transformations of y=f(x) for exam success.',
+    h1: 'Year 11 Functions & Transformations (VCE Methods Units 1&2)',
+    keywords: ['graph transformations', 'dilations', 'reflections', 'translations', 'VCE methods', 'year 11', 'function transformations'],
+    intro: 'Master graph transformations in VCE Methods — learn how dilations, reflections and translations change the shape and position of y = f(x).',
+  },
+  {
+    slug: 'year-11-trigonometry',
+    nodeId: 'y11-a5-trigonometry',
+    title: 'Year 11 Trigonometry – Unit Circle & Circular Functions | ATAR Master',
+    metaDescription: 'VCE Methods Year 11: circular functions (sin, cos, tan), unit circle, amplitude, period, phase shift, trig equations and identities.',
+    h1: 'Year 11 Trigonometry: Unit Circle & Circular Functions',
+    keywords: ['year 11 trigonometry', 'unit circle', 'circular functions', 'sin cos tan', 'amplitude', 'period', 'phase shift', 'trig equations', 'VCE methods'],
+    intro: 'Dive into trigonometry for VCE Methods — master the unit circle, graph circular functions with amplitude, period and phase shifts, and solve trigonometric equations using identities.',
+  },
+  {
+    slug: 'year-11-logarithms-indices',
+    nodeId: 'y11-a6-logs-indices',
+    title: 'Year 11 Logarithms & Indices – VCE Methods | ATAR Master',
+    metaDescription: 'VCE Methods Year 11: index laws, logarithm laws, exponential and logarithmic equations, and exponential/log graph sketching.',
+    h1: 'Year 11 Logarithms & Indices (VCE Methods Units 1&2)',
+    keywords: ['year 11 logarithms', 'index laws', 'logarithm laws', 'exponential equations', 'logarithmic equations', 'VCE methods', 'log graphs'],
+    intro: 'Master exponential and logarithmic functions in VCE Methods — apply index laws and logarithm laws, solve exponential and logarithmic equations, and sketch their graphs.',
+  },
+  {
+    slug: 'year-11-differentiation',
+    nodeId: 'y11-a7-differentiation',
+    title: 'Year 11 Differentiation – Limits & Power Rule | ATAR Master',
+    metaDescription: 'VCE Methods Year 11: limits, differentiation from first principles, power rule, derivative graphs, rates of change and tangent lines.',
+    h1: 'Year 11 Differentiation: Limits, First Principles & Power Rule',
+    keywords: ['year 11 differentiation', 'limits', 'first principles', 'power rule', 'derivative', 'rates of change', 'tangent lines', 'VCE methods'],
+    intro: 'Begin calculus in VCE Methods — understand limits, derive functions from first principles, apply the power rule, interpret derivative graphs, and explore rates of change.',
+  },
+  {
+    slug: 'year-11-integration',
+    nodeId: 'y11-a8-integration',
+    title: 'Year 11 Integration – Anti-differentiation Basics | ATAR Master',
+    metaDescription: 'VCE Methods Year 11: anti-differentiation, basic integration rules and introduction to definite integrals for calculus foundations.',
+    h1: 'Year 11 Integration: Anti-differentiation & Basic Rules',
+    keywords: ['year 11 integration', 'anti-differentiation', 'basic integration', 'definite integrals', 'VCE methods', 'calculus'],
+    intro: 'Start your integration journey in VCE Methods — learn anti-differentiation, apply basic integration rules, and get introduced to definite integrals.',
+  },
+  {
+    slug: 'year-11-combinatorics-probability',
+    nodeId: 'y11-a9-combinatorics',
+    title: 'Year 11 Combinatorics & Probability – VCE Methods | ATAR Master',
+    metaDescription: 'VCE Methods Year 11: counting principles, permutations, combinations, probability rules, discrete random variables and expected value.',
+    h1: 'Year 11 Combinatorics & Probability (VCE Methods Units 1&2)',
+    keywords: ['year 11 combinatorics', 'probability rules', 'permutations', 'combinations', 'discrete random variables', 'expected value', 'VCE methods'],
+    intro: 'Master counting and probability in VCE Methods — apply counting principles, permutations and combinations, understand probability rules, and work with discrete random variables and expected value.',
+  },
+  // ── Year 12 ──
+  {
+    slug: 'year-12-algebra-functions',
+    nodeId: 'y12-a1-algebra-functions',
+    title: 'Year 12 Algebra & Functions – VCE Methods Units 3&4 | ATAR Master',
+    metaDescription: 'VCE Methods Year 12: advanced functions including exponential, logarithmic and circular, transformations, modelling and polynomial division.',
+    h1: 'Year 12 Algebra & Functions (VCE Methods Units 3&4)',
+    keywords: ['year 12 algebra', 'advanced functions', 'exponential functions', 'logarithmic functions', 'circular functions', 'transformations', 'VCE methods units 3 4'],
+    intro: 'Master advanced algebra and functions in VCE Methods Units 3&4 — work with exponential, logarithmic and circular functions, apply transformations, model real-world scenarios, and perform polynomial division.',
+  },
+  {
+    slug: 'year-12-differentiation',
+    nodeId: 'y12-a2-differentiation',
+    title: 'Year 12 Differentiation – Chain, Product & Quotient Rules | ATAR Master',
+    metaDescription: 'VCE Methods Year 12: chain, product and quotient rules, tangent lines, stationary points, curve sketching, optimisation and related rates.',
+    h1: 'Year 12 Differentiation: Chain, Product & Quotient Rules',
+    keywords: ['year 12 differentiation', 'chain rule', 'product rule', 'quotient rule', 'optimisation', 'stationary points', 'curve sketching', 'VCE methods'],
+    intro: 'Take differentiation to the next level in VCE Methods Units 3&4 — apply the chain, product and quotient rules, find tangent lines and stationary points, sketch curves, and solve optimisation problems.',
+  },
+  {
+    slug: 'year-12-integration',
+    nodeId: 'y12-a3-integration',
+    title: 'Year 12 Integration – Definite Integrals & Area | ATAR Master',
+    metaDescription: 'VCE Methods Year 12: anti-differentiation rules, definite integrals, fundamental theorem of calculus, area under and between curves.',
+    h1: 'Year 12 Integration: Definite Integrals & Area Under Curves',
+    keywords: ['year 12 integration', 'definite integrals', 'fundamental theorem of calculus', 'area under curves', 'area between curves', 'VCE methods'],
+    intro: 'Master integration in VCE Methods Units 3&4 — apply anti-differentiation rules, evaluate definite integrals using the fundamental theorem of calculus, and calculate areas under and between curves.',
+  },
+  {
+    slug: 'year-12-discrete-probability',
+    nodeId: 'y12-a4-discrete-prob',
+    title: 'Year 12 Discrete Probability – Binomial Distribution | ATAR Master',
+    metaDescription: 'VCE Methods Year 12: discrete random variables, binomial distribution, expected value, variance and probability rules for exam preparation.',
+    h1: 'Year 12 Discrete Probability: Binomial Distribution & Expected Value',
+    keywords: ['year 12 discrete probability', 'binomial distribution', 'expected value', 'variance', 'discrete random variables', 'VCE methods'],
+    intro: 'Master discrete probability in VCE Methods Units 3&4 — work with discrete random variables, apply the binomial distribution, and calculate expected value and variance.',
+  },
+  {
+    slug: 'year-12-continuous-probability-statistics',
+    nodeId: 'y12-a5-continuous-prob',
+    title: 'Year 12 Continuous Probability & Statistics – Normal Distribution | ATAR Master',
+    metaDescription: 'VCE Methods Year 12: continuous random variables, PDF/CDF, normal distribution, confidence intervals, sample proportions and statistical inference.',
+    h1: 'Year 12 Continuous Probability & Statistics: Normal Distribution',
+    keywords: ['year 12 continuous probability', 'normal distribution', 'PDF', 'CDF', 'confidence intervals', 'sample proportions', 'statistical inference', 'VCE methods'],
+    intro: 'Master continuous probability and statistics in VCE Methods Units 3&4 — study continuous random variables with PDF/CDF, apply the normal distribution, and perform statistical inference with confidence intervals.',
+  },
+  {
+    slug: 'year-12-pseudocode',
+    nodeId: 'y12-a6-pseudocode',
+    title: 'Year 12 Pseudocode – Algorithmic Thinking | ATAR Master',
+    metaDescription: 'VCE Methods Year 12: pseudocode interpretation, algorithmic thinking, loops, conditionals and numerical methods for the VCE exam.',
+    h1: 'Year 12 Pseudocode: Algorithmic Thinking & Numerical Methods',
+    keywords: ['year 12 pseudocode', 'algorithmic thinking', 'loops', 'conditionals', 'numerical methods', 'VCE methods', 'algorithms'],
+    intro: 'Prepare for the pseudocode component of VCE Methods — develop algorithmic thinking, interpret pseudocode with loops and conditionals, and apply numerical methods.',
+  },
+  // ── VCE Exam ──
+  {
+    slug: 'vce-exam-1-tech-free',
+    nodeId: 'vce-exam1',
+    title: 'VCE Methods Exam 1 (Tech-Free) – Preparation & Practice | ATAR Master',
+    metaDescription: 'Prepare for VCE Mathematical Methods Exam 1 (technology-free). Practice all topics without a CAS calculator. Past exam questions and tips.',
+    h1: 'VCE Methods Exam 1: Technology-Free Preparation',
+    keywords: ['VCE methods exam 1', 'tech-free exam', 'no calculator', 'VCE maths exam', 'exam preparation', 'practice questions', 'VCAA'],
+    intro: 'Get exam-ready for VCE Mathematical Methods Exam 1 (Technology-Free) — practice all topics without a CAS calculator, review past exam questions, and develop strategies for success.',
+  },
+  {
+    slug: 'vce-exam-2-tech-active',
+    nodeId: 'vce-exam2',
+    title: 'VCE Methods Exam 2 (Tech-Active) – CAS Calculator Practice | ATAR Master',
+    metaDescription: 'Prepare for VCE Mathematical Methods Exam 2 (technology-active). CAS calculator practice, past exam questions and strategies.',
+    h1: 'VCE Methods Exam 2: Technology-Active (CAS) Preparation',
+    keywords: ['VCE methods exam 2', 'tech-active exam', 'CAS calculator', 'VCE maths exam', 'exam preparation', 'practice questions', 'VCAA'],
+    intro: 'Get exam-ready for VCE Mathematical Methods Exam 2 (Technology-Active) — master CAS calculator techniques, practice past exam questions, and develop strategies for maximising your score.',
+  },
+];
+
+/** Look up a page by its slug */
+export function findSeoPage(slug: string): SeoPage | undefined {
+  return SEO_PAGES.find((p) => p.slug === slug);
+}
