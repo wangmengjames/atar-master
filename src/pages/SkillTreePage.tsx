@@ -65,7 +65,7 @@ export default function SkillTreePage() {
     setView('session');
   }, []);
 
-  const handleSessionComplete = useCallback((nodeId: string, level: number, score: number, total: number) => {
+  const handleSessionComplete = useCallback((nodeId: string, level: number, score: number, total: number, advance?: boolean) => {
     const pct = total > 0 ? Math.round((score / total) * 100) : 0;
     const passed = pct >= 70;
 
@@ -94,9 +94,38 @@ export default function SkillTreePage() {
       };
     });
 
-    // Go back to subtree view
-    setView('subtree');
-    setSessionLevel(0);
+    // Handle auto-advance vs normal completion
+    if (advance && level < 3) {
+      // Auto-advance to next level
+      setSessionLevel(level + 1);
+      // Stay in session view - React will re-render TrainingSession with new level
+    } else if (advance && level === 3) {
+      // Topic mastered - mark level 4 (real exam) as completed too
+      setProgress(prev2 => {
+        const np2 = prev2.nodes[nodeId];
+        if (np2 && !np2.levelsCompleted.includes(4)) {
+          return {
+            ...prev2,
+            nodes: {
+              ...prev2.nodes,
+              [nodeId]: {
+                ...np2,
+                status: 'completed',
+                levelsCompleted: [...np2.levelsCompleted, 4].sort(),
+                score: 100,
+              },
+            },
+          };
+        }
+        return prev2;
+      });
+      setView('subtree');
+      setSessionLevel(0);
+    } else {
+      // Normal completion - go back to subtree
+      setView('subtree');
+      setSessionLevel(0);
+    }
   }, []);
 
   const handleReset = useCallback(() => {

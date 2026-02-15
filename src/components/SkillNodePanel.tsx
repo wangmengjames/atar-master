@@ -61,7 +61,8 @@ export default function SkillNodePanel({ nodeId, progress, onClose, onEnter }: P
 
   if (!node) return null;
 
-  const pct = Math.round((np.levelsCompleted.length / 4) * 100);
+  const maxLevels = node.tier >= 3 ? 4 : 3;
+  const pct = Math.round((np.levelsCompleted.filter(l => l <= maxLevels).length / maxLevels) * 100);
   const isStarted = np.levelsCompleted.length > 0;
 
   // Check if prerequisites are met
@@ -140,7 +141,7 @@ export default function SkillNodePanel({ nodeId, progress, onClose, onEnter }: P
             {/* Stats */}
             <div className="flex items-center justify-center gap-6 mb-5">
               <div className="text-center">
-                <div className="text-2xl font-bold text-white">{np.levelsCompleted.length}<span className="text-base text-gray-500">/4</span></div>
+                <div className="text-2xl font-bold text-white">{np.levelsCompleted.filter(l => l <= maxLevels).length}<span className="text-base text-gray-500">/{maxLevels}</span></div>
                 <div className="text-[10px] text-gray-500 mt-0.5 uppercase tracking-wider">Levels</div>
               </div>
               <div className="w-px h-8 bg-gray-700/50" />
@@ -179,7 +180,7 @@ export default function SkillNodePanel({ nodeId, progress, onClose, onEnter }: P
               </div>
               {/* Level dots */}
               <div className="flex justify-between mt-2 px-1">
-                {['Easy', 'Medium', 'Hard', 'Exam'].map((label, i) => (
+                {(['Easy', 'Medium', 'Hard', 'Exam'].slice(0, maxLevels)).map((label, i) => (
                   <div key={i} className="flex flex-col items-center gap-1">
                     <div
                       className="w-4 h-4 rounded-full flex items-center justify-center text-[8px]"

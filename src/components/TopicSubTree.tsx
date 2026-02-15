@@ -40,9 +40,11 @@ export default function TopicSubTree({ nodeId, progress, onBack, onStartLevel }:
 
   if (!node) return null;
 
-  // 4 levels: Easy, Medium, Hard, Real Exam
+  const maxLevels = node.tier >= 3 ? 4 : 3;
+
+  // levels: Easy, Medium, Hard, (Real Exam only for tier >= 3)
   const levels: LevelData[] = useMemo(() => {
-    return [1, 2, 3, 4].map(level => {
+    return Array.from({ length: maxLevels }, (_, i) => i + 1).map(level => {
       if (level === 4) {
         return { training: [], examCount: examQuestions.length, isExamLevel: true };
       }
@@ -53,7 +55,7 @@ export default function TopicSubTree({ nodeId, progress, onBack, onStartLevel }:
         isExamLevel: false,
       };
     });
-  }, [nodeId, examQuestions]);
+  }, [nodeId, examQuestions, maxLevels]);
 
   return (
     <div className="min-h-full bg-gray-900 p-4 sm:p-6 animate-fade-in">
@@ -77,7 +79,7 @@ export default function TopicSubTree({ nodeId, progress, onBack, onStartLevel }:
           <p className="text-sm text-gray-400 mt-0.5">{node.description}</p>
         </div>
         <div className="text-right">
-          <div className="text-2xl font-bold text-white">{np.levelsCompleted.length}/4</div>
+          <div className="text-2xl font-bold text-white">{np.levelsCompleted.filter(l => l <= maxLevels).length}/{maxLevels}</div>
           <div className="text-xs text-gray-500">levels done</div>
         </div>
       </div>

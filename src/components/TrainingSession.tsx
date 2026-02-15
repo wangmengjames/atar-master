@@ -7,11 +7,12 @@ import { checkAchievements, type Achievement } from '../lib/achievements';
 import { loadProgress } from '../lib/progress';
 import { getStreak } from '../lib/streak';
 import AchievementToast from './AchievementToast';
+import AdvanceModal from './AdvanceModal';
 
 interface Props {
   nodeId: string;
   level: number;
-  onComplete: (nodeId: string, level: number, score: number, total: number) => void;
+  onComplete: (nodeId: string, level: number, score: number, total: number, advance?: boolean) => void;
   onBack: () => void;
 }
 
@@ -51,6 +52,10 @@ export default function TrainingSession({ nodeId, level, onComplete, onBack }: P
   const [feedbackVisible, setFeedbackVisible] = useState(false);
   const [achievementQueue, setAchievementQueue] = useState<Achievement[]>([]);
   const [questionStartTime, setQuestionStartTime] = useState<number>(Date.now());
+  const [consecutiveCorrect, setConsecutiveCorrect] = useState(0);
+  const [showAdvanceModal, setShowAdvanceModal] = useState(false);
+  const [advanceNextLevel, setAdvanceNextLevel] = useState<number | null>(null);
+  const ADVANCE_THRESHOLD = 5;
 
   const current = questions[currentIdx] as TrainingQuestion | undefined;
   const total = questions.length;
@@ -73,6 +78,19 @@ export default function TrainingSession({ nodeId, level, onComplete, onBack }: P
     // Check speed
     if (correct && (Date.now() - questionStartTime) < 10000) {
       setSpeedAnswerThisSession(true);
+    }
+    // Track consecutive correct for auto-advance
+    if (correct) {
+      const newCount = consecutiveCorrect + 1;
+      setConsecutiveCorrect(newCount);
+      if (newCount >= ADVANCE_THRESHOLD) {
+        // Trigger advance after a short delay to show feedback
+        const nextLvl = level < 3 ? level + 1 : null;
+        setAdvanceNextLevel(nextLvl);
+        setTimeout(() => setShowAdvanceModal(true), 800);
+      }
+    } else {
+      setConsecutiveCorrect(0);
     }
   }, [current, selectedOption, currentIdx, questionStartTime]);
 
@@ -116,6 +134,17 @@ export default function TrainingSession({ nodeId, level, onComplete, onBack }: P
 
     onComplete(nodeId, level, correctCount, total);
   }, [nodeId, level, correctCount, total, onComplete, results, speedAnswerThisSession]);
+
+  const handleAdvanceDone = useCallback(() => {
+    setShowAdvanceModal(false);
+    // Record activity
+    import('../lib/streak').then(({ recordActivity }) => {
+      recordActivity();
+      window.dispatchEvent(new Event('streak-updated'));
+    });
+    // Signal advance: pass current score and advance flag
+    onComplete(nodeId, level, correctCount, answeredCount, true);
+  }, [nodeId, level, correctCount, answeredCount, onComplete]);
 
   // Keyboard shortcuts
   useEffect(() => {
@@ -442,6 +471,21 @@ export default function TrainingSession({ nodeId, level, onComplete, onBack }: P
             </div>
           )}
 
+          {/* Consecutive correct streak dots */}
+          <div className="flex items-center justify-center gap-2 mb-5">
+            {Array.from({ length: ADVANCE_THRESHOLD }).map((_, i) => (
+              <div
+                key={i}
+                className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                  i < consecutiveCorrect
+                    ? 'bg-green-400 shadow-sm shadow-green-400/50 scale-110'
+                    : 'bg-gray-700'
+                }`}
+              />
+            ))}
+            <span className="text-xs text-gray-500 ml-2">{consecutiveCorrect}/{ADVANCE_THRESHOLD}</span>
+          </div>
+
           {/* Action Buttons */}
           {!isAnswered ? (
             <button
@@ -467,6 +511,9 @@ export default function TrainingSession({ nodeId, level, onComplete, onBack }: P
           achievement={achievementQueue[0]}
           onDone={() => setAchievementQueue(q => q.slice(1))}
         />
+      )}
+      {showAdvanceModal && (
+        <AdvanceModal nextLevel={advanceNextLevel} onDone={handleAdvanceDone} />
       )}
     </div>
   );

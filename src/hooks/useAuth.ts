@@ -1,12 +1,14 @@
 import { createContext, useContext, useEffect, useState, useCallback, useMemo, useRef } from 'react'
 import { supabase } from '../lib/supabase'
 import { syncFromCloud, scheduleSyncToCloud } from '../lib/cloudSync'
+import { ADMIN_EMAILS } from '../lib/constants'
 import type { User, AuthError } from '@supabase/supabase-js'
 
 interface AuthContextType {
   user: User | null
   loading: boolean
   isPro: boolean
+  isAdmin: boolean
   signUp: (email: string, password: string) => Promise<{ error: AuthError | null }>
   signIn: (email: string, password: string) => Promise<{ error: AuthError | null }>
   signInWithGoogle: () => Promise<{ error: AuthError | null }>
@@ -26,8 +28,14 @@ export function useAuthProvider(): AuthContextType {
   const [loading, setLoading] = useState(true)
   const [isPro, setIsPro] = useState(false)
 
+  const isAdmin = useMemo(() => {
+    return !!user?.email && ADMIN_EMAILS.includes(user.email)
+  }, [user])
+
   const checkPro = useCallback(async (u: User | null) => {
     if (!u) { setIsPro(false); return }
+    // Admin emails always get Pro
+    if (u.email && ADMIN_EMAILS.includes(u.email)) { setIsPro(true); return }
     // Check user metadata first
     if (u.user_metadata?.is_pro) { setIsPro(true); return }
     // Then check subscriptions table
@@ -104,6 +112,6 @@ export function useAuthProvider(): AuthContextType {
   }, [])
 
   return useMemo(() => ({
-    user, loading, isPro, signUp, signIn, signInWithGoogle, signOut,
-  }), [user, loading, isPro, signUp, signIn, signInWithGoogle, signOut])
+    user, loading, isPro, isAdmin, signUp, signIn, signInWithGoogle, signOut,
+  }), [user, loading, isPro, isAdmin, signUp, signIn, signInWithGoogle, signOut])
 }
