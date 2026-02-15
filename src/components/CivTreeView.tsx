@@ -17,6 +17,48 @@ export interface CivTreeViewRef {
 const TIER_LABELS = ['Year 8', 'Year 9', 'Year 10 / 10A', 'Year 11 (U1&2)', 'Year 12 (U3&4)', 'VCE Exam'];
 const TIER_COLORS = ['#6366F1', '#8B5CF6', '#A855F7', '#3B82F6', '#0EA5E9', '#F59E0B'];
 
+// Per-node unique icons for visual variety
+const NODE_ICONS: Record<string, string> = {
+  // Year 8
+  'y8-number': '🔢',
+  'y8-algebra': '✖️',
+  'y8-statistics': '📊',
+  'y8-probability': '🎲',
+  // Year 9
+  'y9-number': '🔬',
+  'y9-algebra': '📈',
+  'y9-statistics': '📉',
+  'y9-probability': '🎯',
+  // Year 10
+  'y10-number': '💰',
+  'y10-algebra': '📐',
+  'y10-statistics': '🔍',
+  'y10-probability': '🧩',
+  // Year 10A
+  'y10a-algebra': '🔗',
+  'y10a-probability': '🎰',
+  // Year 11
+  'y11-a1-linear': '📏',
+  'y11-a2-quadratics': '〰️',
+  'y11-a3-domain-range': '🎯',
+  'y11-a4-transformations': '🔄',
+  'y11-a5-trigonometry': '📐',
+  'y11-a6-logs-indices': '📊',
+  'y11-a7-differentiation': '📉',
+  'y11-a8-integration': '∫',
+  'y11-a9-combinatorics': '🎲',
+  // Year 12
+  'y12-a1-algebra-functions': '⚡',
+  'y12-a2-differentiation': '🏔️',
+  'y12-a3-integration': '🌊',
+  'y12-a4-discrete-prob': '🎰',
+  'y12-a5-continuous-prob': '🔔',
+  'y12-a6-pseudocode': '💻',
+  // VCE
+  'vce-exam1': '✏️',
+  'vce-exam2': '🖥️',
+};
+
 const TOPIC_ICONS: Record<string, string> = {
   FUNCTIONS: '📐',
   CALCULUS: '∫',
@@ -33,17 +75,18 @@ function getNodesByTier() {
   return tiers;
 }
 
-// Duolingo-style snake path layout
+// Duolingo-style winding path layout
 function computePathLayout() {
   const tiers = getNodesByTier();
   const positions: Record<string, { x: number; y: number; tier: number }> = {};
   
-  const H_SPACING = 100;
-  const V_SPACING = 100;
-  const TIER_GAP = 60;
+  const V_SPACING = 110;
+  const TIER_GAP = 70;
   const CENTER_X = 400;
+  const SWING = 120; // How far nodes swing left/right from center
   
   let currentY = 80;
+  let globalNodeIdx = 0;
   
   Object.entries(tiers).forEach(([tierStr, nodes]) => {
     const tier = Number(tierStr);
@@ -51,33 +94,23 @@ function computePathLayout() {
     // Add tier label space
     currentY += TIER_GAP;
     
-    // Snake pattern: alternate left-to-right and right-to-left rows
-    // For each tier, lay out nodes in a snake within a centered area
-    const maxPerRow = 3;
-    const rows: (typeof ALL_NODES)[] = [];
-    
-    for (let i = 0; i < nodes.length; i += maxPerRow) {
-      rows.push(nodes.slice(i, i + maxPerRow));
-    }
-    
-    rows.forEach((row, rowIdx) => {
-      const isEvenRow = rowIdx % 2 === 0;
-      const rowWidth = (row.length - 1) * H_SPACING;
-      const startX = CENTER_X - rowWidth / 2;
+    // Winding path: each node snakes along a sine-wave-like path
+    nodes.forEach((node) => {
+      // Create a winding S-curve effect
+      const phase = globalNodeIdx * 0.8;
+      const xOffset = Math.sin(phase) * SWING;
       
-      row.forEach((node, nodeIdx) => {
-        const idx = isEvenRow ? nodeIdx : (row.length - 1 - nodeIdx);
-        positions[node.id] = {
-          x: startX + idx * H_SPACING,
-          y: currentY,
-          tier,
-        };
-      });
+      positions[node.id] = {
+        x: CENTER_X + xOffset,
+        y: currentY,
+        tier,
+      };
       
       currentY += V_SPACING;
+      globalNodeIdx++;
     });
     
-    currentY += 20; // Extra gap between tiers
+    currentY += 30; // Extra gap between tiers
   });
   
   return { positions, totalHeight: currentY + 100, totalWidth: 800 };
@@ -287,7 +320,7 @@ export default function CivTreeView({ progress, onSelectNode }: Props) {
           const isCurrent = findCurrentNode(progress) === node.id;
           const topicColor = SKILL_TOPIC_COLORS[node.topic as Topic];
           const nodeSize = 72;
-          const icon = TOPIC_ICONS[node.topic] ?? '📐';
+          const icon = NODE_ICONS[node.id] ?? TOPIC_ICONS[node.topic] ?? '📐';
           
           const progressPct = levelsCompleted / 4;
           const circumference = 2 * Math.PI * (nodeSize / 2 + 4);
