@@ -287,7 +287,7 @@ const questions: TrainingQuestion[] = [
     isMultipleChoice: true,
     options: [
       { label: 'A', text: '$\\frac{x^3}{3} + x^2 + x + c$', correct: true },
-      { label: 'B', text: '$\\frac{(x+1)^3}{3} + c$', correct: false },
+      { label: 'B', text: '$\\frac{(x+1)^3}{3}$', correct: false },
       { label: 'C', text: '$\\frac{x^3}{3} + 2x + c$', correct: false },
       { label: 'D', text: '$x^3 + x^2 + x + c$', correct: false },
     ],
