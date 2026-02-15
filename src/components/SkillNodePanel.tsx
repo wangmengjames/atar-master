@@ -11,7 +11,7 @@ import { ALL_NODES } from '../data/skillTreeData';
 import { getNodeQuestionCounts } from '../data/questionMatcher';
 import { getTrainingForNode } from '../data/training';
 import type { UserProgress } from '../lib/progress';
-import { getNodeProgress } from '../lib/progress';
+import { getNodeProgress, computeNodeStatus } from '../lib/progress';
 
 interface Props {
   nodeId: string;
@@ -63,6 +63,16 @@ export default function SkillNodePanel({ nodeId, progress, onClose, onEnter }: P
   const pct = Math.round((np.levelsCompleted.length / 4) * 100);
   const isStarted = np.levelsCompleted.length > 0;
 
+  // Check if prerequisites are met
+  const nodeStatus = computeNodeStatus(nodeId, node.prerequisites, progress);
+  const isLocked = nodeStatus === 'locked';
+  const unmetPrereqs = isLocked
+    ? node.prerequisites.filter(pid => {
+        const pp = progress.nodes[pid];
+        return !pp || (pp.status !== 'completed' && pp.status !== 'mastered');
+      }).map(pid => ALL_NODES.find(n => n.id === pid)?.title ?? pid)
+    : [];
+
   return (
     <>
       {/* Backdrop */}
@@ -74,7 +84,7 @@ export default function SkillNodePanel({ nodeId, progress, onClose, onEnter }: P
 
       {/* Panel — centered modal on all sizes */}
       <div
-        className="fixed z-50 inset-x-4 sm:inset-x-auto sm:left-1/2 sm:-translate-x-1/2 bottom-6 sm:bottom-auto sm:top-1/2 sm:-translate-y-1/2 sm:w-[380px]"
+        className="fixed z-50 inset-x-2 sm:inset-x-auto sm:left-1/2 sm:-translate-x-1/2 bottom-2 sm:bottom-auto sm:top-1/2 sm:-translate-y-1/2 sm:w-[380px] max-h-[90vh] sm:max-h-[85vh]"
         style={{
           transform: visible
             ? window.innerWidth >= 640
@@ -88,7 +98,7 @@ export default function SkillNodePanel({ nodeId, progress, onClose, onEnter }: P
         }}
       >
         <div
-          className="rounded-3xl overflow-hidden border border-gray-700/50"
+          className="rounded-3xl overflow-hidden border border-gray-700/50 max-h-[85vh] sm:max-h-[85vh] flex flex-col"
           style={{ background: '#111827' }}
         >
           {/* Header with icon */}
@@ -121,7 +131,7 @@ export default function SkillNodePanel({ nodeId, progress, onClose, onEnter }: P
           </div>
 
           {/* Body */}
-          <div className="px-6 pb-6">
+          <div className="px-6 pb-6 overflow-y-auto">
             <p className="text-sm text-gray-400 leading-relaxed mb-5 text-center">
               {node.description}
             </p>
@@ -181,20 +191,27 @@ export default function SkillNodePanel({ nodeId, progress, onClose, onEnter }: P
             </div>
 
             {/* CTA */}
-            <button
-              onClick={() => onEnter(nodeId)}
-              className="w-full py-3.5 rounded-2xl font-bold text-base uppercase tracking-wide
-                         flex items-center justify-center gap-2 transition-all active:scale-[0.98]
-                         hover:brightness-110"
-              style={{
-                background: tierColor,
-                color: '#000',
-                boxShadow: `0 4px 20px ${tierColor}40`,
-              }}
-            >
-              <Play size={18} fill="currentColor" />
-              {isStarted ? 'Continue Practice' : 'Start Practice'}
-            </button>
+            {isLocked ? (
+              <div className="w-full py-3.5 rounded-2xl text-center text-sm text-gray-400 bg-gray-800/60 border border-gray-700/50">
+                <p className="font-medium mb-1">Complete first:</p>
+                <p className="text-xs text-gray-500">{unmetPrereqs.join(', ')}</p>
+              </div>
+            ) : (
+              <button
+                onClick={() => onEnter(nodeId)}
+                className="w-full py-3.5 rounded-2xl font-bold text-base uppercase tracking-wide
+                           flex items-center justify-center gap-2 transition-all active:scale-[0.98]
+                           hover:brightness-110"
+                style={{
+                  background: tierColor,
+                  color: '#000',
+                  boxShadow: `0 4px 20px ${tierColor}40`,
+                }}
+              >
+                <Play size={18} fill="currentColor" />
+                {isStarted ? 'Continue Practice' : 'Start Practice'}
+              </button>
+            )}
           </div>
         </div>
       </div>

@@ -119,13 +119,13 @@ function NodeCard({
 
   return (
     <button
-      onClick={() => !isLocked && onSelect()}
-      disabled={isLocked}
+      onClick={onSelect}
+      disabled={false}
       data-node={node.id}
       className={`
         group relative w-[130px] sm:w-[150px] rounded-xl transition-all duration-300
         ${isLocked
-          ? 'opacity-30 cursor-not-allowed'
+          ? 'opacity-50 cursor-pointer hover:-translate-y-0.5 hover:shadow-lg active:scale-[0.98]'
           : 'cursor-pointer hover:-translate-y-1 hover:shadow-xl active:scale-[0.98]'
         }
       `}
