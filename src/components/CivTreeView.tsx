@@ -145,29 +145,16 @@ function NodeCard({
         animationDelay: `${delay}ms`,
       }}
     >
-      {/* Glow ring for current node */}
-      {isCurrent && (
-        <div
-          className="absolute -inset-[2px] rounded-xl opacity-60"
-          style={{
-            background: `linear-gradient(135deg, ${g1}, ${g2})`,
-            animation: 'glow-pulse 2s ease-in-out infinite',
-          }}
-        />
-      )}
-
       {/* Card body */}
       <div
         className={`
           relative rounded-xl overflow-hidden
           border backdrop-blur-md
-          ${isCurrent
-            ? 'border-white/20 bg-white/[0.08]'
-            : isCompleted
-              ? 'border-emerald-500/30 bg-emerald-500/[0.06]'
-              : isLocked
-                ? 'border-white/[0.04] bg-white/[0.02]'
-                : 'border-white/[0.08] bg-white/[0.04] hover:border-white/15 hover:bg-white/[0.06]'
+          ${isCompleted
+            ? 'border-emerald-500/30 bg-emerald-500/[0.06]'
+            : isLocked
+              ? 'border-white/[0.04] bg-white/[0.02]'
+              : 'border-white/[0.08] bg-white/[0.04] hover:border-white/15 hover:bg-white/[0.06]'
           }
         `}
       >
@@ -215,11 +202,7 @@ function NodeCard({
                 <CheckCircle2 size={14} className={isMastered ? 'text-amber-400' : 'text-emerald-400'} />
               </div>
             )}
-            {isCurrent && (
-              <div className="flex items-center">
-                <Play size={12} fill={g1} style={{ color: g1 }} />
-              </div>
-            )}
+            {/* Play indicator removed — no single "current" node */}
           </div>
 
           {/* Title */}
@@ -358,19 +341,7 @@ export default function CivTreeView({ progress, onSelectNode, selectedNodeId: ex
     return () => clearTimeout(t);
   }, [progress, isMobile]);
 
-  // Auto-scroll to current node
-  useEffect(() => {
-    if (!currentNodeId || !scrollRef.current) return;
-    const el = scrollRef.current.querySelector(`[data-node="${currentNodeId}"]`);
-    if (el) {
-      setTimeout(() => {
-        const container = scrollRef.current!;
-        const nodeEl = el as HTMLElement;
-        const scrollTarget = nodeEl.offsetLeft - container.clientWidth / 2 + nodeEl.clientWidth / 2;
-        container.scrollTo({ left: Math.max(0, scrollTarget), behavior: 'smooth' });
-      }, 300);
-    }
-  }, [currentNodeId]);
+  // No auto-scroll — let user browse freely
 
   const connections = useMemo(() => {
     return ALL_NODES.flatMap(node =>
@@ -514,7 +485,7 @@ export default function CivTreeView({ progress, onSelectNode, selectedNodeId: ex
                     className="flex flex-col items-center shrink-0 relative"
                     style={{ minWidth: '308px' }}
                   >
-                    {hasCurrentNode && (
+                    {false && (
                       <div
                         className="absolute inset-0 rounded-2xl pointer-events-none"
                         style={{
@@ -582,7 +553,7 @@ export default function CivTreeView({ progress, onSelectNode, selectedNodeId: ex
                   style={{ minWidth: '146px' }}
                 >
                   {/* Active column spotlight */}
-                  {hasCurrentNode && (
+                  {false && (
                     <div
                       className="absolute inset-0 rounded-2xl pointer-events-none"
                       style={{
