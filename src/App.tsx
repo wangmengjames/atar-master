@@ -21,6 +21,7 @@ const AuthPage = lazy(() => import('./pages/AuthPage'));
 const PricingPage = lazy(() => import('./pages/PricingPage'));
 const SuccessPage = lazy(() => import('./pages/SuccessPage'));
 const TopicLandingPage = lazy(() => import('./pages/TopicLandingPage'));
+const DailyChallengePage = lazy(() => import('./pages/DailyChallengePage'));
 
 const FOOTER_PAGES = ['/', '/exams', '/pricing', '/topics'];
 
@@ -52,6 +53,7 @@ function AppLayout() {
               <Route path="/exams" element={<AuthGuard><ExamsPage /></AuthGuard>} />
               <Route path="/exam-viewer" element={<AuthGuard><ExamViewerPage /></AuthGuard>} />
               <Route path="/practice" element={<AuthGuard><PracticePage /></AuthGuard>} />
+              <Route path="/daily" element={<AuthGuard><DailyChallengePage /></AuthGuard>} />
               <Route path="/dashboard" element={<AuthGuard><DashboardPage /></AuthGuard>} />
               <Route path="/teacher" element={<AuthGuard><TeacherDashboardPage /></AuthGuard>} />
               <Route path="*" element={<Navigate to="/" replace />} />

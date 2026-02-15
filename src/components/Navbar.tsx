@@ -1,7 +1,8 @@
 import { NavLink, useNavigate, useLocation } from 'react-router-dom';
-import { GitBranch, FileText, Dumbbell, BarChart3, DollarSign, LogIn, LogOut, User, Menu, X, Shield, ChevronDown } from 'lucide-react';
-import { useState, useRef, useEffect } from 'react';
+import { GitBranch, FileText, Dumbbell, BarChart3, DollarSign, LogIn, LogOut, User, Menu, X, Shield, ChevronDown, Zap } from 'lucide-react';
+import { useState, useRef, useEffect, useMemo } from 'react';
 import { useAuth } from '../hooks/useAuth';
+import { getDailyChallengeState } from '../lib/dailyChallenge';
 import { ADMIN_EMAILS } from '../lib/constants';
 import StreakBadge from './StreakBadge';
 
@@ -77,6 +78,7 @@ const NAV_LINKS = [
   { to: '/skill-tree', icon: <GitBranch size={16} />, label: 'Skill Tree' },
   { to: '/exams', icon: <FileText size={16} />, label: 'Exams' },
   { to: '/practice', icon: <Dumbbell size={16} />, label: 'Practice' },
+  { to: '/daily', icon: <Zap size={16} />, label: 'Daily', showDot: true },
   { to: '/dashboard', icon: <BarChart3 size={16} />, label: 'Dashboard' },
   { to: '/pricing', icon: <DollarSign size={16} />, label: 'Pricing' },
 ];
@@ -90,6 +92,7 @@ export default function Navbar() {
     setMobileOpen(false);
   }, [location.pathname]);
 
+  const dailyDone = useMemo(() => getDailyChallengeState()?.completed ?? false, [location.pathname]);
   const linkBase = 'flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 relative';
   const activeClass = 'bg-blue-600/15 text-blue-400 shadow-[inset_0_0_0_1px_rgba(59,130,246,0.2)]';
   const inactiveClass = 'text-gh-text-secondary hover:text-gh-text-primary hover:bg-gh-surface/50';
@@ -111,7 +114,12 @@ export default function Navbar() {
             >
               {({ isActive }) => (
                 <>
-                  <span className={isActive ? 'text-blue-400' : ''}>{l.icon}</span>
+                  <span className={`relative ${isActive ? 'text-blue-400' : ''}`}>
+                    {l.icon}
+                    {l.showDot && !dailyDone && (
+                      <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full" />
+                    )}
+                  </span>
                   {l.label}
                   {isActive && (
                     <span className="absolute -bottom-[13px] left-1/2 -translate-x-1/2 w-8 h-0.5 rounded-full bg-blue-400" />
