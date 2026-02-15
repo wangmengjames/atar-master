@@ -1,17 +1,27 @@
 import { BrowserRouter, Routes, Route, NavLink, Navigate } from 'react-router-dom';
 import { Home, GitBranch, FileText, Dumbbell, BarChart3, DollarSign, LogIn, LogOut, User, Menu, X } from 'lucide-react';
-import { useState } from 'react';
+import { useState, lazy, Suspense } from 'react';
 import { AuthContext, useAuth, useAuthProvider } from './hooks/useAuth';
 import ProtectedRoute from './components/ProtectedRoute';
-import LandingPage from './pages/LandingPage';
-import SkillTreePage from './pages/SkillTreePage';
-import ExamViewerPage from './pages/ExamViewerPage';
-import PracticePage from './pages/PracticePage';
-import DashboardPage from './pages/DashboardPage';
-import AuthPage from './pages/AuthPage';
-import PricingPage from './pages/PricingPage';
-import SuccessPage from './pages/SuccessPage';
 import './index.css';
+
+// Lazy-loaded pages for code splitting
+const LandingPage = lazy(() => import('./pages/LandingPage'));
+const SkillTreePage = lazy(() => import('./pages/SkillTreePage'));
+const ExamViewerPage = lazy(() => import('./pages/ExamViewerPage'));
+const PracticePage = lazy(() => import('./pages/PracticePage'));
+const DashboardPage = lazy(() => import('./pages/DashboardPage'));
+const AuthPage = lazy(() => import('./pages/AuthPage'));
+const PricingPage = lazy(() => import('./pages/PricingPage'));
+const SuccessPage = lazy(() => import('./pages/SuccessPage'));
+
+function PageLoader() {
+  return (
+    <div className="flex items-center justify-center min-h-[60vh]">
+      <div className="animate-spin rounded-full h-8 w-8 border-2 border-gh-accent-blue border-t-transparent" />
+    </div>
+  );
+}
 
 function NavBar() {
   const { user, isPro, signOut } = useAuth();
@@ -119,25 +129,27 @@ function AppRoutes() {
   return (
     <div className="min-h-screen bg-gh-canvas text-gh-text-primary font-sans">
       <NavBar />
-      <Routes>
-        <Route path="/" element={<LandingPage />} />
-        <Route path="/auth" element={<AuthPage />} />
-        <Route path="/pricing" element={<PricingPage />} />
-        <Route path="/success" element={<SuccessPage />} />
-        <Route path="/skill-tree" element={<SkillTreePage />} />
-        <Route path="/exams" element={<ExamViewerPage />} />
-        <Route path="/practice" element={
-          <ProtectedRoute>
-            <PracticePage />
-          </ProtectedRoute>
-        } />
-        <Route path="/dashboard" element={
-          <ProtectedRoute>
-            <DashboardPage />
-          </ProtectedRoute>
-        } />
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
+      <Suspense fallback={<PageLoader />}>
+        <Routes>
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/auth" element={<AuthPage />} />
+          <Route path="/pricing" element={<PricingPage />} />
+          <Route path="/success" element={<SuccessPage />} />
+          <Route path="/skill-tree" element={<SkillTreePage />} />
+          <Route path="/exams" element={<ExamViewerPage />} />
+          <Route path="/practice" element={
+            <ProtectedRoute>
+              <PracticePage />
+            </ProtectedRoute>
+          } />
+          <Route path="/dashboard" element={
+            <ProtectedRoute>
+              <DashboardPage />
+            </ProtectedRoute>
+          } />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </Suspense>
     </div>
   );
 }
