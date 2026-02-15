@@ -78,9 +78,21 @@ function getNodesByTier() {
 }
 
 function findCurrentNode(progress: UserProgress): string | null {
+  // Prefer in-progress nodes (user already started)
   for (const node of ALL_NODES) {
     const status = computeNodeStatus(node.id, node.prerequisites, progress);
-    if (status === 'unlocked' || status === 'in-progress') return node.id;
+    if (status === 'in-progress') return node.id;
+  }
+  // If no in-progress, find the first unlocked node that hasn't been completed
+  // but SKIP tier 0 if there are higher-tier unlocked nodes
+  const unlocked = ALL_NODES.filter(n => {
+    const s = computeNodeStatus(n.id, n.prerequisites, progress);
+    return s === 'unlocked';
+  });
+  // Prefer highest tier unlocked node (most advanced frontier)
+  if (unlocked.length > 0) {
+    const maxTier = Math.max(...unlocked.map(n => n.tier));
+    return unlocked.find(n => n.tier === maxTier)?.id ?? unlocked[0].id;
   }
   return null;
 }
@@ -307,10 +319,12 @@ function ColumnHeader({ tier, nodes, progress, gradient }: {
 
 /* ═══════════════════════════════════════════════ */
 
-export default function CivTreeView({ progress, onSelectNode }: Props) {
+export default function CivTreeView({ progress, onSelectNode, selectedNodeId: externalSelectedId }: Props & { selectedNodeId?: string | null }) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const tiers = useMemo(() => getNodesByTier(), []);
-  const currentNodeId = useMemo(() => findCurrentNode(progress), [progress]);
+  const progressCurrentId = useMemo(() => findCurrentNode(progress), [progress]);
+  // If user clicked a node, highlight that one; otherwise fall back to progress-based current
+  const currentNodeId = externalSelectedId ?? progressCurrentId;
 
   // Mobile detection for responsive dual-col
   const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' ? window.innerWidth < 640 : false);

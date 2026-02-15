@@ -226,6 +226,7 @@ export default function SkillTreePage() {
               <CivTreeView
                 progress={progress}
                 onSelectNode={handleSelectNode}
+                selectedNodeId={selectedNodeId}
               />
             </div>
 
