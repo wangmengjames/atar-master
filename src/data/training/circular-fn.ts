@@ -1,0 +1,31 @@
+import type { TrainingQuestion } from './types';
+
+const questions: TrainingQuestion[] = [
+  // Level 1
+  { id: 'circular-fn-L1-01', nodeId: 'circular-fn', level: 1, title: 'Exact value', text: 'Evaluate $\\sin\\left(\\frac{\\pi}{6}\\right)$.', hints: ['$\\frac{\\pi}{6} = 30°$'], answer: '$\\sin\\left(\\frac{\\pi}{6}\\right) = \\frac{1}{2}$', marks: 1 },
+  { id: 'circular-fn-L1-02', nodeId: 'circular-fn', level: 1, title: 'Period of sine', text: 'What is the period of $y = \\sin(x)$?', hints: ['How long until the graph repeats?'], answer: 'Period $= 2\\pi$', marks: 1 },
+  { id: 'circular-fn-L1-03', nodeId: 'circular-fn', level: 1, title: 'Amplitude', text: 'What is the amplitude of $y = 3\\cos(x)$?', hints: ['Amplitude is the coefficient of the trig function.'], answer: 'Amplitude $= 3$', marks: 1 },
+  { id: 'circular-fn-L1-04', nodeId: 'circular-fn', level: 1, title: 'Evaluate cosine', text: 'Evaluate $\\cos(\\pi)$.', hints: ['$\\pi = 180°$'], answer: '$\\cos(\\pi) = -1$', marks: 1 },
+
+  // Level 2
+  { id: 'circular-fn-L2-01', nodeId: 'circular-fn', level: 2, title: 'Period with coefficient', text: 'Find the period of $y = \\sin(2x)$.', hints: ['Period $= \\frac{2\\pi}{n}$ where $n$ is the coefficient of $x$.'], answer: 'Period $= \\frac{2\\pi}{2} = \\pi$', marks: 1 },
+  { id: 'circular-fn-L2-02', nodeId: 'circular-fn', level: 2, title: 'Range of trig function', text: 'State the range of $y = 2\\sin(x) + 1$.', hints: ['$\\sin(x)$ ranges from $-1$ to $1$.', 'Scale by 2, shift up 1.'], answer: 'Range: $[-1, 3]$ since $2(-1)+1 = -1$ and $2(1)+1 = 3$', marks: 2 },
+  { id: 'circular-fn-L2-03', nodeId: 'circular-fn', level: 2, title: 'Symmetry of sine', text: 'Evaluate $\\sin\\left(\\frac{5\\pi}{6}\\right)$.', hints: ['$\\frac{5\\pi}{6}$ is in the second quadrant.', '$\\sin\\left(\\pi - \\frac{\\pi}{6}\\right) = \\sin\\left(\\frac{\\pi}{6}\\right)$'], answer: '$\\sin\\left(\\frac{5\\pi}{6}\\right) = \\sin\\left(\\frac{\\pi}{6}\\right) = \\frac{1}{2}$', marks: 1 },
+  { id: 'circular-fn-L2-04', nodeId: 'circular-fn', level: 2, title: 'Tan exact value', text: 'Evaluate $\\tan\\left(\\frac{3\\pi}{4}\\right)$.', hints: ['$\\frac{3\\pi}{4}$ is in Q2 where tan is negative.', '$\\tan\\left(\\pi - \\frac{\\pi}{4}\\right) = -\\tan\\left(\\frac{\\pi}{4}\\right)$'], answer: '$\\tan\\left(\\frac{3\\pi}{4}\\right) = -1$', marks: 1 },
+
+  // Level 3
+  { id: 'circular-fn-L3-01', nodeId: 'circular-fn', level: 3, title: 'Solve trig equation', text: 'Solve $\\sin(x) = \\frac{1}{2}$ for $x \\in [0, 2\\pi]$.', hints: ['Sine is positive in Q1 and Q2.', 'Reference angle is $\\frac{\\pi}{6}$.'], answer: '$x = \\frac{\\pi}{6}$ or $x = \\pi - \\frac{\\pi}{6} = \\frac{5\\pi}{6}$', marks: 2 },
+  { id: 'circular-fn-L3-02', nodeId: 'circular-fn', level: 3, title: 'Graph transformations', text: 'For $y = 3\\sin(2(x - \\frac{\\pi}{4})) + 1$, state the amplitude, period, phase shift, and vertical shift.', hints: ['Read directly from the equation.'], answer: 'Amplitude $= 3$. Period $= \\frac{2\\pi}{2} = \\pi$. Phase shift $= \\frac{\\pi}{4}$ right. Vertical shift $= 1$ up.', marks: 2 },
+  { id: 'circular-fn-L3-03', nodeId: 'circular-fn', level: 3, title: 'Solve cos equation', text: 'Solve $2\\cos(x) + 1 = 0$ for $x \\in [0, 2\\pi]$.', hints: ['$\\cos(x) = -\\frac{1}{2}$', 'Cosine is negative in Q2 and Q3.'], answer: '$\\cos(x) = -\\frac{1}{2}$\n\n$x = \\frac{2\\pi}{3}$ or $x = \\frac{4\\pi}{3}$', marks: 2 },
+
+  // Level 4
+  { id: 'circular-fn-L4-01', nodeId: 'circular-fn', level: 4, title: 'Solve with coefficient of x', text: 'Solve $\\sin(2x) = \\frac{\\sqrt{3}}{2}$ for $x \\in [0, 2\\pi]$.', hints: ['Let $u = 2x$, solve for $u \\in [0, 4\\pi]$.', '$u = \\frac{\\pi}{3}, \\frac{2\\pi}{3}, \\frac{7\\pi}{3}, \\frac{8\\pi}{3}$'], answer: '$2x = \\frac{\\pi}{3}, \\frac{2\\pi}{3}, \\frac{7\\pi}{3}, \\frac{8\\pi}{3}$\n\n$x = \\frac{\\pi}{6}, \\frac{\\pi}{3}, \\frac{7\\pi}{6}, \\frac{4\\pi}{3}$', marks: 3 },
+  { id: 'circular-fn-L4-02', nodeId: 'circular-fn', level: 4, title: 'Find equation from graph', text: 'A sinusoidal curve has maximum $5$, minimum $-1$, and period $4\\pi$. It reaches its maximum at $x = \\pi$. Find the equation.', hints: ['Amplitude $= \\frac{5-(-1)}{2} = 3$, centre $= 2$.', 'Period $= 4\\pi$, so $n = \\frac{2\\pi}{4\\pi} = \\frac{1}{2}$.'], answer: 'Amplitude $= 3$, vertical shift $= 2$, $n = \\frac{1}{2}$.\n\nMax at $x = \\pi$: use cosine form with phase shift.\n\n$y = 3\\cos\\left(\\frac{1}{2}(x - \\pi)\\right) + 2$', marks: 3 },
+  { id: 'circular-fn-L4-03', nodeId: 'circular-fn', level: 4, title: 'Trig identity application', text: 'Solve $2\\sin^2(x) - \\sin(x) - 1 = 0$ for $x \\in [0, 2\\pi]$.', hints: ['Let $u = \\sin(x)$: $2u^2 - u - 1 = 0$.', '$(2u+1)(u-1) = 0$'], answer: '$(2\\sin x + 1)(\\sin x - 1) = 0$\n\n$\\sin x = -\\frac{1}{2}$: $x = \\frac{7\\pi}{6}, \\frac{11\\pi}{6}$\n\n$\\sin x = 1$: $x = \\frac{\\pi}{2}$\n\nSolutions: $x = \\frac{\\pi}{2}, \\frac{7\\pi}{6}, \\frac{11\\pi}{6}$', marks: 3 },
+
+  // Level 5
+  { id: 'circular-fn-L5-01', nodeId: 'circular-fn', level: 5, title: 'Modelling with trig', text: 'The depth of water in a harbour is modelled by $d(t) = 3\\sin\\left(\\frac{\\pi}{6}t\\right) + 5$ metres, where $t$ is hours after midnight. Find all times in a 24-hour period when the depth is exactly 6.5 m.', hints: ['$3\\sin\\left(\\frac{\\pi}{6}t\\right) + 5 = 6.5$', '$\\sin\\left(\\frac{\\pi}{6}t\\right) = 0.5$'], answer: '$\\sin\\left(\\frac{\\pi t}{6}\\right) = 0.5$\n\n$\\frac{\\pi t}{6} = \\frac{\\pi}{6}, \\frac{5\\pi}{6}, \\frac{13\\pi}{6}, \\frac{17\\pi}{6}$\n\n$t = 1, 5, 13, 17$ hours after midnight\n\nTimes: 1:00 AM, 5:00 AM, 1:00 PM, 5:00 PM', marks: 4 },
+  { id: 'circular-fn-L5-02', nodeId: 'circular-fn', level: 5, title: 'Number of solutions', text: 'Find the number of solutions to $\\sin(3x) = \\frac{x}{\\pi}$ for $x \\in [-\\pi, \\pi]$.', hints: ['Consider graphs of $y = \\sin(3x)$ and $y = \\frac{x}{\\pi}$.', '$y = \\sin(3x)$ completes 3 full cycles in $[-\\pi, \\pi]$.'], answer: '$y = \\frac{x}{\\pi}$ is a straight line through origin with slope $\\frac{1}{\\pi}$, passing through $(-\\pi, -1)$ and $(\\pi, 1)$.\n\n$y = \\sin(3x)$ has 3 complete cycles. By graphical analysis, the line intersects the sine curve at **7 points** (including the origin).', marks: 4 },
+];
+
+export default questions;

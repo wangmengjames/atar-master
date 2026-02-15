@@ -1,139 +1,191 @@
-import { useState, useCallback, useEffect, useMemo } from 'react';
-import { TreePine, RotateCcw } from 'lucide-react';
-import type { SkillNodeStatus } from '../types';
-import { SkillNodeStatus as SNS, Topic, SKILL_TOPIC_COLORS } from '../types';
-import { UNIFIED_SKILL_TREE } from '../data/skillTreeData';
+import { useState, useCallback, useEffect, useMemo, useRef } from 'react';
+import { RotateCcw, Zap, Flame, Trophy } from 'lucide-react';
+import { ALL_NODES } from '../data/skillTreeData';
 import { getNodeQuestionCounts } from '../data/questionMatcher';
-import SkillTreeView from '../components/SkillTreeView';
+import CivTreeView from '../components/CivTreeView';
+import MiniMap from '../components/MiniMap';
+import SkillNodePanel from '../components/SkillNodePanel';
+import TopicSubTree from '../components/TopicSubTree';
+import { loadProgress, saveProgress, xpForLevel, computeNodeStatus, type UserProgress } from '../lib/progress';
 
-const STORAGE_KEY = 'atar-unified-skill-tree-progress';
-
-interface NodeProgress {
-  status: SkillNodeStatus;
-  attempts: number;
-}
+type View = 'tree' | 'subtree';
 
 export default function SkillTreePage() {
-  const tree = UNIFIED_SKILL_TREE;
+  const [progress, setProgress] = useState<UserProgress>(loadProgress);
+  const [view, setView] = useState<View>('tree');
+  const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
+  const [activeSubTreeId, setActiveSubTreeId] = useState<string | null>(null);
+  const [viewport, setViewport] = useState({ x: 0, y: 0, w: 1000, h: 600, scale: 1 });
+  const treeContainerRef = useRef<HTMLDivElement>(null);
 
-  // Load progress from localStorage
-  const [progress, setProgress] = useState<Record<string, NodeProgress>>(() => {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      return raw ? JSON.parse(raw) : {};
-    } catch {
-      return {};
-    }
-  });
+  // Persist
+  useEffect(() => { saveProgress(progress); }, [progress]);
 
-  // Persist progress
-  useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
-  }, [progress]);
+  // Stats
+  const totalQuestions = useMemo(() => {
+    const counts = getNodeQuestionCounts();
+    return Object.values(counts).reduce((s, c) => s + c, 0);
+  }, []);
 
-  const handleComplete = useCallback((nodeId: string) => {
-    setProgress(prev => ({
-      ...prev,
-      [nodeId]: {
-        status: SNS.COMPLETED,
-        attempts: (prev[nodeId]?.attempts || 0) + 1,
-      },
-    }));
+  const completedCount = useMemo(() =>
+    ALL_NODES.filter(n => {
+      const s = computeNodeStatus(n.id, n.prerequisites, progress);
+      return s === 'completed' || s === 'mastered';
+    }).length,
+    [progress]
+  );
+
+  const overallPct = ALL_NODES.length ? Math.round((completedCount / ALL_NODES.length) * 100) : 0;
+  const xpNeeded = xpForLevel(progress.level);
+  const xpPct = Math.min(100, Math.round((progress.totalXP / xpNeeded) * 100));
+
+  const handleSelectNode = useCallback((nodeId: string) => {
+    setSelectedNodeId(nodeId);
+  }, []);
+
+  const handleEnterSubTree = useCallback((nodeId: string) => {
+    setActiveSubTreeId(nodeId);
+    setSelectedNodeId(null);
+    setView('subtree');
+  }, []);
+
+  const handleBackToTree = useCallback(() => {
+    setView('tree');
+    setActiveSubTreeId(null);
+  }, []);
+
+  const handleStartLevel = useCallback((nodeId: string, _level: number) => {
+    // For now, mark level as started (in-progress)
+    setProgress(prev => {
+      const np = prev.nodes[nodeId] ?? { status: 'unlocked', levelsCompleted: [], score: 0 };
+      return {
+        ...prev,
+        nodes: {
+          ...prev.nodes,
+          [nodeId]: { ...np, status: 'in-progress' },
+        },
+      };
+    });
+    // TODO: Navigate to practice session
   }, []);
 
   const handleReset = useCallback(() => {
     if (confirm('Reset all progress? This cannot be undone.')) {
-      setProgress({});
-      localStorage.removeItem(STORAGE_KEY);
+      const fresh: UserProgress = { nodes: {}, totalXP: 0, level: 1, streak: 0 };
+      setProgress(fresh);
+      saveProgress(fresh);
     }
   }, []);
 
-  // Stats
-  const questionCounts = useMemo(() => getNodeQuestionCounts(), []);
-  const totalQuestions = useMemo(() => Object.values(questionCounts).reduce((s, c) => s + c, 0), [questionCounts]);
-  const completedNodes = useMemo(() =>
-    Object.values(progress).filter(p => p.status === SNS.COMPLETED || p.status === SNS.MASTERED).length,
-    [progress]
-  );
-
-  // Per-topic stats
-  const topicStats = useMemo(() => {
-    const stats: Record<string, { total: number; completed: number; label: string }> = {};
-    tree.nodes.forEach(n => {
-      if (!stats[n.topic]) stats[n.topic] = { total: 0, completed: 0, label: n.topic };
-      stats[n.topic].total++;
-      const p = progress[n.id];
-      if (p && (p.status === SNS.COMPLETED || p.status === SNS.MASTERED)) {
-        stats[n.topic].completed++;
-      }
-    });
-    return stats;
-  }, [tree.nodes, progress]);
+  const handleMiniMapNavigate = useCallback((x: number, y: number) => {
+    // Find the CivTreeView container and call navigateTo
+    const container = document.querySelector('[data-civ-tree]');
+    if (container && (container as any).__navigateTo) {
+      (container as any).__navigateTo(x, y);
+    }
+  }, []);
 
   return (
-    <div className="min-h-screen bg-gh-canvas flex flex-col">
-      {/* Header bar */}
-      <div className="border-b border-gh-border bg-gh-surface px-4 sm:px-6 h-14 flex items-center justify-between flex-shrink-0">
-        <div className="flex items-center gap-3">
-          <TreePine size={16} className="text-gh-accent-blue" />
-          <span className="text-gh-text-primary font-bold font-mono text-sm">VCE Methods Skill Tree</span>
-          <span className="text-gh-border">|</span>
-          <span className="text-xs text-gh-text-muted font-mono">
-            {tree.nodes.length} skills • {totalQuestions} questions
-          </span>
-        </div>
-        <div className="flex items-center gap-3">
-          {/* Mini stats */}
-          <div className="hidden sm:flex items-center gap-3">
-            {Object.entries(topicStats).map(([topic, stat]) => {
-              const color = SKILL_TOPIC_COLORS[topic as Topic];
-              if (!color) return null;
-              return (
-                <div key={topic} className="flex items-center gap-1">
-                  <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: color.primary }} />
-                  <span className="text-[10px] text-gh-text-muted font-mono">
-                    {stat.completed}/{stat.total}
-                  </span>
+    <div className="min-h-screen bg-gray-900 flex flex-col">
+      {/* XP Header Bar */}
+      <div className="border-b border-gray-800 bg-gray-900/95 backdrop-blur-sm px-4 sm:px-6 py-3 flex-shrink-0">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            {/* Level badge */}
+            <div className="flex items-center gap-2">
+              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-600 to-blue-800 flex items-center justify-center border-2 border-blue-500">
+                <span className="text-white font-bold text-sm">{progress.level}</span>
+              </div>
+              <div>
+                <div className="text-xs text-gray-400 font-mono">LEVEL {progress.level}</div>
+                <div className="flex items-center gap-1.5 mt-0.5">
+                  <Zap size={12} className="text-yellow-400" />
+                  <div className="w-24 h-1.5 rounded-full bg-gray-800 overflow-hidden">
+                    <div
+                      className="h-full rounded-full bg-gradient-to-r from-yellow-500 to-yellow-300 transition-all duration-700"
+                      style={{ width: `${xpPct}%` }}
+                    />
+                  </div>
+                  <span className="text-[10px] text-gray-500 font-mono">{progress.totalXP}/{xpNeeded} XP</span>
                 </div>
-              );
-            })}
+              </div>
+            </div>
+
+            {/* Streak */}
+            {progress.streak > 0 && (
+              <div className="flex items-center gap-1 px-2 py-1 bg-orange-900/30 rounded-lg border border-orange-800/30">
+                <Flame size={14} className="text-orange-400" />
+                <span className="text-xs text-orange-300 font-bold">{progress.streak}</span>
+              </div>
+            )}
           </div>
-          <button
-            onClick={handleReset}
-            className="flex items-center gap-1 px-2 py-1 text-xs text-gh-text-muted hover:text-gh-dangerFg font-mono rounded border border-gh-border hover:border-gh-dangerFg/30 transition-colors"
-            title="Reset progress"
-          >
-            <RotateCcw size={12} />
-            <span className="hidden sm:inline">Reset</span>
-          </button>
+
+          <div className="flex items-center gap-3">
+            {/* Overall progress */}
+            <div className="hidden sm:flex items-center gap-2">
+              <Trophy size={14} className="text-green-400" />
+              <span className="text-xs text-gray-400 font-mono">{completedCount}/{ALL_NODES.length} skills</span>
+              <span className="text-xs text-gray-500">({overallPct}%)</span>
+            </div>
+
+            <div className="h-4 w-px bg-gray-700" />
+
+            <span className="text-xs text-gray-500 font-mono">{totalQuestions} questions</span>
+
+            <button
+              onClick={handleReset}
+              className="flex items-center gap-1 px-2 py-1 text-xs text-gray-500 hover:text-red-400 font-mono rounded border border-gray-800 hover:border-red-800/50 transition-colors"
+              title="Reset progress"
+            >
+              <RotateCcw size={12} />
+            </button>
+          </div>
+        </div>
+
+        {/* Overall progress bar */}
+        <div className="mt-2 h-1 rounded-full bg-gray-800 overflow-hidden">
+          <div
+            className="h-full rounded-full bg-gradient-to-r from-blue-600 to-green-500 transition-all duration-700"
+            style={{ width: `${overallPct}%` }}
+          />
         </div>
       </div>
 
-      {/* Overall progress bar */}
-      <div className="bg-gh-surface/50 border-b border-gh-border px-4 sm:px-6 py-2">
-        <div className="flex items-center gap-3">
-          <span className="text-xs text-gh-text-muted font-mono w-20">Overall</span>
-          <div className="flex-1 h-2 rounded-full bg-gh-border overflow-hidden">
-            <div
-              className="h-full rounded-full bg-gh-accent-blue transition-all duration-700"
-              style={{ width: `${tree.nodes.length ? (completedNodes / tree.nodes.length) * 100 : 0}%` }}
+      {/* Main content */}
+      <div className="flex-1 overflow-hidden relative">
+        {view === 'tree' ? (
+          <>
+            <div ref={treeContainerRef} className="w-full h-full" data-civ-tree>
+              <CivTreeView
+                progress={progress}
+                onSelectNode={handleSelectNode}
+                onViewportChange={setViewport}
+              />
+            </div>
+
+            <MiniMap
+              progress={progress}
+              viewport={viewport}
+              onNavigate={handleMiniMapNavigate}
             />
-          </div>
-          <span className="text-xs text-gh-text-secondary font-mono w-16 text-right">
-            {completedNodes}/{tree.nodes.length}
-          </span>
-          <span className="text-xs text-gh-text-muted font-mono">
-            ({tree.nodes.length ? Math.round((completedNodes / tree.nodes.length) * 100) : 0}%)
-          </span>
-        </div>
-      </div>
 
-      {/* Tree content */}
-      <div className="flex-1 p-4 sm:p-6 overflow-hidden flex flex-col max-w-full">
-        <SkillTreeView
-          progress={progress}
-          onCompleteNode={handleComplete}
-        />
+            {selectedNodeId && (
+              <SkillNodePanel
+                nodeId={selectedNodeId}
+                progress={progress}
+                onClose={() => setSelectedNodeId(null)}
+                onEnter={handleEnterSubTree}
+              />
+            )}
+          </>
+        ) : activeSubTreeId ? (
+          <TopicSubTree
+            nodeId={activeSubTreeId}
+            progress={progress}
+            onBack={handleBackToTree}
+            onStartLevel={handleStartLevel}
+          />
+        ) : null}
       </div>
     </div>
   );

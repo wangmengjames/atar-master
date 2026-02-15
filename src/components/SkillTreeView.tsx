@@ -3,7 +3,7 @@ import type { SkillTreeNode, SkillNodeStatus, Topic } from '../types';
 import { SkillNodeStatus as SNS, SKILL_TOPIC_COLORS } from '../types';
 import { UNIFIED_SKILL_TREE } from '../data/skillTreeData';
 import { getNodeQuestionCounts } from '../data/questionMatcher';
-import SkillNodePanel from './SkillNodePanel';
+// SkillNodePanel removed — now used separately in CivTree flow
 
 interface SkillTreeViewProps {
   progress: Record<string, { status: SkillNodeStatus; attempts: number }>;
@@ -15,9 +15,9 @@ const NODE_RADIUS = 26;
 const TIER_HEIGHT = 180;
 const COL_WIDTH = 120;
 
-export default function SkillTreeView({ progress, onCompleteNode }: SkillTreeViewProps) {
+export default function SkillTreeView({ progress, onCompleteNode: _onCompleteNode }: SkillTreeViewProps) {
   const tree = UNIFIED_SKILL_TREE;
-  const [selectedNode, setSelectedNode] = useState<SkillTreeNode | null>(null);
+  const [_selectedNode, setSelectedNode] = useState<SkillTreeNode | null>(null);
   const [hoveredNode, setHoveredNode] = useState<string | null>(null);
 
   const questionCounts = useMemo(() => getNodeQuestionCounts(), []);
@@ -369,16 +369,7 @@ export default function SkillTreeView({ progress, onCompleteNode }: SkillTreeVie
         </div>
       </div>
 
-      {/* Node Detail Panel */}
-      {selectedNode && (
-        <SkillNodePanel
-          node={selectedNode}
-          allNodes={tree.nodes}
-          getStatus={getStatus}
-          onComplete={(id) => { onCompleteNode(id); }}
-          onClose={() => setSelectedNode(null)}
-        />
-      )}
+      {/* Node Detail Panel (removed — handled by CivTree flow) */}
     </div>
   );
 }
