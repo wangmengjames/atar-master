@@ -83,18 +83,24 @@ def parse_ts_exam(filepath):
             m = re.search(rf'{key}:\s*\w+\.(\w+)', block)
             return m.group(1) if m else ""
         
-        qtext = extract_str('text')
-        answer = extract_str('answer')
+        qtext = sanitize_latex(unescape_ts(extract_str('text')))
+        answer = sanitize_latex(unescape_ts(extract_str('answer')))
         number = extract_str('number') or f"Q{i+1}"
         marks = extract_num('marks')
         topic = extract_enum('topic')
         subTopic = extract_str('subTopic')
         
-        # markingGuide array
-        mg_m = re.search(r'markingGuide:\s*\[(.*?)\]', block, re.DOTALL)
+        # markingGuide array - extract quoted strings carefully
+        mg_m = re.search(r'markingGuide:\s*\[(.*?)\]\s*,?\s*\n', block, re.DOTALL)
         marking = []
         if mg_m:
-            marking = re.findall(r'["`\'](.*?)["`\']', mg_m.group(1), re.DOTALL)
+            mg_text = mg_m.group(1)
+            # Match double-quoted strings (handling escaped quotes)
+            raw = re.findall(r'"((?:[^"\\]|\\.)*)"', mg_text, re.DOTALL)
+            if not raw:
+                # Try backtick strings
+                raw = re.findall(r'`(.*?)`', mg_text, re.DOTALL)
+            marking = [sanitize_latex(unescape_ts(m)) for m in raw]
         
         if qtext:
             questions.append({
@@ -133,9 +139,9 @@ def parse_ts_training(filepath):
             if m: return m.group(1)
             return ""
         
-        qtext = extract_str('text')
-        title = extract_str('title')
-        answer = extract_str('answer')
+        qtext = sanitize_latex(unescape_ts(extract_str('text')))
+        title_str = sanitize_latex(unescape_ts(extract_str('title')))
+        answer = sanitize_latex(unescape_ts(extract_str('answer')))
         level_m = re.search(r'level:\s*(\d+)', block)
         level = int(level_m.group(1)) if level_m else 0
         
@@ -143,26 +149,142 @@ def parse_ts_training(filepath):
         options = []
         opt_blocks = re.finditer(r"\{\s*label:\s*['\"](\w+)['\"],\s*text:\s*['\"`](.*?)['\"`],\s*correct:\s*(true|false)", block, re.DOTALL)
         for om in opt_blocks:
-            options.append({'label': om.group(1), 'text': om.group(2), 'correct': om.group(3) == 'true'})
+            options.append({'label': om.group(1), 'text': sanitize_latex(unescape_ts(om.group(2))), 'correct': om.group(3) == 'true'})
         
         if qtext:
             questions.append({
-                'title': title, 'text': qtext, 'answer': answer,
+                'title': title_str, 'text': qtext, 'answer': answer,
                 'level': level, 'options': options,
             })
     
     return questions
 
-def escape_latex(s):
-    """Minimal escaping - the text already contains LaTeX math."""
-    # Only escape characters that aren't already in math mode
-    # Don't touch $ or \ as they're intentional LaTeX
+def unescape_ts(s):
+    """Convert TS/JS string escaping to actual characters.
+    In TS source: \\\\ -> \\, \\n -> newline, etc."""
+    # TS double-quoted strings: \\ is literal backslash
+    s = s.replace('\\\\', '\x00BACKSLASH\x00')
+    s = s.replace('\\n', '\n')
+    s = s.replace('\\t', '\t')
+    s = s.replace("\\'", "'")
+    s = s.replace('\\"', '"')
+    s = s.replace('\x00BACKSLASH\x00', '\\')
     return s
+
+def sanitize_latex(s):
+    """Fix common LaTeX issues in question text."""
+    # Replace Unicode characters with LaTeX equivalents
+    replacements = {
+        '•': r'\textbullet{}',
+        '√': r'$\sqrt{}$',
+        '∘': r'$\circ$',
+        '—': '---',
+        '–': '--',
+        '"': "``",
+        '"': "''",
+        ''': "'",
+        ''': "`",
+        '×': r'$\times$',
+        '÷': r'$\div$',
+        '≤': r'$\le$',
+        '≥': r'$\ge$',
+        '≠': r'$\ne$',
+        '≈': r'$\approx$',
+        '∞': r'$\infty$',
+        'π': r'$\pi$',
+        '⁴': r'${}^4$',
+        '⁵': r'${}^5$',
+        'ˣ': r'${}^x$',
+        '←': r'$\leftarrow$',
+        '→': r'$\rightarrow$',
+        '−': '-',
+        '²': r'${}^2$',
+        '³': r'${}^3$',
+        '·': r'$\cdot$',
+        '⁶': r'${}^6$',
+        '⁻': r'${}^{-}$',
+        '✓': r'\checkmark{}',
+    }
+    for k, v in replacements.items():
+        s = s.replace(k, v)
+    
+    # Convert markdown code blocks to LaTeX verbatim
+    # First extract code blocks, replace unicode inside them with ASCII
+    def code_to_verbatim(m):
+        code = m.group(1)
+        code = code.replace('←', '<-')
+        code = code.replace('→', '->')
+        code = code.replace('≤', '<=')
+        code = code.replace('≥', '>=')
+        code = code.replace('≠', '!=')
+        return f'\\begin{{verbatim}}\n{code}\\end{{verbatim}}'
+    s = re.sub(r'```\w*\n(.*?)```', code_to_verbatim, s, flags=re.DOTALL)
+    
+    # Escape & and % outside math mode (skip verbatim)
+    s = escape_special_outside_math(s)
+    
+    return s
+
+def escape_special_outside_math(s):
+    """Escape &, %, # characters that are outside $ delimiters and LaTeX environments."""
+    result = []
+    in_math = False
+    env_depth = 0  # track nested environments that allow &
+    i = 0
+    while i < len(s):
+        # Handle backslash-escaped characters (skip them)
+        if s[i] == '\\' and i + 1 < len(s) and s[i+1] in '&%#':
+            result.append(s[i:i+2])
+            i += 2
+            continue
+        if s[i] == '$':
+            if i + 1 < len(s) and s[i+1] == '$':
+                result.append('$$')
+                in_math = not in_math
+                i += 2
+                continue
+            in_math = not in_math
+            result.append('$')
+            i += 1
+        elif s[i:i+7] == '\\begin{':
+            env_m = re.match(r'\\begin\{(cases|array|align\*?|tabular|matrix|pmatrix|bmatrix|vmatrix)\}', s[i:])
+            if env_m:
+                env_depth += 1
+            result.append(s[i])
+            i += 1
+        elif s[i:i+5] == '\\end{':
+            env_m = re.match(r'\\end\{(cases|array|align\*?|tabular|matrix|pmatrix|bmatrix|vmatrix)\}', s[i:])
+            if env_m:
+                env_depth = max(0, env_depth - 1)
+            result.append(s[i])
+            i += 1
+        elif s[i] == '&' and not in_math and env_depth == 0:
+            result.append('\\&')
+            i += 1
+        elif s[i] == '%' and not in_math:
+            result.append('\\%')
+            i += 1
+        elif s[i] == '#' and not in_math:
+            result.append('\\#')
+            i += 1
+        else:
+            result.append(s[i])
+            i += 1
+    return ''.join(result)
+
+def sanitize_title(t):
+    """Make title safe for use in LaTeX text - strip problematic math chars."""
+    # Remove LaTeX math inserted by sanitize_latex 
+    t = re.sub(r'\$[^$]*\$', '', t)
+    # Remove remaining unprotected math chars (but keep \% \& etc)
+    t = re.sub(r'(?<!\\)[{}^_]', '', t)
+    t = t.strip()
+    return t
 
 def fmt_exam_q(q):
     marks = q['marks']
     mark_str = f"\\hfill [{marks} mark{'s' if marks != 1 else ''}]" if marks else ""
-    qtext = q['text'].replace('\\n', '\n\n')
+    qtext = q['text']
     return f"\\textbf{{{q['number']}}}{mark_str}\n\n{qtext}\n\n\\vspace{{8mm}}\n\n"
 
 def fmt_exam_sol(q):
@@ -179,9 +301,10 @@ def fmt_exam_sol(q):
 def fmt_training_q(q, idx):
     body = f"\\textbf{{Question {idx}}} (Level {q['level']})"
     if q['title']:
-        body += f" --- \\textit{{{q['title']}}}"
+        t = sanitize_title(q['title'])
+        body += f" --- \\textit{{{t}}}"
     body += "\n\n"
-    body += q['text'].replace('\\n', '\n\n') + "\n\n"
+    body += q['text'] + "\n\n"
     if q['options']:
         body += "\\begin{enumerate}[label=(\\Alph*)]\n"
         for opt in q['options']:
