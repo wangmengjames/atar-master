@@ -2,15 +2,19 @@ import { useEffect, useRef, useState, useCallback, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { Check, Target, FileText, BarChart3, Download, UserPlus, BookOpen, TrendingUp } from 'lucide-react';
 
-/* ───────────── mouse tracker hook ───────────── */
+/* ───────────── optimized mouse tracker hook ───────────── */
 function useMousePosition() {
-  const [pos, setPos] = useState({ x: 0, y: 0 });
+  const elementRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
-    const handler = (e: MouseEvent) => setPos({ x: e.clientX, y: e.clientY });
+    const handler = (e: MouseEvent) => {
+      if (elementRef.current) {
+        elementRef.current.style.background = `radial-gradient(600px circle at ${e.clientX}px ${e.clientY}px, rgba(59,130,246,0.08), transparent 40%)`;
+      }
+    };
     window.addEventListener('mousemove', handler);
     return () => window.removeEventListener('mousemove', handler);
   }, []);
-  return pos;
+  return elementRef;
 }
 
 /* ───────────── scroll position hook ───────────── */
@@ -54,6 +58,15 @@ function SkillTreeShowcase() {
     { year: 'VCE', nodes: ['Exam Ready ✓'] },
   ], []);
 
+  const delayPerCol = 0.6; // seconds per column
+
+  // Memoize the tagline styles to prevent recreation on every render
+  const taglineStyles = useMemo(() => ({
+    opacity: started ? 1 : 0,
+    transform: started ? 'translateY(0)' : 'translateY(12px)',
+    transition: `opacity 0.8s ease-out ${columns.length * delayPerCol}s, transform 0.8s ease-out ${columns.length * delayPerCol}s`,
+  }), [started, columns.length]);
+
   // Layout constants
   const svgW = 800, svgH = 320;
   const colSpacing = svgW / (columns.length + 1);
@@ -82,8 +95,6 @@ function SkillTreeShowcase() {
       });
     });
   }
-
-  const delayPerCol = 0.6; // seconds per column
 
   return (
     <section ref={ref} className="relative py-28 overflow-hidden">
@@ -211,11 +222,7 @@ function SkillTreeShowcase() {
         {/* Tagline that fades in at the end */}
         <p
           className="text-gray-300 text-lg mt-10 font-medium"
-          style={{
-            opacity: started ? 1 : 0,
-            transform: started ? 'translateY(0)' : 'translateY(12px)',
-            transition: `opacity 0.8s ease-out ${columns.length * delayPerCol}s, transform 0.8s ease-out ${columns.length * delayPerCol}s`,
-          }}
+          style={taglineStyles}
         >
           100% of the VCE Methods curriculum. Every topic. Every year.
         </p>
@@ -291,17 +298,21 @@ export default function LandingPage() {
   const features = useFadeIn();
   const steps = useFadeIn();
   const pricing = useFadeIn();
-  const mouse = useMousePosition();
+  const mouseGradientRef = useMousePosition();
   const scrollY = useScrollY();
+
+  // Memoize parallax calculations to avoid recalculating on every render
+  const parallaxStyles = useMemo(() => ({
+    orb1: { transform: `translate(-50%, calc(-50% + ${scrollY * 0.15}px)) scale(1)` },
+    orb2: { transform: `translate(-50%, calc(-50% + ${scrollY * -0.1}px)) scale(1)` },
+  }), [scrollY]);
 
   return (
     <div className="min-h-screen bg-[#0a0a0f] text-white overflow-hidden relative">
       {/* Mouse-following gradient overlay */}
       <div
+        ref={mouseGradientRef}
         className="pointer-events-none fixed inset-0 z-[1]"
-        style={{
-          background: `radial-gradient(600px circle at ${mouse.x}px ${mouse.y}px, rgba(59,130,246,0.08), transparent 40%)`,
-        }}
       />
 
       {/* inline keyframes */}
@@ -321,8 +332,8 @@ export default function LandingPage() {
       {/* ─── Hero ─── */}
       <section className="relative min-h-[90vh] flex items-center justify-center">
         {/* gradient orbs with parallax */}
-        <div className="orb1 pointer-events-none absolute top-1/2 left-1/2 w-[600px] h-[600px] rounded-full bg-blue-600/20 blur-[120px]" style={{ transform: `translate(-50%, calc(-50% + ${scrollY * 0.15}px)) scale(1)` }} />
-        <div className="orb2 pointer-events-none absolute top-[40%] left-[55%] w-[400px] h-[400px] rounded-full bg-cyan-500/15 blur-[100px]" style={{ transform: `translate(-50%, calc(-50% + ${scrollY * -0.1}px)) scale(1)` }} />
+        <div className="orb1 pointer-events-none absolute top-1/2 left-1/2 w-[600px] h-[600px] rounded-full bg-blue-600/20 blur-[120px]" style={parallaxStyles.orb1} />
+        <div className="orb2 pointer-events-none absolute top-[40%] left-[55%] w-[400px] h-[400px] rounded-full bg-cyan-500/15 blur-[100px]" style={parallaxStyles.orb2} />
 
         <div className="relative z-10 mx-auto max-w-4xl px-6 text-center">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-white/10 bg-white/5 backdrop-blur text-sm text-gray-300 mb-10">
