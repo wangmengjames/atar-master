@@ -22,9 +22,90 @@
   --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
 }
 
+/* ===== Theme system ===== */
+:root,
+[data-theme="midnight"] {
+  --bg-primary: #08090F;
+  --bg-secondary: #0C0E18;
+  --card-bg: rgba(255,255,255,0.04);
+  --card-border: rgba(255,255,255,0.08);
+  --text-primary: #ffffff;
+  --text-secondary: #9ca3af;
+  --accent: #3b82f6;
+  --nav-bg: rgba(17,24,39,0.95);
+  --nav-border: #1f2937;
+}
+
+[data-theme="aurora"] {
+  --bg-primary: #0F0B2E;
+  --bg-secondary: #1A0B3E;
+  --card-bg: rgba(168,85,247,0.06);
+  --card-border: rgba(192,132,252,0.12);
+  --text-primary: #faf5ff;
+  --text-secondary: #d8b4fe;
+  --accent: #c084fc;
+  --nav-bg: rgba(15,11,46,0.95);
+  --nav-border: rgba(192,132,252,0.15);
+  --color-gh-canvas: #0F0B2E;
+  --color-gh-surface: rgba(168,85,247,0.08);
+  --color-gh-border: rgba(192,132,252,0.15);
+  --color-gh-text-primary: #faf5ff;
+  --color-gh-text-secondary: #d8b4fe;
+}
+
+[data-theme="slate"] {
+  --bg-primary: #111318;
+  --bg-secondary: #1A1D24;
+  --card-bg: rgba(30,41,59,0.6);
+  --card-border: rgba(51,65,85,0.5);
+  --text-primary: #f1f5f9;
+  --text-secondary: #94a3b8;
+  --accent: #3b82f6;
+  --nav-bg: rgba(17,19,24,0.95);
+  --nav-border: rgba(51,65,85,0.5);
+  --color-gh-canvas: #111318;
+  --color-gh-surface: rgba(30,41,59,0.6);
+  --color-gh-border: rgba(51,65,85,0.5);
+  --color-gh-text-primary: #f1f5f9;
+  --color-gh-text-secondary: #94a3b8;
+}
+
 body {
-  background-color: var(--color-gh-canvas);
-  color: var(--color-gh-text-primary);
+  background: linear-gradient(135deg, var(--bg-primary), var(--bg-secondary));
+  color: var(--text-primary);
+  min-height: 100vh;
+}
+
+/* Aurora ambient glow */
+[data-theme="aurora"] body::before {
+  content: '';
+  position: fixed;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(ellipse at 30% 20%, rgba(139,92,246,0.08) 0%, transparent 50%),
+              radial-gradient(ellipse at 70% 80%, rgba(236,72,153,0.06) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Override nav for themes */
+[data-theme="aurora"] nav.fixed,
+[data-theme="slate"] nav.fixed {
+  background: var(--nav-bg) !important;
+  border-color: var(--nav-border) !important;
+  backdrop-filter: blur(12px);
+}
+
+[data-theme="aurora"] .bg-gh-surface,
+[data-theme="aurora"] .bg-gray-900 {
+  background: rgba(168,85,247,0.08);
+}
+
+[data-theme="slate"] .bg-gh-surface,
+[data-theme="slate"] .bg-gray-900 {
+  background: rgba(30,41,59,0.6);
 }
 
 /* Skill tree connection lines */
