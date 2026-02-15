@@ -87,11 +87,16 @@ const NODE_TO_TRAINING: Record<string, string[]> = {
   // Year 10A
   'y10a-algebra': ['composite-fn', 'inverse-fn', 'logarithmic-fn'],
   'y10a-probability': [],
-  // Year 11
-  'y11-functions': ['transformations', 'circular-fn', 'domain-range'],
-  'y11-algebra': ['exponential-fn', 'logarithmic-fn'],
-  'y11-calculus': ['derivatives', 'diff-rules'],
-  'y11-probability': ['binomial-dist', 'cond-prob'],
+  // Year 11 (A1-A9)
+  'y11-a1-linear': ['basic-algebra', 'simult-eq'],
+  'y11-a2-quadratics': ['polynomial-fn'],
+  'y11-a3-domain-range': ['domain-range', 'composite-fn', 'inverse-fn'],
+  'y11-a4-transformations': ['transformations'],
+  'y11-a5-trigonometry': ['circular-fn', 'basic-trig'],
+  'y11-a6-logs-indices': ['logarithmic-fn', 'exponential-fn'],
+  'y11-a7-differentiation': ['derivatives', 'diff-rules'],
+  'y11-a8-integration': ['anti-diff'],
+  'y11-a9-combinatorics': ['binomial-dist', 'cond-prob'],
   // Year 12
   'y12-functions': ['circular-fn', 'exponential-fn'],
   'y12-algebra': ['polynomial-fn'],
