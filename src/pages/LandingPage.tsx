@@ -1,6 +1,228 @@
-import { useEffect, useRef, useState, useCallback } from 'react';
+import { useEffect, useRef, useState, useCallback, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { Check, Target, FileText, BarChart3, Download, UserPlus, BookOpen, TrendingUp } from 'lucide-react';
+
+/* ───────────── mouse tracker hook ───────────── */
+function useMousePosition() {
+  const [pos, setPos] = useState({ x: 0, y: 0 });
+  useEffect(() => {
+    const handler = (e: MouseEvent) => setPos({ x: e.clientX, y: e.clientY });
+    window.addEventListener('mousemove', handler);
+    return () => window.removeEventListener('mousemove', handler);
+  }, []);
+  return pos;
+}
+
+/* ───────────── scroll position hook ───────────── */
+function useScrollY() {
+  const [scrollY, setScrollY] = useState(0);
+  useEffect(() => {
+    const handler = () => setScrollY(window.scrollY);
+    window.addEventListener('scroll', handler, { passive: true });
+    return () => window.removeEventListener('scroll', handler);
+  }, []);
+  return scrollY;
+}
+
+/* ───────────── skill tree animation hook ───────────── */
+function useSkillTreeAnimation() {
+  const ref = useRef<HTMLDivElement>(null);
+  const [started, setStarted] = useState(false);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const io = new IntersectionObserver(([e]) => {
+      if (e.isIntersecting) setStarted(true);
+    }, { threshold: 0.2 });
+    io.observe(el);
+    const t = setTimeout(() => setStarted(true), 3000);
+    return () => { io.disconnect(); clearTimeout(t); };
+  }, []);
+  return { ref, started };
+}
+
+/* ───────────── Skill Tree Section ───────────── */
+function SkillTreeShowcase() {
+  const { ref, started } = useSkillTreeAnimation();
+
+  const columns = useMemo(() => [
+    { year: 'Year 8', nodes: ['Number', 'Algebra'] },
+    { year: 'Year 9', nodes: ['Number', 'Algebra'] },
+    { year: 'Year 10', nodes: ['Algebra', 'Probability'] },
+    { year: 'Year 11', nodes: ['Trig', 'Calculus'] },
+    { year: 'Year 12', nodes: ['Differentiation', 'Integration'] },
+    { year: 'VCE', nodes: ['Exam Ready ✓'] },
+  ], []);
+
+  // Layout constants
+  const svgW = 800, svgH = 320;
+  const colSpacing = svgW / (columns.length + 1);
+  const nodeR = 20;
+
+  // Build node positions
+  const nodePositions: { x: number; y: number; label: string; colIdx: number; isVCE: boolean }[] = [];
+  columns.forEach((col, ci) => {
+    const x = colSpacing * (ci + 1);
+    if (col.nodes.length === 1) {
+      nodePositions.push({ x, y: svgH / 2, label: col.nodes[0], colIdx: ci, isVCE: ci === 5 });
+    } else {
+      nodePositions.push({ x, y: svgH / 2 - 45, label: col.nodes[0], colIdx: ci, isVCE: false });
+      nodePositions.push({ x, y: svgH / 2 + 45, label: col.nodes[1], colIdx: ci, isVCE: false });
+    }
+  });
+
+  // Build connections: each node connects to all nodes in the next column
+  const connections: { x1: number; y1: number; x2: number; y2: number; colIdx: number }[] = [];
+  for (let ci = 0; ci < columns.length - 1; ci++) {
+    const fromNodes = nodePositions.filter(n => n.colIdx === ci);
+    const toNodes = nodePositions.filter(n => n.colIdx === ci + 1);
+    fromNodes.forEach(fn => {
+      toNodes.forEach(tn => {
+        connections.push({ x1: fn.x + nodeR, y1: fn.y, x2: tn.x - nodeR, y2: tn.y, colIdx: ci });
+      });
+    });
+  }
+
+  const delayPerCol = 0.6; // seconds per column
+
+  return (
+    <section ref={ref} className="relative py-28 overflow-hidden">
+      <style>{`
+        @keyframes skillNodePulse {
+          0% { transform: scale(1); }
+          50% { transform: scale(1.15); }
+          100% { transform: scale(1); }
+        }
+        @keyframes skillLineDraw {
+          to { stroke-dashoffset: 0; }
+        }
+        @keyframes skillTextFade {
+          to { opacity: 1; transform: translateY(0); }
+        }
+      `}</style>
+      <div className="mx-auto max-w-4xl px-6 text-center">
+        <h2 className="text-3xl sm:text-4xl font-bold mb-4">Your path to exam mastery</h2>
+        <p className="text-gray-400 mb-12">From fundamentals to VCE-ready, one skill at a time.</p>
+
+        <div className="flex justify-center">
+          <svg
+            viewBox={`0 0 ${svgW} ${svgH}`}
+            className="w-full max-w-[800px]"
+            style={{ overflow: 'visible' }}
+          >
+            <defs>
+              <filter id="blueGlow">
+                <feGaussianBlur stdDeviation="4" result="blur" />
+                <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
+              </filter>
+              <filter id="goldGlow">
+                <feGaussianBlur stdDeviation="6" result="blur" />
+                <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
+              </filter>
+            </defs>
+
+            {/* Connection lines */}
+            {connections.map((c, i) => {
+              const len = Math.sqrt((c.x2 - c.x1) ** 2 + (c.y2 - c.y1) ** 2);
+              return (
+                <line
+                  key={`line-${i}`}
+                  x1={c.x1} y1={c.y1} x2={c.x2} y2={c.y2}
+                  stroke={started ? 'rgba(59,130,246,0.5)' : 'rgba(255,255,255,0.08)'}
+                  strokeWidth={2}
+                  strokeDasharray={len}
+                  strokeDashoffset={started ? undefined : len}
+                  style={started ? {
+                    animation: `skillLineDraw 0.5s ease-out ${c.colIdx * delayPerCol + 0.3}s forwards`,
+                    strokeDashoffset: len,
+                  } : { strokeDashoffset: len }}
+                />
+              );
+            })}
+
+            {/* Nodes */}
+            {nodePositions.map((n, i) => {
+              const delay = n.colIdx * delayPerCol;
+              const isActive = started;
+              const fillInactive = 'rgba(255,255,255,0.06)';
+              const fillActive = n.isVCE ? '#f59e0b' : '#3b82f6';
+              const strokeInactive = 'rgba(255,255,255,0.12)';
+              const strokeActive = n.isVCE ? '#fbbf24' : '#60a5fa';
+
+              return (
+                <g key={`node-${i}`}>
+                  <circle
+                    cx={n.x} cy={n.y} r={nodeR}
+                    fill={isActive ? fillActive : fillInactive}
+                    stroke={isActive ? strokeActive : strokeInactive}
+                    strokeWidth={2}
+                    filter={isActive ? (n.isVCE ? 'url(#goldGlow)' : 'url(#blueGlow)') : undefined}
+                    opacity={isActive ? undefined : 0.4}
+                    style={isActive ? {
+                      opacity: 0,
+                      animation: `skillNodePulse 0.6s ease-out ${delay}s forwards`,
+                      animationFillMode: 'forwards',
+                    } : {}}
+                  />
+                  {/* opacity trick: use separate style for fill transition */}
+                  <circle
+                    cx={n.x} cy={n.y} r={nodeR}
+                    fill={fillActive}
+                    stroke={strokeActive}
+                    strokeWidth={2}
+                    filter={n.isVCE ? 'url(#goldGlow)' : 'url(#blueGlow)'}
+                    style={{
+                      opacity: isActive ? 1 : 0,
+                      transition: `opacity 0.4s ease-out ${delay}s`,
+                    }}
+                  />
+                  {/* Label */}
+                  <text
+                    x={n.x} y={n.y + nodeR + 18}
+                    textAnchor="middle"
+                    fill={isActive ? (n.isVCE ? '#fbbf24' : '#93c5fd') : 'rgba(255,255,255,0.25)'}
+                    fontSize={11}
+                    fontWeight={600}
+                    style={{
+                      transition: `fill 0.4s ease-out ${delay}s, opacity 0.4s ease-out ${delay}s`,
+                      opacity: isActive ? 1 : 0.3,
+                    }}
+                  >
+                    {n.label}
+                  </text>
+                  {/* Year label (only for first node in column) */}
+                  {nodePositions.findIndex(nd => nd.colIdx === n.colIdx) === i && (
+                    <text
+                      x={n.x} y={30}
+                      textAnchor="middle"
+                      fill="rgba(255,255,255,0.35)"
+                      fontSize={12}
+                      fontWeight={500}
+                    >
+                      {columns[n.colIdx].year}
+                    </text>
+                  )}
+                </g>
+              );
+            })}
+          </svg>
+        </div>
+
+        {/* Tagline that fades in at the end */}
+        <p
+          className="text-gray-300 text-lg mt-10 font-medium"
+          style={{
+            opacity: started ? 1 : 0,
+            transform: started ? 'translateY(0)' : 'translateY(12px)',
+            transition: `opacity 0.8s ease-out ${columns.length * delayPerCol}s, transform 0.8s ease-out ${columns.length * delayPerCol}s`,
+          }}
+        >
+          100% of the VCE Methods curriculum. Every topic. Every year.
+        </p>
+      </div>
+    </section>
+  );
+}
 
 /* ───────────── animated count-up hook ───────────── */
 function useCountUp(end: number, duration = 1800) {
@@ -69,9 +291,19 @@ export default function LandingPage() {
   const features = useFadeIn();
   const steps = useFadeIn();
   const pricing = useFadeIn();
+  const mouse = useMousePosition();
+  const scrollY = useScrollY();
 
   return (
-    <div className="min-h-screen bg-[#0a0a0f] text-white overflow-hidden">
+    <div className="min-h-screen bg-[#0a0a0f] text-white overflow-hidden relative">
+      {/* Mouse-following gradient overlay */}
+      <div
+        className="pointer-events-none fixed inset-0 z-[1]"
+        style={{
+          background: `radial-gradient(600px circle at ${mouse.x}px ${mouse.y}px, rgba(59,130,246,0.08), transparent 40%)`,
+        }}
+      />
+
       {/* inline keyframes */}
       <style>{`
         @keyframes orbFloat {
@@ -88,9 +320,9 @@ export default function LandingPage() {
 
       {/* ─── Hero ─── */}
       <section className="relative min-h-[90vh] flex items-center justify-center">
-        {/* gradient orbs */}
-        <div className="orb1 pointer-events-none absolute top-1/2 left-1/2 w-[600px] h-[600px] rounded-full bg-blue-600/20 blur-[120px]" />
-        <div className="orb2 pointer-events-none absolute top-[40%] left-[55%] w-[400px] h-[400px] rounded-full bg-cyan-500/15 blur-[100px]" />
+        {/* gradient orbs with parallax */}
+        <div className="orb1 pointer-events-none absolute top-1/2 left-1/2 w-[600px] h-[600px] rounded-full bg-blue-600/20 blur-[120px]" style={{ transform: `translate(-50%, calc(-50% + ${scrollY * 0.15}px)) scale(1)` }} />
+        <div className="orb2 pointer-events-none absolute top-[40%] left-[55%] w-[400px] h-[400px] rounded-full bg-cyan-500/15 blur-[100px]" style={{ transform: `translate(-50%, calc(-50% + ${scrollY * -0.1}px)) scale(1)` }} />
 
         <div className="relative z-10 mx-auto max-w-4xl px-6 text-center">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-white/10 bg-white/5 backdrop-blur text-sm text-gray-300 mb-10">
@@ -136,6 +368,9 @@ export default function LandingPage() {
           <StatItem end={31} suffix="" label="Skill Tree Nodes" />
         </div>
       </section>
+
+      {/* ─── Skill Tree Showcase ─── */}
+      <SkillTreeShowcase />
 
       {/* ─── Features ─── */}
       <section ref={features.ref} className={`mx-auto max-w-6xl px-6 py-28 transition-all duration-700 ${features.visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
