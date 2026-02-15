@@ -1,9 +1,8 @@
 import { useMemo, useEffect, useState } from 'react';
-import { X, ArrowRight, Star, Zap, BookOpen } from 'lucide-react';
+import { X, Play } from 'lucide-react';
 import { ALL_NODES } from '../data/skillTreeData';
 import { getNodeQuestionCounts } from '../data/questionMatcher';
 import { getTrainingForNode } from '../data/training';
-import { SKILL_TOPIC_COLORS, type Topic } from '../types';
 import type { UserProgress } from '../lib/progress';
 import { getNodeProgress } from '../lib/progress';
 
@@ -14,169 +13,175 @@ interface Props {
   onEnter: (nodeId: string) => void;
 }
 
+const NODE_ICONS: Record<string, string> = {
+  'y8-number': '🔢', 'y8-algebra': '✖️', 'y8-statistics': '📊', 'y8-probability': '🎲',
+  'y9-number': '🔬', 'y9-algebra': '📈', 'y9-statistics': '📉', 'y9-probability': '🎯',
+  'y10-number': '💰', 'y10-algebra': '📐', 'y10-statistics': '🔍', 'y10-probability': '🧩',
+  'y10a-algebra': '🔗', 'y10a-probability': '🎰',
+  'y11-a1-linear': '📏', 'y11-a2-quadratics': '〰️', 'y11-a3-domain-range': '🗺️',
+  'y11-a4-transformations': '🔄', 'y11-a5-trigonometry': '📐', 'y11-a6-logs-indices': '📊',
+  'y11-a7-differentiation': '📉', 'y11-a8-integration': '∫', 'y11-a9-combinatorics': '🎲',
+  'y12-a1-algebra-functions': '⚡', 'y12-a2-differentiation': '🏔️', 'y12-a3-integration': '🌊',
+  'y12-a4-discrete-prob': '🎰', 'y12-a5-continuous-prob': '🔔', 'y12-a6-pseudocode': '💻',
+  'vce-exam1': '✏️', 'vce-exam2': '🖥️',
+};
+
+// Match tier accent colors from CivTreeView
+const TIER_ACCENT = ['#818CF8', '#A78BFA', '#C084FC', '#60A5FA', '#22D3EE', '#FBBF24'];
+
 export default function SkillNodePanel({ nodeId, progress, onClose, onEnter }: Props) {
   const node = useMemo(() => ALL_NODES.find(n => n.id === nodeId), [nodeId]);
   const np = getNodeProgress(progress, nodeId);
   const examCount = useMemo(() => getNodeQuestionCounts()[nodeId] ?? 0, [nodeId]);
   const trainingCount = useMemo(() => getTrainingForNode(nodeId).length, [nodeId]);
   const qCount = trainingCount + examCount;
-  const topicColor = node ? SKILL_TOPIC_COLORS[node.topic as Topic] : null;
-  const [isVisible, setIsVisible] = useState(false);
+  const icon = NODE_ICONS[nodeId] ?? '📐';
+  const tierColor = node ? TIER_ACCENT[node.tier] ?? '#60A5FA' : '#60A5FA';
+  const [visible, setVisible] = useState(false);
 
-  // Animate in
   useEffect(() => {
-    requestAnimationFrame(() => setIsVisible(true));
+    requestAnimationFrame(() => setVisible(true));
+    return () => setVisible(false);
   }, [nodeId]);
-
-  const handleClose = () => {
-    setIsVisible(false);
-    setTimeout(onClose, 200);
-  };
 
   if (!node) return null;
 
-  const progressPct = (np.levelsCompleted.length / 4) * 100;
-  const primaryColor = topicColor?.primary ?? '#3B82F6';
+  const pct = Math.round((np.levelsCompleted.length / 4) * 100);
+  const isStarted = np.levelsCompleted.length > 0;
 
   return (
     <>
-      {/* Backdrop for mobile */}
+      {/* Backdrop */}
       <div
-        className={`fixed inset-0 bg-black/50 z-40 sm:hidden transition-opacity duration-200 ${isVisible ? 'opacity-100' : 'opacity-0'}`}
-        onClick={handleClose}
+        className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm"
+        onClick={onClose}
+        style={{ opacity: visible ? 1 : 0, transition: 'opacity 0.2s ease' }}
       />
 
-      {/* Panel: bottom sheet on mobile, right sidebar on desktop */}
+      {/* Panel — centered modal on all sizes */}
       <div
-        className={`
-          fixed z-50 bg-gray-900 border-gray-700 shadow-2xl
-          transition-all duration-300 ease-out
-
-          /* Mobile: bottom sheet */
-          inset-x-0 bottom-0 sm:inset-x-auto sm:bottom-auto
-          rounded-t-2xl sm:rounded-t-none
-
-          /* Desktop: right sidebar */
-          sm:right-0 sm:top-0 sm:h-full sm:w-96
-          sm:rounded-l-2xl sm:border-l
-
-          ${isVisible
-            ? 'translate-y-0 sm:translate-y-0 sm:translate-x-0'
-            : 'translate-y-full sm:translate-y-0 sm:translate-x-full'
-          }
-        `}
+        className="fixed z-50 inset-x-4 sm:inset-x-auto sm:left-1/2 sm:-translate-x-1/2 bottom-6 sm:bottom-auto sm:top-1/2 sm:-translate-y-1/2 sm:w-[380px]"
+        style={{
+          transform: visible
+            ? window.innerWidth >= 640
+              ? 'translate(-50%, -50%) scale(1)'
+              : 'translateY(0) scale(1)'
+            : window.innerWidth >= 640
+              ? 'translate(-50%, -45%) scale(0.95)'
+              : 'translateY(20px) scale(0.95)',
+          opacity: visible ? 1 : 0,
+          transition: 'all 0.25s ease-out',
+        }}
       >
-        {/* Mobile drag handle */}
-        <div className="sm:hidden flex justify-center pt-3 pb-1">
-          <div className="w-10 h-1 rounded-full bg-gray-600" />
-        </div>
-
-        <div className="p-5 sm:p-6 sm:h-full sm:flex sm:flex-col">
-          {/* Header */}
-          <div className="flex items-start justify-between mb-4">
-            <div className="flex items-center gap-3">
-              <div
-                className="w-12 h-12 rounded-xl flex items-center justify-center text-2xl"
-                style={{
-                  background: `linear-gradient(135deg, ${primaryColor}30, ${primaryColor}10)`,
-                  border: `1px solid ${primaryColor}40`,
-                }}
-              >
-                {node.title.includes('Exam') ? '📝' : '📐'}
-              </div>
-              <div>
-                <h3 className="text-white font-bold text-lg leading-tight">{node.title}</h3>
-                <div className="flex items-center gap-1.5 mt-0.5">
-                  <div
-                    className="w-2 h-2 rounded-full"
-                    style={{ backgroundColor: primaryColor }}
-                  />
-                  <span className="text-xs text-gray-500">{node.topic}</span>
-                </div>
-              </div>
-            </div>
-            <button
-              onClick={handleClose}
-              className="p-1.5 rounded-lg text-gray-500 hover:text-white hover:bg-gray-800 transition-colors"
-            >
-              <X size={18} />
-            </button>
-          </div>
-
-          <p className="text-sm text-gray-400 mb-5 leading-relaxed">{node.description}</p>
-
-          {/* Stats grid */}
-          <div className="grid grid-cols-3 gap-3 mb-5">
-            <div className="bg-gray-800/80 rounded-xl p-3 text-center border border-gray-700/50">
-              <div className="flex items-center justify-center gap-1 mb-1">
-                <Star size={14} className="text-yellow-400" />
-              </div>
-              <div className="text-xl font-bold text-white">{np.score}%</div>
-              <div className="text-[10px] text-gray-500 uppercase tracking-wider">Score</div>
-            </div>
-            <div className="bg-gray-800/80 rounded-xl p-3 text-center border border-gray-700/50">
-              <div className="flex items-center justify-center gap-1 mb-1">
-                <Zap size={14} className="text-blue-400" />
-              </div>
-              <div className="text-xl font-bold text-white">{np.levelsCompleted.length}/4</div>
-              <div className="text-[10px] text-gray-500 uppercase tracking-wider">Levels</div>
-            </div>
-            <div className="bg-gray-800/80 rounded-xl p-3 text-center border border-gray-700/50">
-              <div className="flex items-center justify-center gap-1 mb-1">
-                <BookOpen size={14} className="text-green-400" />
-              </div>
-              <div className="text-xl font-bold text-white">{qCount}</div>
-              <div className="text-[10px] text-gray-500 uppercase tracking-wider">Questions</div>
-            </div>
-          </div>
-
-          {/* Progress bar with level indicators */}
-          <div className="mb-5">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-xs text-gray-400">Progress</span>
-              <span className="text-xs font-bold" style={{ color: primaryColor }}>{Math.round(progressPct)}%</span>
-            </div>
-            <div className="h-2 rounded-full bg-gray-800 overflow-hidden relative">
-              <div
-                className="h-full rounded-full transition-all duration-700 ease-out"
-                style={{
-                  width: `${progressPct}%`,
-                  background: `linear-gradient(90deg, ${primaryColor}, ${primaryColor}CC)`,
-                  boxShadow: `0 0 8px ${primaryColor}40`,
-                }}
-              />
-            </div>
-            {/* Level dots */}
-            <div className="flex justify-between mt-2 px-1">
-              {['Easy', 'Medium', 'Hard', 'Exam'].map((label, i) => (
-                <div key={i} className="flex flex-col items-center gap-1">
-                  <div
-                    className={`w-3 h-3 rounded-full border-2 transition-all ${
-                      np.levelsCompleted.includes(i + 1)
-                        ? 'border-green-400 bg-green-400'
-                        : 'border-gray-600 bg-gray-800'
-                    }`}
-                  />
-                  <span className="text-[9px] text-gray-500">{label}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Spacer on desktop */}
-          <div className="hidden sm:flex-1 sm:block" />
-
-          {/* CTA Button */}
-          <button
-            onClick={() => onEnter(nodeId)}
-            className="w-full flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl text-white font-semibold text-base transition-all hover:shadow-lg active:scale-[0.98]"
+        <div
+          className="rounded-3xl overflow-hidden border border-gray-700/50"
+          style={{ background: '#111827' }}
+        >
+          {/* Header with icon */}
+          <div
+            className="relative px-6 pt-8 pb-5 text-center"
             style={{
-              background: `linear-gradient(135deg, ${primaryColor}, ${primaryColor}CC)`,
-              boxShadow: `0 4px 20px ${primaryColor}30`,
+              background: `linear-gradient(180deg, ${tierColor}15, transparent)`,
             }}
           >
-            Enter Topic <ArrowRight size={18} />
-          </button>
+            <button
+              onClick={onClose}
+              className="absolute top-3 right-3 w-8 h-8 rounded-full bg-gray-800/80 hover:bg-gray-700 flex items-center justify-center text-gray-400 hover:text-white transition-colors"
+            >
+              <X size={16} />
+            </button>
+
+            <div
+              className="w-20 h-20 rounded-full mx-auto flex items-center justify-center text-4xl mb-3"
+              style={{
+                border: `3px solid ${tierColor}`,
+                background: `${tierColor}15`,
+                boxShadow: `0 0 30px ${tierColor}20`,
+              }}
+            >
+              {icon}
+            </div>
+
+            <h3 className="text-xl font-bold text-white">{node.title}</h3>
+            <p className="text-xs text-gray-400 mt-1 capitalize">{node.topic.toLowerCase()}</p>
+          </div>
+
+          {/* Body */}
+          <div className="px-6 pb-6">
+            <p className="text-sm text-gray-400 leading-relaxed mb-5 text-center">
+              {node.description}
+            </p>
+
+            {/* Stats */}
+            <div className="flex items-center justify-center gap-6 mb-5">
+              <div className="text-center">
+                <div className="text-2xl font-bold text-white">{np.levelsCompleted.length}<span className="text-base text-gray-500">/4</span></div>
+                <div className="text-[10px] text-gray-500 mt-0.5 uppercase tracking-wider">Levels</div>
+              </div>
+              <div className="w-px h-8 bg-gray-700/50" />
+              <div className="text-center">
+                <div className="text-2xl font-bold text-white">{qCount}</div>
+                <div className="text-[10px] text-gray-500 mt-0.5 uppercase tracking-wider">Questions</div>
+              </div>
+              <div className="w-px h-8 bg-gray-700/50" />
+              <div className="text-center">
+                <div className="text-2xl font-bold text-white">{np.score}<span className="text-base text-gray-500">%</span></div>
+                <div className="text-[10px] text-gray-500 mt-0.5 uppercase tracking-wider">Best</div>
+              </div>
+            </div>
+
+            {/* Progress bar */}
+            <div className="mb-5">
+              <div className="flex justify-between text-[10px] text-gray-500 mb-1.5 font-mono">
+                <span>Progress</span>
+                <span>{pct}%</span>
+              </div>
+              <div className="h-2 rounded-full bg-gray-800 overflow-hidden">
+                <div
+                  className="h-full rounded-full transition-all duration-700"
+                  style={{
+                    width: `${pct}%`,
+                    background: pct === 100
+                      ? 'linear-gradient(90deg, #22C55E, #10B981)'
+                      : `linear-gradient(90deg, ${tierColor}, ${tierColor}BB)`,
+                  }}
+                />
+              </div>
+              {/* Level dots */}
+              <div className="flex justify-between mt-2 px-1">
+                {['Easy', 'Medium', 'Hard', 'Exam'].map((label, i) => (
+                  <div key={i} className="flex flex-col items-center gap-1">
+                    <div
+                      className="w-4 h-4 rounded-full flex items-center justify-center text-[8px]"
+                      style={{
+                        background: np.levelsCompleted.includes(i + 1) ? tierColor : '#1F2937',
+                        border: `1.5px solid ${np.levelsCompleted.includes(i + 1) ? tierColor : '#374151'}`,
+                      }}
+                    >
+                      {np.levelsCompleted.includes(i + 1) ? '✓' : ''}
+                    </div>
+                    <span className="text-[8px] text-gray-600">{label}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* CTA */}
+            <button
+              onClick={() => onEnter(nodeId)}
+              className="w-full py-3.5 rounded-2xl font-bold text-base uppercase tracking-wide
+                         flex items-center justify-center gap-2 transition-all active:scale-[0.98]
+                         hover:brightness-110"
+              style={{
+                background: tierColor,
+                color: '#000',
+                boxShadow: `0 4px 20px ${tierColor}40`,
+              }}
+            >
+              <Play size={18} fill="currentColor" />
+              {isStarted ? 'Continue Practice' : 'Start Practice'}
+            </button>
+          </div>
         </div>
       </div>
     </>

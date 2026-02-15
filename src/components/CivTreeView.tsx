@@ -1,7 +1,6 @@
-import { useRef, useState, useCallback, useEffect, useMemo } from 'react';
-import { ChevronRight, Lock, Star, Zap, Crown, Play } from 'lucide-react';
+import { useRef, useState, useEffect, useMemo } from 'react';
+import { Play, Lock, Crown, CheckCircle2 } from 'lucide-react';
 import { ALL_NODES } from '../data/skillTreeData';
-import { SKILL_TOPIC_COLORS, type Topic } from '../types';
 import { getNodeQuestionCounts } from '../data/questionMatcher';
 import { getTrainingForNode } from '../data/training';
 import type { UserProgress } from '../lib/progress';
@@ -19,14 +18,17 @@ export interface CivTreeViewRef {
 
 const TIER_LABELS = ['Year 8', 'Year 9', 'Year 10 / 10A', 'Year 11 (U1&2)', 'Year 12 (U3&4)', 'VCE Exam'];
 const TIER_SUBTITLES = [
-  'Build your foundations',
-  'Strengthen core skills',
-  'Advanced fundamentals',
-  'Units 1 & 2 — 9 chapters',
-  'Units 3 & 4 — 6 chapters',
-  'The real deal',
+  'Foundation Skills',
+  'Core Development',
+  'Advanced Foundations',
+  'Methods Units 1 & 2',
+  'Methods Units 3 & 4',
+  'Final Exam Prep',
 ];
-const TIER_COLORS = ['#6366F1', '#8B5CF6', '#A855F7', '#3B82F6', '#0EA5E9', '#F59E0B'];
+
+// Bright, vivid tier colors (Duolingo-style)
+const TIER_ACCENT = ['#818CF8', '#A78BFA', '#C084FC', '#60A5FA', '#22D3EE', '#FBBF24'];
+const TIER_BG_FROM = ['#312E81', '#3B0764', '#4A044E', '#172554', '#083344', '#422006'];
 const NODE_ICONS: Record<string, string> = {
   'y8-number': '🔢', 'y8-algebra': '✖️', 'y8-statistics': '📊', 'y8-probability': '🎲',
   'y9-number': '🔬', 'y9-algebra': '📈', 'y9-statistics': '📉', 'y9-probability': '🎯',
@@ -57,316 +59,208 @@ function findCurrentNode(progress: UserProgress): string | null {
   return null;
 }
 
-/* ─── Single Node Card ─── */
+/* ─── Path Node ─── */
 
-function NodeCard({
+function PathNode({
   node,
   status,
   progress,
   isCurrent,
   icon,
+  tierColor,
+  offsetX,
   onSelect,
+  nodeSize,
 }: {
   node: typeof ALL_NODES[0];
   status: string;
   progress: UserProgress;
   isCurrent: boolean;
   icon: string;
+  tierColor: string;
+  offsetX: number;
   onSelect: () => void;
+  nodeSize: number;
 }) {
   const isLocked = status === 'locked';
   const isCompleted = status === 'completed' || status === 'mastered';
+  const isMastered = status === 'mastered';
   const isInProgress = status === 'in-progress';
   const np = progress.nodes[node.id];
   const levelsCompleted = np?.levelsCompleted?.length ?? 0;
-  const score = np?.score ?? 0;
-  const topicColor = SKILL_TOPIC_COLORS[node.topic as Topic];
 
   const examCount = useMemo(() => getNodeQuestionCounts()[node.id] ?? 0, [node.id]);
   const trainingCount = useMemo(() => getTrainingForNode(node.id).length, [node.id]);
   const totalQ = examCount + trainingCount;
 
+  // Ring colors
+  const ringColor = isLocked ? '#374151' : isCompleted ? '#22C55E' : isCurrent ? tierColor : '#4B5563';
+  const ringWidth = isCurrent ? 5 : isCompleted ? 4 : 3;
+  const bgColor = isLocked ? '#1F2937' : isCompleted ? '#14532D' : isCurrent ? `${tierColor}20` : '#1F2937';
+
   return (
-    <button
-      onClick={() => !isLocked && onSelect()}
-      disabled={isLocked}
-      className={`
-        group relative w-full text-left rounded-2xl border transition-all duration-300
-        ${isLocked
-          ? 'opacity-50 cursor-not-allowed border-gray-800/50 bg-gray-900/30'
-          : isCurrent
-            ? 'border-blue-500/50 bg-blue-500/[0.07] shadow-[0_0_30px_rgba(59,130,246,0.12)] hover:shadow-[0_0_40px_rgba(59,130,246,0.2)]'
-            : isCompleted
-              ? 'border-green-500/30 bg-green-500/[0.04] hover:border-green-500/50 hover:bg-green-500/[0.07]'
-              : isInProgress
-                ? 'border-blue-500/30 bg-blue-500/[0.04] hover:border-blue-500/50'
-                : 'border-gray-700/50 bg-gray-800/30 hover:border-gray-600/50 hover:bg-gray-800/50'
-        }
-      `}
+    <div
+      className="flex flex-col items-center relative"
+      style={{ transform: `translateX(${offsetX}px)` }}
     >
-      {/* Current indicator */}
-      {isCurrent && (
-        <div className="absolute -top-2 left-4 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider bg-blue-600 text-white rounded-full">
-          Start here
-        </div>
-      )}
-
-      <div className="p-4 sm:p-5 flex items-start gap-4">
-        {/* Icon circle */}
-        <div
-          className={`
-            shrink-0 w-14 h-14 sm:w-16 sm:h-16 rounded-xl flex items-center justify-center text-2xl sm:text-3xl
-            transition-all duration-300
-            ${isLocked
-              ? 'bg-gray-800/50'
-              : isCompleted
-                ? 'bg-gradient-to-br shadow-lg'
-                : isCurrent
-                  ? 'bg-blue-600/20 border border-blue-500/30'
-                  : 'bg-gray-800/80 border border-gray-700/50 group-hover:border-gray-600/50'
-            }
-          `}
-          style={isCompleted ? {
-            background: `linear-gradient(135deg, ${topicColor?.primary ?? '#22C55E'}25, ${topicColor?.bg ?? '#16A34A'})`,
-            boxShadow: `0 4px 12px ${topicColor?.glow ?? '#22C55E'}20`,
-          } : undefined}
-        >
-          {isLocked ? (
-            <Lock size={24} className="text-gray-600" />
-          ) : (
-            <span style={{ filter: isCompleted ? 'drop-shadow(0 0 4px rgba(255,255,255,0.2))' : 'none' }}>
-              {icon}
-            </span>
-          )}
-        </div>
-
-        {/* Content */}
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 mb-0.5">
-            <h3 className={`font-semibold text-sm sm:text-base truncate ${
-              isLocked ? 'text-gray-600' : 'text-white'
-            }`}>
-              {node.title}
-            </h3>
-            {isCompleted && (
-              <Crown size={14} className="text-amber-400 shrink-0" />
-            )}
-          </div>
-
-          <p className={`text-xs leading-relaxed line-clamp-2 mb-2.5 ${
-            isLocked ? 'text-gray-700' : 'text-gray-400'
-          }`}>
-            {node.description}
-          </p>
-
-          {/* Bottom row: progress + stats */}
-          {!isLocked && (
-            <div className="flex items-center gap-3">
-              {/* Level progress */}
-              <div className="flex items-center gap-1">
-                {[0, 1, 2, 3].map(lvl => (
-                  <div
-                    key={lvl}
-                    className="w-5 sm:w-6 h-1.5 rounded-full transition-all"
-                    style={{
-                      background: (np?.levelsCompleted ?? []).includes(lvl + 1)
-                        ? isCompleted
-                          ? topicColor?.primary ?? '#22C55E'
-                          : '#3B82F6'
-                        : 'rgba(255,255,255,0.06)',
-                    }}
-                  />
-                ))}
-              </div>
-
-              <span className="text-[10px] text-gray-500 font-mono">
-                {levelsCompleted}/4
-              </span>
-
-              <div className="w-px h-3 bg-gray-700/50" />
-
-              <span className="text-[10px] text-gray-500">
-                {totalQ} Q{totalQ !== 1 ? 's' : ''}
-              </span>
-
-              {score > 0 && (
-                <>
-                  <div className="w-px h-3 bg-gray-700/50" />
-                  <div className="flex items-center gap-0.5">
-                    <Star size={10} className={score >= 90 ? 'text-amber-400' : score >= 70 ? 'text-blue-400' : 'text-gray-500'} fill="currentColor" />
-                    <span className="text-[10px] font-mono text-gray-400">{score}%</span>
-                  </div>
-                </>
-              )}
-            </div>
-          )}
-        </div>
-
-        {/* Right: action hint */}
-        <div className="shrink-0 self-center">
-          {isLocked ? (
-            <div className="w-8 h-8 rounded-full bg-gray-800/50 flex items-center justify-center">
-              <Lock size={14} className="text-gray-600" />
-            </div>
-          ) : isCurrent ? (
-            <div className="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center shadow-lg shadow-blue-600/30 group-hover:shadow-blue-600/50 transition-shadow">
-              <Play size={16} className="text-white ml-0.5" fill="white" />
-            </div>
-          ) : isCompleted ? (
-            <div className="w-8 h-8 rounded-full bg-green-500/20 flex items-center justify-center">
-              <Star size={14} className="text-green-400" fill="currentColor" />
-            </div>
-          ) : (
-            <ChevronRight size={18} className="text-gray-600 group-hover:text-gray-400 transition-colors" />
-          )}
-        </div>
-      </div>
-
-      {/* Full-width progress bar for in-progress */}
-      {isInProgress && levelsCompleted > 0 && (
-        <div className="h-0.5 bg-gray-800 rounded-b-2xl overflow-hidden">
-          <div
-            className="h-full rounded-full transition-all duration-700"
-            style={{
-              width: `${(levelsCompleted / 4) * 100}%`,
-              background: 'linear-gradient(90deg, #3B82F6, #60A5FA)',
-            }}
+      {/* Crown for completed */}
+      {isCompleted && (
+        <div className="absolute -top-5 z-10">
+          <Crown
+            size={isMastered ? 24 : 20}
+            className={isMastered ? 'text-amber-400' : 'text-green-400'}
+            fill="currentColor"
+            strokeWidth={0}
           />
         </div>
       )}
-    </button>
+
+      {/* Pulsing ring for current */}
+      {isCurrent && (
+        <div
+          className="absolute rounded-full animate-ping-slow"
+          style={{
+            width: nodeSize + 20,
+            height: nodeSize + 20,
+            border: `2px solid ${tierColor}`,
+            opacity: 0.3,
+          }}
+        />
+      )}
+
+      {/* Main node button */}
+      <button
+        onClick={() => !isLocked && onSelect()}
+        disabled={isLocked}
+        className={`
+          relative rounded-full flex items-center justify-center
+          transition-all duration-200 group
+          ${isLocked ? 'cursor-not-allowed' : 'cursor-pointer active:scale-95'}
+          ${isCurrent ? 'hover:scale-105' : !isLocked ? 'hover:scale-105 hover:brightness-110' : ''}
+        `}
+        style={{
+          width: nodeSize,
+          height: nodeSize,
+          border: `${ringWidth}px solid ${ringColor}`,
+          background: bgColor,
+          boxShadow: isCurrent
+            ? `0 0 30px ${tierColor}40, 0 0 60px ${tierColor}15`
+            : isCompleted
+              ? '0 0 20px rgba(34,197,94,0.15)'
+              : 'none',
+          opacity: isLocked ? 0.4 : 1,
+        }}
+      >
+        {/* Progress ring overlay */}
+        {isInProgress && levelsCompleted > 0 && (
+          <svg
+            className="absolute inset-0"
+            width={nodeSize}
+            height={nodeSize}
+            viewBox={`0 0 ${nodeSize} ${nodeSize}`}
+          >
+            <circle
+              cx={nodeSize / 2}
+              cy={nodeSize / 2}
+              r={nodeSize / 2 - ringWidth - 1}
+              fill="none"
+              stroke={tierColor}
+              strokeWidth={3}
+              strokeLinecap="round"
+              strokeDasharray={`${(levelsCompleted / 4) * Math.PI * (nodeSize - 2 * ringWidth - 2)} ${Math.PI * (nodeSize - 2 * ringWidth - 2)}`}
+              transform={`rotate(-90 ${nodeSize / 2} ${nodeSize / 2})`}
+              opacity={0.5}
+            />
+          </svg>
+        )}
+
+        {/* Completed checkmark overlay */}
+        {isCompleted && (
+          <div className="absolute -bottom-0.5 -right-0.5 w-6 h-6 rounded-full bg-green-500 flex items-center justify-center border-2 border-green-900">
+            <CheckCircle2 size={14} className="text-white" strokeWidth={3} />
+          </div>
+        )}
+
+        {/* Icon */}
+        <span
+          className={isCurrent ? 'text-3xl sm:text-4xl' : 'text-2xl sm:text-3xl'}
+          style={{
+            filter: isLocked ? 'grayscale(1) brightness(0.3)' : 'none',
+          }}
+        >
+          {isLocked ? <Lock size={nodeSize * 0.3} className="text-gray-600" /> : icon}
+        </span>
+      </button>
+
+      {/* Label */}
+      <div className="mt-2 text-center" style={{ maxWidth: nodeSize + 40 }}>
+        <p className={`text-xs sm:text-sm font-semibold leading-tight ${
+          isLocked ? 'text-gray-600' : isCurrent ? 'text-white' : isCompleted ? 'text-green-300' : 'text-gray-300'
+        }`}>
+          {node.title}
+        </p>
+        {!isLocked && (
+          <p className="text-[10px] text-gray-500 mt-0.5">
+            {totalQ} questions · {levelsCompleted}/4
+          </p>
+        )}
+      </div>
+
+      {/* START button for current node */}
+      {isCurrent && (
+        <button
+          onClick={onSelect}
+          className="mt-3 px-6 py-2.5 rounded-2xl font-bold text-sm uppercase tracking-wider
+                     flex items-center gap-2 transition-all active:scale-95
+                     hover:shadow-lg hover:brightness-110"
+          style={{
+            background: tierColor,
+            color: '#000',
+            boxShadow: `0 4px 20px ${tierColor}50`,
+          }}
+        >
+          <Play size={14} fill="currentColor" />
+          {isInProgress ? 'Continue' : 'Start'}
+        </button>
+      )}
+    </div>
   );
 }
 
-/* ─── Tier Section ─── */
+/* ─── Tier Banner ─── */
 
-function TierSection({
-  tier,
-  nodes,
-  progress,
-  currentNodeId,
-  onSelectNode,
-  isExpanded,
-  onToggle,
-}: {
+function TierBanner({ tier, nodes, progress }: {
   tier: number;
   nodes: typeof ALL_NODES;
   progress: UserProgress;
-  currentNodeId: string | null;
-  onSelectNode: (nodeId: string) => void;
-  isExpanded: boolean;
-  onToggle: () => void;
 }) {
-  const color = TIER_COLORS[tier] ?? '#6B7280';
-  const isVCE = tier === 5;
-
   const completedCount = nodes.filter(n => {
     const s = computeNodeStatus(n.id, n.prerequisites, progress);
     return s === 'completed' || s === 'mastered';
   }).length;
-
-  const hasCurrentNode = nodes.some(n => n.id === currentNodeId);
-  const allCompleted = completedCount === nodes.length;
-  const progressPct = Math.round((completedCount / nodes.length) * 100);
+  const pct = Math.round((completedCount / nodes.length) * 100);
+  const color = TIER_ACCENT[tier] ?? '#9CA3AF';
 
   return (
-    <div className="relative">
-      {/* Tier Header — always visible */}
-      <button
-        onClick={onToggle}
-        className={`
-          w-full sticky top-0 z-20 backdrop-blur-xl transition-all duration-300
-          ${isExpanded
-            ? 'bg-gray-900/90 border-b border-gray-800/50'
-            : 'bg-gray-900/70 hover:bg-gray-900/90'
-          }
-        `}
-      >
-        <div className="max-w-2xl mx-auto px-4 sm:px-6 py-3.5 flex items-center gap-4">
-          {/* Tier indicator */}
-          <div
-            className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0 text-xl sm:text-2xl"
-            style={{
-              background: `${color}15`,
-              border: `1px solid ${color}30`,
-            }}
-          >
-            {isVCE ? '🏆' : allCompleted ? '✅' : `${tier + 8 > 12 ? '' : tier + 8}`}
-            {!isVCE && !allCompleted && tier + 8 <= 12 && (
-              <span className="sr-only">Year {tier + 8}</span>
-            )}
-          </div>
-
-          <div className="flex-1 min-w-0 text-left">
-            <div className="flex items-center gap-2">
-              <h2 className="font-bold text-sm sm:text-base text-white truncate">
-                {TIER_LABELS[tier]}
-              </h2>
-              {hasCurrentNode && !allCompleted && (
-                <span className="px-1.5 py-0.5 text-[9px] font-bold uppercase bg-blue-600 text-white rounded-full">
-                  Current
-                </span>
-              )}
-            </div>
-            <p className="text-[11px] text-gray-500 mt-0.5">
-              {TIER_SUBTITLES[tier]} · {nodes.length} topic{nodes.length > 1 ? 's' : ''}
-            </p>
-          </div>
-
-          {/* Progress */}
-          <div className="shrink-0 flex items-center gap-3">
-            <div className="text-right hidden sm:block">
-              <div className="text-xs font-mono text-gray-400">
-                {completedCount}/{nodes.length}
-              </div>
-            </div>
-            <div className="w-12 sm:w-16 h-1.5 rounded-full bg-gray-800 overflow-hidden">
-              <div
-                className="h-full rounded-full transition-all duration-700"
-                style={{
-                  width: `${progressPct}%`,
-                  background: allCompleted
-                    ? 'linear-gradient(90deg, #22C55E, #10B981)'
-                    : `linear-gradient(90deg, ${color}, ${color}AA)`,
-                }}
-              />
-            </div>
-            <ChevronRight
-              size={16}
-              className={`text-gray-500 transition-transform duration-300 ${isExpanded ? 'rotate-90' : ''}`}
+    <div className="flex items-center gap-4 py-6 px-4">
+      <div className="flex-1 h-px" style={{ background: `linear-gradient(to right, transparent, ${color}30, transparent)` }} />
+      <div className="text-center shrink-0">
+        <h3 className="text-sm sm:text-base font-bold tracking-wide" style={{ color }}>
+          {TIER_LABELS[tier]}
+        </h3>
+        <p className="text-[10px] sm:text-xs text-gray-500 mt-0.5">
+          {TIER_SUBTITLES[tier]} · {completedCount}/{nodes.length}
+        </p>
+        {pct > 0 && (
+          <div className="mt-2 mx-auto w-24 h-1.5 rounded-full bg-gray-800 overflow-hidden">
+            <div
+              className="h-full rounded-full transition-all duration-700"
+              style={{ width: `${pct}%`, background: color }}
             />
           </div>
-        </div>
-      </button>
-
-      {/* Tier content — expandable */}
-      <div
-        className="overflow-hidden transition-all duration-400"
-        style={{
-          maxHeight: isExpanded ? `${nodes.length * 140 + 40}px` : '0',
-          opacity: isExpanded ? 1 : 0,
-        }}
-      >
-        <div className="max-w-2xl mx-auto px-3 sm:px-5 py-3 space-y-2.5">
-          {nodes.map(node => {
-            const status = computeNodeStatus(node.id, node.prerequisites, progress);
-            const icon = NODE_ICONS[node.id] ?? '📐';
-            const isCurrent = node.id === currentNodeId;
-
-            return (
-              <NodeCard
-                key={node.id}
-                node={node}
-                status={status}
-                progress={progress}
-                isCurrent={isCurrent}
-                icon={icon}
-                onSelect={() => onSelectNode(node.id)}
-              />
-            );
-          })}
-        </div>
+        )}
       </div>
+      <div className="flex-1 h-px" style={{ background: `linear-gradient(to left, transparent, ${color}30, transparent)` }} />
     </div>
   );
 }
@@ -377,73 +271,151 @@ export default function CivTreeView({ progress, onSelectNode }: Props) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const tiers = useMemo(() => getNodesByTier(), []);
   const currentNodeId = useMemo(() => findCurrentNode(progress), [progress]);
+  const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' && window.innerWidth < 640);
 
-  // Auto-expand the tier containing the current node (and Year 8 if no progress)
-  const currentTier = currentNodeId
-    ? ALL_NODES.find(n => n.id === currentNodeId)?.tier ?? 0
-    : 0;
-
-  const [expandedTiers, setExpandedTiers] = useState<Set<number>>(() => {
-    return new Set([currentTier]);
-  });
-
-  // When current tier changes, expand it
   useEffect(() => {
-    setExpandedTiers(prev => {
-      const next = new Set(prev);
-      next.add(currentTier);
-      return next;
-    });
-  }, [currentTier]);
-
-  const toggleTier = useCallback((tier: number) => {
-    setExpandedTiers(prev => {
-      const next = new Set(prev);
-      if (next.has(tier)) next.delete(tier);
-      else next.add(tier);
-      return next;
-    });
+    const handler = () => setIsMobile(window.innerWidth < 640);
+    window.addEventListener('resize', handler);
+    return () => window.removeEventListener('resize', handler);
   }, []);
+
+  const nodeSize = isMobile ? 72 : 90;
+  const swing = isMobile ? 50 : 80; // how far nodes offset left/right
+
+  // Auto-scroll to current node
+  useEffect(() => {
+    if (!currentNodeId || !scrollRef.current) return;
+    const el = scrollRef.current.querySelector(`[data-node="${currentNodeId}"]`);
+    if (el) {
+      setTimeout(() => {
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }, 300);
+    }
+  }, [currentNodeId]);
+
+  // Build global node index for wave positioning
+  const nodeIndexMap = useMemo(() => {
+    const map: Record<string, number> = {};
+    let idx = 0;
+    Object.entries(tiers)
+      .sort(([a], [b]) => Number(a) - Number(b))
+      .forEach(([, nodes]) => {
+        nodes.forEach(n => { map[n.id] = idx++; });
+      });
+    return map;
+  }, [tiers]);
 
   return (
     <div
       ref={scrollRef}
       className="w-full h-full overflow-y-auto overflow-x-hidden scroll-smooth"
-      style={{ background: '#0B0F1A' }}
     >
-      <div className="min-h-full pb-20">
-        {/* Header */}
-        <div className="max-w-2xl mx-auto px-4 sm:px-6 pt-6 pb-2">
-          <div className="flex items-center gap-3 mb-1">
-            <Zap size={18} className="text-blue-400" />
-            <h1 className="text-lg sm:text-xl font-bold text-white">Skill Tree</h1>
-          </div>
-          <p className="text-xs text-gray-500">
-            {ALL_NODES.length} topics · {
-              Object.values(progress.nodes).filter(n => n.status === 'completed' || n.status === 'mastered').length
-            } completed
-          </p>
-        </div>
+      <style>{`
+        @keyframes ping-slow {
+          0% { transform: scale(1); opacity: 0.3; }
+          50% { transform: scale(1.15); opacity: 0; }
+          100% { transform: scale(1); opacity: 0.3; }
+        }
+        .animate-ping-slow { animation: ping-slow 2s ease-in-out infinite; }
+        @keyframes path-dash {
+          to { stroke-dashoffset: -16; }
+        }
+      `}</style>
 
-        {/* Tier sections */}
-        <div className="mt-2">
-          {Object.entries(tiers)
-            .sort(([a], [b]) => Number(a) - Number(b))
-            .map(([tierStr, nodes]) => {
-              const tier = Number(tierStr);
-              return (
-                <TierSection
-                  key={tier}
-                  tier={tier}
-                  nodes={nodes}
-                  progress={progress}
-                  currentNodeId={currentNodeId}
-                  onSelectNode={onSelectNode}
-                  isExpanded={expandedTiers.has(tier)}
-                  onToggle={() => toggleTier(tier)}
+      <div className="min-h-full pb-32 pt-4" style={{
+        background: 'linear-gradient(180deg, #0F0A1A 0%, #0D1117 30%, #0B1222 60%, #0F0A1A 100%)',
+      }}>
+        {Object.entries(tiers)
+          .sort(([a], [b]) => Number(a) - Number(b))
+          .map(([tierStr, nodes]) => {
+            const tier = Number(tierStr);
+            const color = TIER_ACCENT[tier] ?? '#9CA3AF';
+
+            return (
+              <div key={tier} className="relative">
+                {/* Tier background glow */}
+                <div
+                  className="absolute inset-0 pointer-events-none"
+                  style={{
+                    background: `radial-gradient(ellipse 80% 50% at 50% 50%, ${TIER_BG_FROM[tier]}60 0%, transparent 70%)`,
+                  }}
                 />
-              );
-            })}
+
+                {/* Tier banner */}
+                <TierBanner tier={tier} nodes={nodes} progress={progress} />
+
+                {/* Nodes in this tier */}
+                <div className="relative flex flex-col items-center gap-8 sm:gap-10 pb-6">
+                  {nodes.map((node, i) => {
+                    const globalIdx = nodeIndexMap[node.id] ?? 0;
+                    const status = computeNodeStatus(node.id, node.prerequisites, progress);
+                    const icon = NODE_ICONS[node.id] ?? '📐';
+                    const isCurrent = node.id === currentNodeId;
+
+                    // Gentle S-curve offset
+                    const offsetX = Math.sin(globalIdx * 0.7) * swing;
+
+                    return (
+                      <div key={node.id} data-node={node.id} className="relative">
+                        {/* Connection line to next node */}
+                        {i < nodes.length - 1 && (
+                          <svg
+                            className="absolute left-1/2 -translate-x-1/2 pointer-events-none"
+                            style={{
+                              top: nodeSize + (isCurrent ? 55 : 30),
+                              width: 200,
+                              height: isMobile ? 55 : 60,
+                              marginLeft: -100 + offsetX,
+                            }}
+                            viewBox="0 0 200 60"
+                          >
+                            {(() => {
+                              const nextGlobalIdx = nodeIndexMap[nodes[i + 1]?.id] ?? globalIdx + 1;
+                              const nextOffsetX = Math.sin(nextGlobalIdx * 0.7) * swing;
+                              const dx = nextOffsetX - offsetX;
+                              const isActive = status === 'completed' || status === 'mastered';
+
+                              return (
+                                <path
+                                  d={`M 100 0 C 100 25, ${100 + dx} 35, ${100 + dx} 60`}
+                                  fill="none"
+                                  stroke={isActive ? color : '#374151'}
+                                  strokeWidth={isActive ? 4 : 3}
+                                  strokeDasharray={isActive ? 'none' : '8 8'}
+                                  strokeLinecap="round"
+                                  opacity={isActive ? 0.6 : 0.3}
+                                  style={!isActive ? { animation: 'path-dash 1s linear infinite' } : undefined}
+                                />
+                              );
+                            })()}
+                          </svg>
+                        )}
+
+                        <PathNode
+                          node={node}
+                          status={status}
+                          progress={progress}
+                          isCurrent={isCurrent}
+                          icon={icon}
+                          tierColor={color}
+                          offsetX={offsetX}
+                          onSelect={() => onSelectNode(node.id)}
+                          nodeSize={isCurrent ? nodeSize + 10 : nodeSize}
+                        />
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            );
+          })}
+
+        {/* End: trophy */}
+        <div className="flex flex-col items-center py-10 opacity-30">
+          <div className="w-16 h-16 rounded-full border-2 border-amber-500/30 flex items-center justify-center">
+            <span className="text-3xl">🏆</span>
+          </div>
+          <p className="text-xs text-gray-600 mt-2 font-mono">VCE Ready</p>
         </div>
       </div>
     </div>
