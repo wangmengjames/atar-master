@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
-import { Check } from 'lucide-react';
+import { Check, Target, FileText, BarChart3, Download, UserPlus, BookOpen, TrendingUp } from 'lucide-react';
 
 /* ───────────── animated count-up hook ───────────── */
 function useCountUp(end: number, duration = 1800) {
@@ -94,7 +94,7 @@ export default function LandingPage() {
 
         <div className="relative z-10 mx-auto max-w-4xl px-6 text-center">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-white/10 bg-white/5 backdrop-blur text-sm text-gray-300 mb-10">
-            📐 2016–2024 VCE Methods Exams Available
+            <BookOpen size={14} /> 2016–2025 VCE Methods Exams Available
           </div>
 
           <h1 className="text-5xl sm:text-7xl md:text-8xl font-black leading-[0.95] tracking-tight mb-8">
@@ -106,7 +106,7 @@ export default function LandingPage() {
           </h1>
 
           <p className="text-lg md:text-xl text-gray-400 max-w-2xl mx-auto mb-12 leading-relaxed">
-            2,270+ practice questions. 9 years of past exams. AI-powered skill tracking.
+            2,270+ practice questions. 10 years of past exams. AI-powered skill tracking.
             Everything you need to ace Mathematical Methods.
           </p>
 
@@ -130,10 +130,10 @@ export default function LandingPage() {
       {/* ─── Stats Bar ─── */}
       <section className="relative border-y border-white/5 bg-white/[0.02]">
         <div className="mx-auto max-w-5xl px-6 py-16 grid grid-cols-2 md:grid-cols-4 gap-10">
-          <StatItem end={2270} suffix="+" label="Questions" />
-          <StatItem end={31} suffix="" label="Skill Nodes" />
-          <StatItem end={9} suffix=" Years" label="Past Exams (2016–2024)" />
-          <StatItem end={1450} suffix="" label="Training Questions" />
+          <StatItem end={2270} suffix="+" label="Practice Questions" />
+          <StatItem end={20} suffix="" label="Past Exam Papers" />
+          <StatItem end={10} suffix=" Years" label="VCE Coverage (2016–2025)" />
+          <StatItem end={31} suffix="" label="Skill Tree Nodes" />
         </div>
       </section>
 
@@ -145,16 +145,16 @@ export default function LandingPage() {
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {[
-            { icon: '🎯', title: 'Skill Tree', desc: 'Visual learning path from Year 8 to VCE Exam. See exactly where your gaps are.' },
-            { icon: '📝', title: 'Past Exam Practice', desc: '9 years of real VCAA exams with detailed marking guides and solutions.' },
-            { icon: '📊', title: 'Progress Tracking', desc: 'Track your mastery across every topic. Know when you\'re exam-ready.' },
-            { icon: '📄', title: 'PDF Study Guides', desc: 'Download combined question + marking guide PDFs. Study offline.' },
+            { icon: <Target size={28} />, title: 'Skill Tree', desc: 'Visual learning path from Year 8 to VCE Exam. See exactly where your gaps are.' },
+            { icon: <FileText size={28} />, title: 'Past Exam Practice', desc: '10 years of real VCAA exams with detailed marking guides and solutions.' },
+            { icon: <BarChart3 size={28} />, title: 'Progress Tracking', desc: 'Track your mastery across every topic. Know when you\'re exam-ready.' },
+            { icon: <Download size={28} />, title: 'PDF Study Guides', desc: 'Download combined question + marking guide PDFs. Study offline.' },
           ].map((f) => (
             <div
               key={f.title}
               className="group rounded-2xl p-8 border border-white/[0.06] bg-white/[0.02] backdrop-blur-sm hover:border-white/15 hover:bg-white/[0.04] transition-all duration-300"
             >
-              <div className="text-4xl mb-5">{f.icon}</div>
+              <div className="mb-5 text-blue-400 group-hover:text-cyan-400 transition-colors">{f.icon}</div>
               <h3 className="text-lg font-semibold mb-3">{f.title}</h3>
               <p className="text-sm text-gray-400 leading-relaxed">{f.desc}</p>
             </div>
@@ -171,13 +171,13 @@ export default function LandingPage() {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
             {[
-              { num: '01', title: 'Sign up for free', desc: 'Create your account in seconds. No credit card required.' },
-              { num: '02', title: 'Practice by topic or exam', desc: 'Choose from the skill tree or dive into real past papers.' },
-              { num: '03', title: 'Track, improve, ace it', desc: 'Monitor your progress, fill gaps, and walk into the exam confident.' },
-            ].map((s) => (
-              <div key={s.num} className="text-center">
-                <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-600/20 to-cyan-500/10 border border-blue-500/20 text-blue-400 font-bold text-xl mb-6">
-                  {s.num}
+              { icon: <UserPlus size={24} />, title: 'Sign up for free', desc: 'Create your account in seconds. No credit card required.' },
+              { icon: <BookOpen size={24} />, title: 'Practice by topic or exam', desc: 'Choose from the skill tree or dive into real past papers.' },
+              { icon: <TrendingUp size={24} />, title: 'Track, improve, ace it', desc: 'Monitor your progress, fill gaps, and walk into the exam confident.' },
+            ].map((s, i) => (
+              <div key={i} className="text-center">
+                <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-600/20 to-cyan-500/10 border border-blue-500/20 text-blue-400 mb-6">
+                  {s.icon}
                 </div>
                 <h3 className="text-lg font-semibold mb-2">{s.title}</h3>
                 <p className="text-sm text-gray-400">{s.desc}</p>
@@ -228,7 +228,7 @@ export default function LandingPage() {
             </Link>
             <ul className="mt-6 space-y-3">
               {[
-                'All 9 years of exams (2016–2024)',
+                'All 10 years of exams (2016–2025)',
                 'Full skill tree with unlocks',
                 'Unlimited practice questions',
                 'PDF study guide downloads',
@@ -257,7 +257,7 @@ export default function LandingPage() {
       <footer className="border-t border-white/5">
         <div className="mx-auto max-w-5xl px-6 py-10 flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-2">
-            <span className="text-xl">🎓</span>
+            <span className="text-xl text-blue-400">✦</span>
             <span className="font-bold text-lg">ATAR Master</span>
           </div>
           <div className="flex gap-8 text-sm text-gray-500">
