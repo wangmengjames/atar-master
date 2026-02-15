@@ -455,6 +455,80 @@ export default function CivTreeView({ progress, onSelectNode }: Props) {
               const tier = Number(tierStr);
               const gradient = TIER_GRADIENTS[tier] as [string, string];
               const hasCurrentNode = nodes.some(n => n.id === currentNodeId);
+              // Tiers with many nodes → two-column layout for widescreen
+              const useDualCol = tier >= 2 && tier <= 4 && nodes.length > 4;
+
+              if (useDualCol) {
+                const mid = Math.ceil(nodes.length / 2);
+                const colA = nodes.slice(0, mid);
+                const colB = nodes.slice(mid);
+
+                return (
+                  <div
+                    key={tier}
+                    className="flex flex-col items-center shrink-0 relative"
+                    style={{ minWidth: '308px' }}
+                  >
+                    {hasCurrentNode && (
+                      <div
+                        className="absolute inset-0 rounded-2xl pointer-events-none"
+                        style={{
+                          background: `radial-gradient(ellipse 100% 50% at 50% 30%, ${gradient[0]}08, transparent)`,
+                        }}
+                      />
+                    )}
+
+                    <ColumnHeader
+                      tier={tier}
+                      nodes={nodes}
+                      progress={progress}
+                      gradient={gradient}
+                    />
+
+                    {/* Dual-column node grid */}
+                    <div className="flex gap-2 sm:gap-3 px-1.5">
+                      {/* Left column */}
+                      <div className="flex flex-col items-center gap-2.5 sm:gap-3">
+                        {colA.map((node, i) => {
+                          const status = computeNodeStatus(node.id, node.prerequisites, progress);
+                          const isCurrent = node.id === currentNodeId;
+                          return (
+                            <NodeCard
+                              key={node.id}
+                              node={node}
+                              status={status}
+                              progress={progress}
+                              isCurrent={isCurrent}
+                              tierGrad={gradient}
+                              onSelect={() => onSelectNode(node.id)}
+                              delay={i * 50}
+                            />
+                          );
+                        })}
+                      </div>
+                      {/* Right column */}
+                      <div className="flex flex-col items-center gap-2.5 sm:gap-3">
+                        {colB.map((node, i) => {
+                          const status = computeNodeStatus(node.id, node.prerequisites, progress);
+                          const isCurrent = node.id === currentNodeId;
+                          return (
+                            <NodeCard
+                              key={node.id}
+                              node={node}
+                              status={status}
+                              progress={progress}
+                              isCurrent={isCurrent}
+                              tierGrad={gradient}
+                              onSelect={() => onSelectNode(node.id)}
+                              delay={(i + colA.length) * 50}
+                            />
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </div>
+                );
+              }
 
               return (
                 <div
