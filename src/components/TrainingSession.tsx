@@ -94,8 +94,28 @@ export default function TrainingSession({ nodeId, level, onComplete, onBack }: P
       recordActivity();
       window.dispatchEvent(new Event('streak-updated'));
     });
+
+    // Check achievements
+    const progress = loadProgress();
+    const streak = getStreak();
+    let maxStreak = 0, cur = 0;
+    for (let i = 0; i < total; i++) {
+      if (results[i]) { cur++; maxStreak = Math.max(maxStreak, cur); } else { cur = 0; }
+    }
+    const newAchievements = checkAchievements({
+      progress,
+      streak,
+      sessionCorrectStreak: maxStreak,
+      perfectLevel: correctCount === total && total > 0,
+      speedAnswer: speedAnswerThisSession,
+      completedLevel: level,
+    });
+    if (newAchievements.length > 0) {
+      setAchievementQueue(newAchievements);
+    }
+
     onComplete(nodeId, level, correctCount, total);
-  }, [nodeId, level, correctCount, total, onComplete]);
+  }, [nodeId, level, correctCount, total, onComplete, results, speedAnswerThisSession]);
 
   // Keyboard shortcuts
   useEffect(() => {
@@ -442,6 +462,12 @@ export default function TrainingSession({ nodeId, level, onComplete, onBack }: P
           )}
         </div>
       </div>
+      {achievementQueue.length > 0 && (
+        <AchievementToast
+          achievement={achievementQueue[0]}
+          onDone={() => setAchievementQueue(q => q.slice(1))}
+        />
+      )}
     </div>
   );
 }
