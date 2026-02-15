@@ -62,10 +62,19 @@ export interface MatchedQuestion {
 
 /**
  * Get all exam questions matching a given skill tree node.
+ * Special handling for VCE exam nodes which aggregate all questions from their exam type.
  */
 export function getQuestionsForNode(nodeId: string): MatchedQuestion[] {
   const node = ALL_NODES.find(n => n.id === nodeId);
   if (!node) return [];
+
+  // VCE Exam nodes: return ALL questions from Exam 1 or Exam 2
+  if (nodeId === 'vce-exam1') {
+    return getAllFlat().filter(fq => fq.examTitle.includes('Exam 1') || fq.examTitle.includes('exam1'));
+  }
+  if (nodeId === 'vce-exam2') {
+    return getAllFlat().filter(fq => fq.examTitle.includes('Exam 2') || fq.examTitle.includes('exam2'));
+  }
 
   const types = new Set((node.questionTypes ?? []).map(t => t.toLowerCase()));
   if (types.size === 0) return [];
@@ -92,6 +101,16 @@ export function getNodeQuestionCounts(): Record<string, number> {
   const allFlat = getAllFlat();
 
   for (const node of ALL_NODES) {
+    // VCE Exam nodes: count all questions from their exam type
+    if (node.id === 'vce-exam1') {
+      counts[node.id] = allFlat.filter(fq => fq.examTitle.includes('Exam 1') || fq.examTitle.includes('exam1')).length;
+      continue;
+    }
+    if (node.id === 'vce-exam2') {
+      counts[node.id] = allFlat.filter(fq => fq.examTitle.includes('Exam 2') || fq.examTitle.includes('exam2')).length;
+      continue;
+    }
+
     const types = new Set((node.questionTypes ?? []).map(t => t.toLowerCase()));
     counts[node.id] = allFlat.filter(fq => {
       const st = fq.question.subTopic;
