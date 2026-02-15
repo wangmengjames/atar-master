@@ -4,6 +4,8 @@ import { MM_2016_EXAM1 } from './mm_2016_exam1';
 import { MM_2016_EXAM2 } from './mm_2016_exam2';
 import { MM_2017_EXAM1 } from './mm_2017_exam1';
 import { MM_2017_EXAM2 } from './mm_2017_exam2';
+import { MM_2018_EXAM1 } from './mm_2018_exam1';
+import { MM_2018_EXAM2 } from './mm_2018_exam2';
 import { MM_2019_EXAM1 } from './mm_2019_exam1';
 import { MM_2019_EXAM2 } from './mm_2019_exam2';
 import { MM_2020_EXAM1 } from './mm_2020_exam1';
@@ -24,6 +26,8 @@ const ALL_EXAMS: ExamPaper[] = [
   MM_2016_EXAM2,
   MM_2017_EXAM1,
   MM_2017_EXAM2,
+  MM_2018_EXAM1,
+  MM_2018_EXAM2,
   MM_2019_EXAM1,
   MM_2019_EXAM2,
   MM_2020_EXAM1,
@@ -53,6 +57,8 @@ export {
   MM_2016_EXAM2,
   MM_2017_EXAM1,
   MM_2017_EXAM2,
+  MM_2018_EXAM1,
+  MM_2018_EXAM2,
   MM_2019_EXAM1,
   MM_2019_EXAM2,
   MM_2020_EXAM1,

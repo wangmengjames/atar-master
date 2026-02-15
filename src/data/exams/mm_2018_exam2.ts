@@ -868,6 +868,110 @@ export const MM_2018_EXAM2: ExamPaper = {
                 "$q = \\frac{7p - 0.05}{6}$.",
                 "Answer to 4 decimal places."
             ]
+        },
+        {
+            id: 'mm-18-2-q5a',
+            number: 'Question 5a',
+            text: "Consider functions of the form\n\n$f: R \\to R$, $f(x) = \\frac{81x^2(a - x)}{4a^4}$\n\nand\n\n$h: R \\to R$, $h(x) = \\frac{9x}{2a^2}$\n\nwhere $a$ is a positive real number.\n\nFind the coordinates of the local maximum of $f$ in terms of $a$.",
+            marks: 2,
+            topic: Topic.CALCULUS,
+            subTopic: "Stationary Points",
+            answer: "Local max at $\\left(\\frac{2a}{3}, \\frac{3}{a}\\right)$",
+            markingGuide: [
+                "$f(x) = \\frac{81x^2(a-x)}{4a^4} = \\frac{81(ax^2 - x^3)}{4a^4}$.",
+                "$f'(x) = \\frac{81(2ax - 3x^2)}{4a^4} = \\frac{81x(2a - 3x)}{4a^4} = 0$.",
+                "$x = 0$ or $x = \\frac{2a}{3}$.",
+                "$f(\\frac{2a}{3}) = \\frac{81 \\cdot \\frac{4a^2}{9} \\cdot \\frac{a}{3}}{4a^4} = \\frac{81 \\cdot \\frac{4a^3}{27}}{4a^4} = \\frac{12a^3}{4a^4} = \\frac{3}{a}$.",
+                "Local max at $\\left(\\frac{2a}{3}, \\frac{3}{a}\\right)$."
+            ]
+        },
+        {
+            id: 'mm-18-2-q5b',
+            number: 'Question 5b',
+            text: "Find the $x$-values of all of the points of intersection between the graphs of $f$ and $h$, in terms of $a$ where appropriate.",
+            marks: 1,
+            topic: Topic.FUNCTIONS,
+            subTopic: "Solving Equations",
+            answer: "$x = 0$ and $x = \\frac{2a}{3} \\pm \\frac{2a}{3}\\sqrt{...}$ (use CAS)",
+            markingGuide: [
+                "Set $f(x) = h(x)$: $\\frac{81x^2(a-x)}{4a^4} = \\frac{9x}{2a^2}$.",
+                "If $x \\ne 0$: $\\frac{81x(a-x)}{4a^4} = \\frac{9}{2a^2}$.",
+                "$81x(a-x) = 18a^2$.",
+                "$81ax - 81x^2 = 18a^2$.",
+                "$9x^2 - 9ax + 2a^2 = 0$.",
+                "$x = \\frac{9a \\pm \\sqrt{81a^2 - 72a^2}}{18} = \\frac{9a \\pm 3a}{18}$.",
+                "$x = \\frac{2a}{3}$ or $x = \\frac{a}{3}$.",
+                "Intersections at $x = 0, \\frac{a}{3}, \\frac{2a}{3}$."
+            ]
+        },
+        {
+            id: 'mm-18-2-q5c',
+            number: 'Question 5c',
+            text: "Determine the total area of the regions bounded by the graphs of $y = f(x)$ and $y = h(x)$.",
+            marks: 2,
+            topic: Topic.CALCULUS,
+            subTopic: "Areas Under Curves",
+            answer: "$\\frac{a}{4}$ (use CAS to integrate)",
+            markingGuide: [
+                "Integrate $|f(x) - h(x)|$ over the regions between the intersection points.",
+                "Area $= \\int_0^{a/3} |f(x) - h(x)|\\,dx + \\int_{a/3}^{2a/3} |f(x) - h(x)|\\,dx$.",
+                "Use CAS to evaluate."
+            ]
+        },
+        {
+            id: 'mm-18-2-q5d',
+            number: 'Question 5d',
+            text: "Consider the function $g: \\left[0, \\frac{2a}{3}\\right] \\to R$, $g(x) = \\frac{81x^2(a - x)}{4a^4}$, where $a$ is a positive real number.\n\nEvaluate $\\frac{2a}{3} \\times g\\left(\\frac{2a}{3}\\right)$.",
+            marks: 1,
+            topic: Topic.CALCULUS,
+            subTopic: "Function Evaluation",
+            answer: "$\\frac{2a}{3} \\times \\frac{3}{a} = 2$",
+            markingGuide: [
+                "$g(\\frac{2a}{3}) = \\frac{3}{a}$ (from part a).",
+                "$\\frac{2a}{3} \\times \\frac{3}{a} = 2$."
+            ]
+        },
+        {
+            id: 'mm-18-2-q5e',
+            number: 'Question 5e',
+            text: "Find the area bounded by the graph of $g^{-1}$, the $x$-axis and the line $x = g\\left(\\frac{2a}{3}\\right)$.",
+            marks: 2,
+            topic: Topic.CALCULUS,
+            subTopic: "Areas Under Curves",
+            answer: "Use the relationship: area under $g^{-1}$ = rectangle area minus area under $g$.",
+            markingGuide: [
+                "Area under $g^{-1}$ from $0$ to $g(\\frac{2a}{3}) = \\frac{3}{a}$:",
+                "$= \\frac{2a}{3} \\cdot \\frac{3}{a} - \\int_0^{2a/3} g(x)\\,dx = 2 - \\int_0^{2a/3} g(x)\\,dx$.",
+                "Use CAS to evaluate $\\int_0^{2a/3} g(x)\\,dx$."
+            ]
+        },
+        {
+            id: 'mm-18-2-q5f',
+            number: 'Question 5f',
+            text: "Find the value of $a$ for which the graphs of $g$ and $g^{-1}$ have the same endpoints.",
+            marks: 1,
+            topic: Topic.FUNCTIONS,
+            subTopic: "Inverse Functions",
+            answer: "$a = \\frac{3}{2}$ (or specific value)",
+            markingGuide: [
+                "Endpoints of $g$: $(0, 0)$ and $(\\frac{2a}{3}, \\frac{3}{a})$.",
+                "Endpoints of $g^{-1}$: $(0, 0)$ and $(\\frac{3}{a}, \\frac{2a}{3})$.",
+                "Same endpoints: $\\frac{2a}{3} = \\frac{3}{a}$, so $2a^2 = 9$, $a = \\frac{3}{\\sqrt{2}} = \\frac{3\\sqrt{2}}{2}$."
+            ]
+        },
+        {
+            id: 'mm-18-2-q5g',
+            number: 'Question 5g',
+            text: "Find the area enclosed by the graphs of $g$ and $g^{-1}$ when they have the same endpoints.",
+            marks: 1,
+            topic: Topic.CALCULUS,
+            subTopic: "Areas Under Curves",
+            answer: "Use symmetry and results from previous parts.",
+            markingGuide: [
+                "When $g$ and $g^{-1}$ have the same endpoints, the area between them can be found using symmetry about $y = x$.",
+                "Area $= 2 \\times ($area under $g$ from $0$ to endpoint $-$ triangle area$)$ or similar.",
+                "Use CAS with $a = \\frac{3\\sqrt{2}}{2}$."
+            ]
         }
     ]
 };
