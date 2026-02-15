@@ -35,9 +35,18 @@ interface FlatQuestion {
 
 function flattenExam(exam: ExamPaper): FlatQuestion[] {
   const result: FlatQuestion[] = [];
-  const walk = (q: ExamQuestion) => {
-    result.push({ question: q, examId: exam.id, year: exam.year, examTitle: exam.title });
-    if (q.subQuestions) q.subQuestions.forEach(walk);
+  const walk = (q: ExamQuestion, parentText?: string) => {
+    // If this is a subQuestion and parent had context text, prepend it
+    let enrichedQuestion = q;
+    if (parentText && parentText.trim().length > 0) {
+      const first20 = parentText.slice(0, 20);
+      const alreadyHasContext = q.text.includes(first20) || q.text.startsWith('Let ');
+      if (!alreadyHasContext) {
+        enrichedQuestion = { ...q, text: `[Context] ${parentText}\n\n${q.text}` };
+      }
+    }
+    result.push({ question: enrichedQuestion, examId: exam.id, year: exam.year, examTitle: exam.title });
+    if (q.subQuestions) q.subQuestions.forEach(sq => walk(sq, q.text));
   };
   exam.questions.forEach(walk);
   return result;
@@ -67,6 +76,9 @@ export interface MatchedQuestion {
 export function getQuestionsForNode(nodeId: string): MatchedQuestion[] {
   const node = ALL_NODES.find(n => n.id === nodeId);
   if (!node) return [];
+
+  // VCE exam questions only for Year 11+ (tier >= 3)
+  if (node.tier < 3) return [];
 
   // VCE Exam nodes: return ALL questions from Exam 1 or Exam 2
   if (nodeId === 'vce-exam1') {
@@ -101,6 +113,11 @@ export function getNodeQuestionCounts(): Record<string, number> {
   const allFlat = getAllFlat();
 
   for (const node of ALL_NODES) {
+    // VCE exam questions only for Year 11+ (tier >= 3)
+    if (node.tier < 3) {
+      counts[node.id] = 0;
+      continue;
+    }
     // VCE Exam nodes: count all questions from their exam type
     if (node.id === 'vce-exam1') {
       counts[node.id] = allFlat.filter(fq => fq.examTitle.includes('Exam 1') || fq.examTitle.includes('exam1')).length;

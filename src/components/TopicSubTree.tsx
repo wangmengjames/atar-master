@@ -127,11 +127,6 @@ export default function TopicSubTree({ nodeId, progress, onBack, onStartLevel }:
                           REAL EXAMS
                         </span>
                       )}
-                      {!levelData.isExamLevel && qCount > 0 && !isLocked && (
-                        <span className="px-1.5 py-0.5 text-[10px] font-bold bg-blue-500/20 text-blue-400 rounded-full">
-                          MC
-                        </span>
-                      )}
                     </div>
                     <p className={`text-xs mt-0.5 ${isLocked ? 'text-gray-700' : 'text-gray-400'}`}>
                       {LEVEL_DESCRIPTIONS[i]} • {qCount} question{qCount !== 1 ? 's' : ''}
@@ -177,7 +172,7 @@ export default function TopicSubTree({ nodeId, progress, onBack, onStartLevel }:
                       }`}
                     >
                       <div className="font-mono text-[10px] text-gray-500 mb-1">
-                        MC • {tq.marks}mk
+                        {tq.marks} marks
                       </div>
                       <div className="line-clamp-2">
                         <MathText text={tq.text.slice(0, 80) + (tq.text.length > 80 ? '…' : '')} />
