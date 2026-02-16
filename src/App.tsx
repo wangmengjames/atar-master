@@ -22,8 +22,10 @@ const PricingPage = lazy(() => import('./pages/PricingPage'));
 const SuccessPage = lazy(() => import('./pages/SuccessPage'));
 const TopicLandingPage = lazy(() => import('./pages/TopicLandingPage'));
 const DailyChallengePage = lazy(() => import('./pages/DailyChallengePage'));
+const PrivacyPage = lazy(() => import('./pages/PrivacyPage'));
+const TermsPage = lazy(() => import('./pages/TermsPage'));
 
-const FOOTER_PAGES = ['/', '/exams', '/pricing', '/topics'];
+const FOOTER_PAGES = ['/', '/exams', '/pricing', '/topics', '/privacy', '/terms'];
 
 function PageWrapper({ children }: { children: React.ReactNode }) {
   const location = useLocation();
@@ -48,6 +50,8 @@ function AppLayout() {
               <Route path="/auth" element={<AuthPage />} />
               <Route path="/pricing" element={<PricingPage />} />
               <Route path="/success" element={<SuccessPage />} />
+              <Route path="/privacy" element={<PrivacyPage />} />
+              <Route path="/terms" element={<TermsPage />} />
               <Route path="/topics/:slug" element={<TopicLandingPage />} />
               <Route path="/skill-tree" element={<AuthGuard><SkillTreePage /></AuthGuard>} />
               <Route path="/exams" element={<AuthGuard><ExamsPage /></AuthGuard>} />

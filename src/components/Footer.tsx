@@ -7,7 +7,9 @@ export default function Footer() {
         <span>&copy; 2026 ATAR Master. All rights reserved.</span>
         <div className="flex items-center gap-4">
           <Link to="/pricing" className="hover:text-gh-text-primary transition">Pricing</Link>
-          <a href="mailto:support@atarmaster.com" className="hover:text-gh-text-primary transition">Contact</a>
+          <Link to="/privacy" className="hover:text-gh-text-primary transition">Privacy</Link>
+          <Link to="/terms" className="hover:text-gh-text-primary transition">Terms</Link>
+          <a href="mailto:drjarvisw@gmail.com" className="hover:text-gh-text-primary transition">Contact</a>
         </div>
       </div>
     </footer>
