@@ -95,11 +95,11 @@ export default function Navbar() {
 
   const dailyDone = useMemo(() => getDailyChallengeState()?.completed ?? false, [location.pathname]);
   const linkBase = 'flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 relative';
-  const activeClass = 'bg-blue-600/15 text-blue-400 shadow-[inset_0_0_0_1px_rgba(59,130,246,0.2)]';
-  const inactiveClass = 'text-gh-text-secondary hover:text-gh-text-primary hover:bg-gh-surface/50';
+  const activeClass = 'bg-black/[0.06] text-black shadow-[inset_0_0_0_1px_rgba(0,0,0,0.08)]';
+  const inactiveClass = 'text-gh-text-secondary hover:text-gh-text-primary hover:bg-gh-surface';
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 border-b border-gray-800 bg-gray-900/95 backdrop-blur-md">
+    <nav className="fixed top-0 left-0 right-0 z-50 border-b border-black/10 bg-white/90 backdrop-blur-md">
       <div className="mx-auto max-w-6xl flex items-center justify-between px-4 sm:px-6 py-3">
         <NavLink to="/" className="flex items-center gap-2 text-lg font-bold text-gh-text-primary">
           <span className="text-2xl">🎓</span> ATAR Master
@@ -115,7 +115,7 @@ export default function Navbar() {
             >
               {({ isActive }) => (
                 <>
-                  <span className={`relative ${isActive ? 'text-blue-400' : ''}`}>
+                  <span className={`relative ${isActive ? 'text-black' : ''}`}>
                     {l.icon}
                     {l.showDot && !dailyDone && (
                       <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full" />
@@ -123,7 +123,7 @@ export default function Navbar() {
                   </span>
                   {l.label}
                   {isActive && (
-                    <span className="absolute -bottom-[13px] left-1/2 -translate-x-1/2 w-8 h-0.5 rounded-full bg-blue-400" />
+                    <span className="absolute -bottom-[13px] left-1/2 -translate-x-1/2 w-8 h-0.5 rounded-full bg-black/70" />
                   )}
                 </>
               )}
@@ -150,7 +150,7 @@ export default function Navbar() {
 
       {/* Mobile menu */}
       {mobileOpen && (
-        <div className="md:hidden border-t border-gray-800 bg-gray-900 px-4 pb-4 space-y-1 mobile-menu-enter">
+        <div className="md:hidden border-t border-black/10 bg-white px-4 pb-4 space-y-1 mobile-menu-enter">
           {NAV_LINKS.map(l => (
             <NavLink
               key={l.to}
