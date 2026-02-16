@@ -53,7 +53,7 @@ export default function LandingPage() {
         <div className="max-w-3xl">
           <p className="fade-1 mb-6 text-xs tracking-[0.24em] text-blue-200/70 sm:text-sm">ATAR MASTER · VCE MATHEMATICAL METHODS</p>
 
-          <h1 className="fade-2 text-5xl font-black leading-[0.95] tracking-tight sm:text-6xl md:text-7xl lg:text-8xl">
+          <h1 className="fade-2 text-4xl font-black leading-[0.95] tracking-tight sm:text-5xl md:text-6xl lg:text-7xl">
             Study Smarter.
             <br />
             <span className="bg-gradient-to-r from-white via-blue-100 to-blue-300 bg-clip-text text-transparent">Score Higher.</span>
@@ -99,6 +99,45 @@ export default function LandingPage() {
           <div>
             <div className="text-2xl font-bold text-white sm:text-3xl">100%</div>
             <div className="mt-1 text-xs uppercase tracking-widest text-blue-100/65">Methods Coverage</div>
+          </div>
+        </div>
+      </section>
+
+      {/* Scrollable lower content (kept minimal) */}
+      <section className="relative z-10 px-6 py-20 sm:px-10 sm:py-24">
+        <div className="mx-auto max-w-4xl text-center">
+          <p className="mb-4 text-xs tracking-[0.2em] text-blue-200/60">HOW IT WORKS</p>
+          <h2 className="text-3xl font-semibold tracking-tight text-white sm:text-4xl">Simple, focused, exam-ready.</h2>
+          <div className="mt-10 grid gap-4 text-left sm:grid-cols-3">
+            <div className="rounded-xl border border-white/10 bg-white/5 p-5">
+              <p className="text-sm font-semibold text-white">1. Choose your level</p>
+              <p className="mt-2 text-sm text-blue-100/70">Start from Year 8 foundations or jump into Year 12 exam prep.</p>
+            </div>
+            <div className="rounded-xl border border-white/10 bg-white/5 p-5">
+              <p className="text-sm font-semibold text-white">2. Practice with real papers</p>
+              <p className="mt-2 text-sm text-blue-100/70">Train using authentic VCAA-style questions and past exams.</p>
+            </div>
+            <div className="rounded-xl border border-white/10 bg-white/5 p-5">
+              <p className="text-sm font-semibold text-white">3. Track and improve</p>
+              <p className="mt-2 text-sm text-blue-100/70">See exactly what to fix before the real exam.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="relative z-10 border-t border-white/8 px-6 py-20 text-center sm:px-10 sm:py-24">
+        <div className="mx-auto max-w-3xl">
+          <h3 className="text-2xl font-semibold sm:text-3xl">Ready when you are.</h3>
+          <p className="mx-auto mt-4 max-w-xl text-blue-100/75">
+            Keep the clean experience. Dive deeper only when you scroll.
+          </p>
+          <div className="mt-8">
+            <Link
+              to="/skill-tree"
+              className="inline-block rounded-xl bg-white px-7 py-3.5 text-base font-semibold text-[#0A1638] transition hover:opacity-95"
+            >
+              {user ? 'Continue Learning' : 'Start Practicing'}
+            </Link>
           </div>
         </div>
       </section>
