@@ -3,7 +3,7 @@ import { useProgress } from '../hooks/useProgress';
 import type { PracticeSession } from '../hooks/useProgress';
 import { getAllExams } from '../data/exams';
 import { type ExamQuestion, Topic, SKILL_TOPIC_COLORS } from '../types';
-import { Play, Shuffle, Target, TrendingUp, Eye, Lightbulb, Check, X, BarChart3, RotateCcw } from 'lucide-react';
+import { Play, Shuffle, Target, TrendingUp, Eye, Lightbulb, Check, X, BarChart3, RotateCcw, Sparkles } from 'lucide-react';
 import MathText from '../components/MathText';
 
 type Mode = 'topic' | 'exam' | 'random' | 'weak';
@@ -108,7 +108,7 @@ export default function PracticePage() {
   if (phase === 'select') {
     return (
       <div className="mx-auto max-w-3xl px-6 py-10">
-        <h1 className="text-3xl font-bold mb-2">🏋️ Practice Mode</h1>
+        <h1 className="text-3xl font-bold mb-2 text-gh-text-primary">Practice Mode</h1>
         <p className="text-gh-text-secondary mb-8">Choose how you want to practice</p>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
@@ -121,7 +121,7 @@ export default function PracticePage() {
             <button
               key={m}
               onClick={() => setMode(m)}
-              className={`p-5 rounded-xl border text-left transition-all ${mode === m ? 'border-gh-accent-blue bg-gh-accent-blue/10' : 'border-gh-border bg-gh-surface hover:border-gh-border-muted'}`}
+              className={`p-5 rounded-xl border text-left transition-all ${mode === m ? 'border-black/20 bg-black/[0.03]' : 'border-gh-border bg-gh-surface hover:border-black/20'}`}
             >
               <div className="flex items-center gap-2 mb-1 text-gh-text-primary font-semibold">{icon} {label}</div>
               <div className="text-sm text-gh-text-secondary">{desc}</div>
@@ -173,7 +173,7 @@ export default function PracticePage() {
         <button
           onClick={startPractice}
           disabled={mode === 'exam' && !selectedExamId}
-          className="flex items-center gap-2 px-6 py-3 bg-gh-accent-blue text-white font-semibold rounded-xl hover:opacity-90 transition disabled:opacity-40"
+          className="flex items-center gap-2 px-6 py-3 bg-gh-overlay border border-gh-border text-gh-text-primary font-semibold rounded-xl hover:bg-gh-border transition disabled:opacity-40"
         >
           <Play size={18} /> Start Practice
         </button>
@@ -252,16 +252,16 @@ export default function PracticePage() {
             {currentQ.markingGuide && currentQ.markingGuide.length > 0 && hintsShown < currentQ.markingGuide.length && !answerShown && (
               <button
                 onClick={() => setHintsShown(h => h + 1)}
-                className="flex items-center gap-2 px-4 py-2 bg-yellow-500/10 text-yellow-400 border border-yellow-500/30 rounded-lg hover:bg-yellow-500/20 transition"
+                className="flex items-center gap-2 px-4 py-2 bg-gh-overlay text-gh-text-primary border border-gh-border rounded-lg hover:bg-gh-border transition"
               >
                 <Lightbulb size={16} /> Show Hint ({hintsShown}/{currentQ.markingGuide.length})
               </button>
             )}
 
             {hintsShown > 0 && !answerShown && (
-              <div className="bg-yellow-500/5 border border-yellow-500/20 rounded-xl p-4 space-y-2">
+              <div className="bg-gh-overlay border border-gh-border rounded-xl p-4 space-y-2">
                 {currentQ.markingGuide.slice(0, hintsShown).map((h, i) => (
-                  <div key={i} className="text-sm text-yellow-300">💡 <MathText text={h} /></div>
+                  <div key={i} className="text-sm text-gh-text-secondary flex items-start gap-2"><Lightbulb size={14} className="mt-0.5 shrink-0" /> <MathText text={h} /></div>
                 ))}
               </div>
             )}
@@ -269,7 +269,7 @@ export default function PracticePage() {
             {!answerShown && (
               <button
                 onClick={() => setAnswerShown(true)}
-                className="flex items-center gap-2 px-4 py-2 bg-gh-accent-blue/10 text-gh-accent-blue border border-gh-accent-blue/30 rounded-lg hover:bg-gh-accent-blue/20 transition"
+                className="flex items-center gap-2 px-4 py-2 bg-gh-overlay text-gh-text-primary border border-gh-border rounded-lg hover:bg-gh-border transition"
               >
                 <Eye size={16} /> Show Answer
               </button>
@@ -295,11 +295,11 @@ export default function PracticePage() {
         {/* Self-assessment */}
         {answered && (
           <div className="flex gap-3">
-            <button onClick={handleGotIt} className="flex-1 flex items-center justify-center gap-2 py-3 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-xl transition">
-              <Check size={18} /> Got it ✓
+            <button onClick={handleGotIt} className="flex-1 flex items-center justify-center gap-2 py-3 bg-gh-overlay border border-gh-border hover:bg-gh-border text-gh-text-primary font-semibold rounded-xl transition">
+              <Check size={18} /> Got it
             </button>
-            <button onClick={handleNeedMore} className="flex-1 flex items-center justify-center gap-2 py-3 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-xl transition">
-              <X size={18} /> Need more practice ✗
+            <button onClick={handleNeedMore} className="flex-1 flex items-center justify-center gap-2 py-3 bg-gh-overlay border border-gh-border hover:bg-gh-border text-gh-text-primary font-semibold rounded-xl transition">
+              <X size={18} /> Need more practice
             </button>
           </div>
         )}
@@ -311,18 +311,18 @@ export default function PracticePage() {
   if (phase === 'summary') {
     return (
       <div className="mx-auto max-w-2xl px-6 py-16 text-center">
-        <div className="text-5xl mb-4">🎉</div>
+        <div className="flex justify-center mb-4"><Sparkles className="h-10 w-10 text-gh-text-secondary" /></div>
         <h2 className="text-2xl font-bold mb-2">Practice Complete!</h2>
         <p className="text-gh-text-secondary mb-8">Here's how you did</p>
 
         <div className="grid grid-cols-2 gap-4 mb-8">
           <div className="bg-gh-surface border border-gh-border rounded-xl p-6">
             <div className="text-3xl font-bold text-green-400">{correctCount}</div>
-            <div className="text-sm text-gh-text-secondary">Got it ✓</div>
+            <div className="text-sm text-gh-text-secondary">Got it</div>
           </div>
           <div className="bg-gh-surface border border-gh-border rounded-xl p-6">
             <div className="text-3xl font-bold text-red-400">{weakCount}</div>
-            <div className="text-sm text-gh-text-secondary">Need practice ✗</div>
+            <div className="text-sm text-gh-text-secondary">Need practice</div>
           </div>
         </div>
 
@@ -335,7 +335,7 @@ export default function PracticePage() {
           <button onClick={() => { resetQState(); setPhase('select'); }} className="flex items-center gap-2 px-5 py-3 bg-gh-surface border border-gh-border rounded-xl hover:bg-gh-border/30 transition text-gh-text-primary font-medium">
             <RotateCcw size={16} /> New Practice
           </button>
-          <button onClick={() => { setCurrentIdx(0); resetQState(); setResults({}); setPhase('practice'); }} className="flex items-center gap-2 px-5 py-3 bg-gh-accent-blue text-white rounded-xl hover:opacity-90 transition font-medium">
+          <button onClick={() => { setCurrentIdx(0); resetQState(); setResults({}); setPhase('practice'); }} className="flex items-center gap-2 px-5 py-3 bg-gh-overlay border border-gh-border text-gh-text-primary rounded-xl hover:bg-gh-border transition font-medium">
             <RotateCcw size={16} /> Retry Same
           </button>
         </div>

@@ -118,15 +118,15 @@ export default function DashboardPage() {
       </div>
 
       {/* Daily Challenge Card */}
-      <div className="bg-gradient-to-r from-yellow-500/10 to-orange-500/10 border border-yellow-500/20 rounded-xl p-6 mb-8">
+      <div className="bg-gh-surface border border-gh-border rounded-xl p-6 mb-8">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-lg font-semibold flex items-center gap-2 text-yellow-400">
+            <h2 className="text-lg font-semibold flex items-center gap-2 text-gh-text-primary">
               <Flame size={16} /> Daily Challenge
             </h2>
             {dailyState?.completed ? (
               <p className="text-sm text-gray-400 mt-1">
-                Today's score: <span className="text-white font-bold">{dailyState.score}/{dailyState.total}</span> — Come back tomorrow!
+                Today's score: <span className="text-gh-text-primary font-bold">{dailyState.score}/{dailyState.total}</span> — Come back tomorrow!
               </p>
             ) : (
               <p className="text-sm text-gray-400 mt-1">5 mixed-difficulty questions. New challenge every day!</p>
@@ -134,13 +134,13 @@ export default function DashboardPage() {
           </div>
           <Link
             to="/daily"
-            className={`px-5 py-2.5 rounded-xl font-semibold text-sm transition ${
+            className={`px-5 py-2.5 rounded-xl font-semibold text-sm transition border ${
               dailyState?.completed
-                ? 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-                : 'bg-yellow-500 text-black hover:bg-yellow-400'
+                ? 'bg-gh-overlay border-gh-border text-gh-text-secondary hover:bg-gh-border'
+                : 'bg-gh-overlay border-gh-border text-gh-text-primary hover:bg-gh-border'
             }`}
           >
-            {dailyState?.completed ? 'View Results' : 'Start Challenge →'}
+            {dailyState?.completed ? 'View Results' : 'Start Challenge'}
           </Link>
         </div>
       </div>
@@ -184,9 +184,9 @@ export default function DashboardPage() {
             </div>
             <button
               onClick={handleSaveProfile}
-              className="flex items-center gap-2 px-4 py-2 bg-gh-accent-blue text-white text-sm font-medium rounded-lg hover:opacity-90 transition"
+              className="flex items-center gap-2 px-4 py-2 bg-gh-overlay border border-gh-border text-gh-text-primary text-sm font-medium rounded-lg hover:bg-gh-border transition"
             >
-              <Save size={14} /> {profileSaved ? 'Saved ✓' : 'Save Profile'}
+              <Save size={14} /> {profileSaved ? 'Saved' : 'Save Profile'}
             </button>
           </div>
         </div>
@@ -224,7 +224,7 @@ export default function DashboardPage() {
                 <p className="text-sm text-gh-text-secondary mb-4">Upgrade to Pro for unlimited access to all exams, practice questions, and skill trees.</p>
                 <Link
                   to="/pricing"
-                  className="flex items-center justify-center gap-2 px-4 py-3 bg-gh-accent-blue text-white font-semibold rounded-xl hover:opacity-90 transition"
+                  className="flex items-center justify-center gap-2 px-4 py-3 bg-gh-overlay border border-gh-border text-gh-text-primary font-semibold rounded-xl hover:bg-gh-border transition"
                 >
                   <Crown size={16} /> Upgrade to Pro
                 </Link>
@@ -280,7 +280,7 @@ export default function DashboardPage() {
         </div>
 
         <div className="bg-gh-surface border border-gh-border rounded-xl p-6 flex flex-col">
-          <h2 className="text-lg font-semibold mb-4">🎯 Recommended Next</h2>
+          <h2 className="text-lg font-semibold mb-4 flex items-center gap-2"><TrendingUp size={16} /> Recommended Next</h2>
           <p className="text-gh-text-secondary text-sm mb-4 flex-1">
             {weakCount > 0
               ? `You have ${weakCount} questions to revisit. Let's strengthen those weak spots!`
@@ -289,7 +289,7 @@ export default function DashboardPage() {
           </p>
           <Link
             to="/practice"
-            className="flex items-center justify-center gap-2 px-4 py-3 bg-gh-accent-blue text-white font-semibold rounded-xl hover:opacity-90 transition"
+            className="flex items-center justify-center gap-2 px-4 py-3 bg-gh-overlay border border-gh-border text-gh-text-primary font-semibold rounded-xl hover:bg-gh-border transition"
           >
             <Play size={16} /> Start Practice
           </Link>

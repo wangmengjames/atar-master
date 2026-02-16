@@ -119,14 +119,14 @@ export default function DailyChallengePage() {
   // ── Header ──
   const header = (
     <div className="text-center mb-8">
-      <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-yellow-500/15 text-yellow-400 text-sm font-semibold mb-3">
+      <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gh-overlay border border-gh-border text-gh-text-primary text-sm font-semibold mb-3">
         <Zap size={16} /> Daily Challenge
       </div>
-      <h1 className="text-2xl font-bold text-white mb-1">{todayStr}</h1>
-      <p className="text-sm text-gray-400 flex items-center justify-center gap-2">
+      <h1 className="text-2xl font-bold text-gh-text-primary mb-1">{todayStr}</h1>
+      <p className="text-sm text-gh-text-secondary flex items-center justify-center gap-2">
         <Clock size={14} /> Refreshes in {formatCountdown(countdown)}
-        <span className="text-gray-600">·</span>
-        ⏱ {formatEstimatedTime(total * 1.5)}
+        <span className="text-gh-text-muted">·</span>
+        <Clock size={14} /> {formatEstimatedTime(total * 1.5)}
       </p>
     </div>
   );
@@ -138,7 +138,7 @@ export default function DailyChallengePage() {
     const strokeDash = (pct / 100) * circumference;
 
     return (
-      <div className="min-h-[calc(100vh-57px)] bg-gray-900 flex items-center justify-center p-6">
+      <div className="min-h-[calc(100vh-57px)] bg-gh-canvas flex items-center justify-center p-6">
         <div className="w-full max-w-lg">
           {header}
           <div className="bg-gray-800/60 border border-gray-700/50 rounded-2xl p-8 text-center backdrop-blur">
@@ -155,7 +155,7 @@ export default function DailyChallengePage() {
                 />
               </svg>
               <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <span className="text-3xl font-bold text-white">{finalState.score}/{finalState.total}</span>
+                <span className="text-3xl font-bold text-gh-text-primary">{finalState.score}/{finalState.total}</span>
                 <span className="text-sm text-gray-400">{pct}%</span>
               </div>
             </div>
@@ -168,21 +168,21 @@ export default function DailyChallengePage() {
             <div className="grid grid-cols-2 gap-4 my-6">
               <div className="bg-gray-900/50 rounded-xl p-4">
                 <Clock size={18} className="text-blue-400 mx-auto mb-1" />
-                <div className="text-lg font-bold text-white">{formatTime(finalState.timeSpent || 0)}</div>
+                <div className="text-lg font-bold text-gh-text-primary">{formatTime(finalState.timeSpent || 0)}</div>
                 <div className="text-xs text-gray-400">Time Spent</div>
               </div>
               <div className="bg-gray-900/50 rounded-xl p-4">
                 <Flame size={18} className="text-orange-400 mx-auto mb-1" />
-                <div className="text-lg font-bold text-white">{finalState.streak || 1}</div>
+                <div className="text-lg font-bold text-gh-text-primary">{finalState.streak || 1}</div>
                 <div className="text-xs text-gray-400">Day Streak</div>
               </div>
             </div>
 
-            <p className="text-gray-400 mb-6">Come back tomorrow for a new challenge! 🌟</p>
+            <p className="text-gray-400 mb-6">Come back tomorrow for a new challenge.</p>
 
             <Link
               to="/dashboard"
-              className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-xl transition"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-gh-overlay border border-gh-border hover:bg-gh-border text-gh-text-primary font-semibold rounded-xl transition"
             >
               Back to Dashboard
             </Link>
@@ -195,7 +195,7 @@ export default function DailyChallengePage() {
   // ── No questions ──
   if (!current) {
     return (
-      <div className="min-h-[calc(100vh-57px)] bg-gray-900 flex items-center justify-center p-6">
+      <div className="min-h-[calc(100vh-57px)] bg-gh-canvas flex items-center justify-center p-6">
         <div className="text-center">
           {header}
           <p className="text-gray-400">No questions available today.</p>
@@ -210,9 +210,9 @@ export default function DailyChallengePage() {
   const levelLabels = ['L1 · Easy', 'L2 · Basic', 'L3 · Medium', 'L4 · Hard', 'L5 · Expert'];
 
   return (
-    <div className="min-h-[calc(100vh-57px)] bg-gray-900 flex flex-col">
+    <div className="min-h-[calc(100vh-57px)] bg-gh-canvas flex flex-col">
       {/* Top bar */}
-      <div className="sticky top-[57px] z-20 bg-gray-900/95 backdrop-blur border-b border-gray-800/50 px-4 sm:px-6 pt-4 pb-3">
+      <div className="sticky top-[57px] z-20 bg-white/90 backdrop-blur border-b border-gh-border px-4 sm:px-6 pt-4 pb-3">
         <div className="max-w-3xl mx-auto">
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-2">
@@ -220,7 +220,7 @@ export default function DailyChallengePage() {
               <span className="text-sm font-semibold text-yellow-400">Daily Challenge</span>
             </div>
             <span className="text-sm text-gray-300">
-              <span className="text-white font-bold">{currentIdx + 1}</span> / {total}
+              <span className="text-gh-text-primary font-bold">{currentIdx + 1}</span> / {total}
             </span>
             <span className="text-xs text-gray-500">{formatCountdown(countdown)}</span>
           </div>
@@ -252,7 +252,7 @@ export default function DailyChallengePage() {
                 </span>
               )}
             </div>
-            <div className="text-lg text-white leading-relaxed">
+            <div className="text-lg text-gh-text-primary leading-relaxed">
               <MathText text={current.text} />
             </div>
           </div>
@@ -335,11 +335,11 @@ export default function DailyChallengePage() {
               feedbackVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'
             } ${isCorrect ? 'bg-green-500/10 border-green-500/30' : 'bg-red-500/10 border-red-500/30'}`}>
               <div className={`text-base font-semibold mb-2 ${isCorrect ? 'text-green-400' : 'text-red-400'}`}>
-                {isCorrect ? '✓ Correct!' : '✗ Incorrect'}
+                {isCorrect ? 'Correct' : 'Incorrect'}
               </div>
               {!isCorrect && correctOption && (
                 <p className="text-sm text-gray-300 mb-2">
-                  The answer is <span className="font-bold text-white">{correctOption.label}</span>
+                  The answer is <span className="font-bold text-gh-text-primary">{correctOption.label}</span>
                 </p>
               )}
               {current.answer && (
@@ -353,14 +353,14 @@ export default function DailyChallengePage() {
             <button
               onClick={handleSubmit}
               disabled={!selectedOption}
-              className="w-full py-4 bg-blue-600 hover:bg-blue-500 disabled:opacity-30 disabled:cursor-not-allowed text-white font-semibold rounded-xl transition"
+              className="w-full py-4 bg-gh-overlay border border-gh-border hover:bg-gh-border disabled:opacity-30 disabled:cursor-not-allowed text-gh-text-primary font-semibold rounded-xl transition"
             >
               Submit Answer
             </button>
           ) : (
             <button
               onClick={handleNext}
-              className="w-full py-4 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-xl transition flex items-center justify-center gap-2"
+              className="w-full py-4 bg-gh-overlay border border-gh-border hover:bg-gh-border text-gh-text-primary font-semibold rounded-xl transition flex items-center justify-center gap-2"
             >
               {currentIdx + 1 >= total ? 'See Results' : 'Next Question'}
               <ArrowRight size={18} />
