@@ -117,6 +117,7 @@ export function useAuthProvider(): AuthContextType {
     await supabase.auth.signOut()
     setUser(null)
     setIsPro(false)
+    window.location.href = '/'
   }, [])
 
   return useMemo(() => ({
