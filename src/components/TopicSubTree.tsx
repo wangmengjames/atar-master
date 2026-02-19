@@ -87,12 +87,24 @@ export default function TopicSubTree({ nodeId, progress, onBack, onStartLevel }:
         {levels.map((levelData, i) => {
           const levelNum = i + 1;
           const isCompleted = np.levelsCompleted.includes(levelNum);
-          const isUnlocked = levelNum === 1 || np.levelsCompleted.includes(levelNum - 1);
-          const isLocked = !isUnlocked;
           const qCount = levelData.isExamLevel ? levelData.examCount : levelData.training.length;
 
           // Don't show levels with no content
           if (qCount === 0) return null;
+
+          // Unlock: the first level with content is always open.
+          // For subsequent levels, the previous level must be completed.
+          // (Levels with no content are skipped, so we look at the previous
+          //  non-empty level rather than levelNum - 1.)
+          const prevNonEmptyLevelNum = levels
+            .slice(0, i)
+            .map((l, j) => ({ l, j }))
+            .filter(({ l }) => (l.isExamLevel ? l.examCount : l.training.length) > 0)
+            .at(-1)?.j;
+          const isUnlocked =
+            prevNonEmptyLevelNum === undefined ||
+            np.levelsCompleted.includes(prevNonEmptyLevelNum + 1);
+          const isLocked = !isUnlocked;
 
           return (
             <div
