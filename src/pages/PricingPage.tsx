@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { ChevronDown } from 'lucide-react'
 import PricingSection from '../components/PricingSection'
+import { useAuth } from '../hooks/useAuth'
 
 const faqs = [
   {
@@ -26,6 +27,7 @@ const faqs = [
 ]
 
 export default function PricingPage() {
+  const { isPro } = useAuth()
   const [openFaq, setOpenFaq] = useState<number | null>(null)
 
   return (
@@ -35,7 +37,7 @@ export default function PricingPage() {
         <p className="text-gh-text-secondary mt-2">Simple, transparent pricing for every student</p>
       </div>
 
-      <PricingSection />
+      <PricingSection currentPlan={isPro ? 'pro' : 'free'} />
 
       {/* FAQ */}
       <section className="max-w-2xl mx-auto px-4 py-16">

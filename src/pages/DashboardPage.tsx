@@ -211,13 +211,12 @@ export default function DashboardPage() {
                   <span className="text-sm text-gh-text-secondary">Next billing</span>
                   <span className="text-sm text-gh-text-secondary">—</span>
                 </div>
-                <a
-                  href="#"
-                  onClick={e => e.preventDefault()}
+                <Link
+                  to="/pricing"
                   className="flex items-center gap-2 text-sm text-gh-accent-blue hover:underline"
                 >
                   <ExternalLink size={14} /> Manage Subscription
-                </a>
+                </Link>
               </>
             ) : (
               <div>

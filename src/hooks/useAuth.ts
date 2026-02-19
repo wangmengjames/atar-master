@@ -69,10 +69,10 @@ export function useAuthProvider(): AuthContextType {
         try { await syncFromCloud(u.id) } catch (e) { console.error('[auth] cloud sync failed:', e) }
       }
 
-      // Redirect to skill-tree after sign-in if on landing or pricing page
+      // Redirect to skill-tree after sign-in if on landing page
       if (_event === 'SIGNED_IN' && u) {
         const path = window.location.pathname
-        if (path === '/' || path === '/pricing') {
+        if (path === '/') {
           window.location.href = '/skill-tree'
         }
       }
@@ -110,7 +110,7 @@ export function useAuthProvider(): AuthContextType {
   const signInWithGoogle = useCallback(async () => {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
-      options: { redirectTo: 'https://atarmaster.com/skill-tree' },
+      options: { redirectTo: `${window.location.origin}/skill-tree` },
     })
     return { error }
   }, [])

@@ -1,4 +1,5 @@
 import { useAuth } from '../hooks/useAuth'
+import { useNavigate } from 'react-router-dom'
 import { Lock, Crown, Check } from 'lucide-react'
 import type { ReactNode } from 'react'
 
@@ -15,6 +16,7 @@ interface PaywallGateProps {
 
 export default function PaywallGate({ requirePro, children }: PaywallGateProps) {
   const { isPro } = useAuth()
+  const navigate = useNavigate()
 
   if (!requirePro || isPro) return <>{children}</>
 
@@ -38,7 +40,7 @@ export default function PaywallGate({ requirePro, children }: PaywallGateProps) 
           <div className="text-3xl font-bold text-gh-text-primary mb-1">
             $9.99<span className="text-base font-normal text-gh-text-secondary">/month</span>
           </div>
-          <p className="text-sm text-gh-text-secondary mb-4">or $79.99/year (save 33%)</p>
+          <p className="text-sm text-gh-text-secondary mb-4">or $89.99/year (save ~25%)</p>
 
           <ul className="text-left space-y-2 text-sm text-gh-text-secondary">
             {[
@@ -55,7 +57,10 @@ export default function PaywallGate({ requirePro, children }: PaywallGateProps) 
           </ul>
         </div>
 
-        <button className="w-full bg-gh-overlay border border-gh-border hover:bg-gh-border text-gh-text-primary font-medium py-3 rounded-lg transition">
+        <button
+          onClick={() => navigate('/pricing')}
+          className="w-full bg-gh-overlay border border-gh-border hover:bg-gh-border text-gh-text-primary font-medium py-3 rounded-lg transition"
+        >
           Upgrade to Pro
         </button>
 
