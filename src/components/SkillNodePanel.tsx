@@ -34,7 +34,7 @@ const NODE_ICON_MAP: Record<string, LucideIcon> = {
   'vce-exam1': PenTool, 'vce-exam2': Monitor,
 };
 
-const TIER_GRADIENTS: [string, string][] = [
+const TIER_COLORS: [string, string][] = [
   ['#6366F1', '#8B5CF6'],
   ['#A855F7', '#D946EF'],
   ['#F43F5E', '#EC4899'],
@@ -50,8 +50,8 @@ export default function SkillNodePanel({ nodeId, progress, onClose, onEnter }: P
   const trainingCount = useMemo(() => getTrainingForNode(nodeId).length, [nodeId]);
   const qCount = trainingCount + examCount;
   const Icon = NODE_ICON_MAP[nodeId] ?? Calculator;
-  const tierGrad = node ? TIER_GRADIENTS[node.tier] ?? ['#60A5FA', '#3B82F6'] : ['#60A5FA', '#3B82F6'];
-  const tierColor = tierGrad[0];
+  const tierColor = node ? TIER_COLORS[node.tier] ?? ['#60A5FA', '#3B82F6'] : ['#60A5FA', '#3B82F6'];
+  const [g1] = tierColor;
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
@@ -65,7 +65,6 @@ export default function SkillNodePanel({ nodeId, progress, onClose, onEnter }: P
   const pct = Math.round((np.levelsCompleted.filter(l => l <= maxLevels).length / maxLevels) * 100);
   const isStarted = np.levelsCompleted.length > 0;
 
-  // Check if prerequisites are met
   const nodeStatus = computeNodeStatus(nodeId, node.prerequisites, progress);
   const isLocked = nodeStatus === 'locked';
   const unmetPrereqs = isLocked
@@ -79,7 +78,7 @@ export default function SkillNodePanel({ nodeId, progress, onClose, onEnter }: P
     <>
       {/* Backdrop */}
       <div
-        className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm"
+        className="fixed inset-0 z-40 bg-black/25 backdrop-blur-[2px]"
         onClick={onClose}
         style={{ opacity: visible ? 1 : 0, transition: 'opacity 0.2s ease' }}
       />
@@ -94,132 +93,129 @@ export default function SkillNodePanel({ nodeId, progress, onClose, onEnter }: P
           onClick={e => e.stopPropagation()}
           style={{
             opacity: visible ? 1 : 0,
-            transform: visible ? 'scale(1)' : 'scale(0.95)',
+            transform: visible ? 'scale(1)' : 'scale(0.96)',
             transition: 'all 0.25s ease-out',
           }}
         >
-        <div
-          className="rounded-3xl overflow-hidden border border-gray-700/50 max-h-[85vh] sm:max-h-[85vh] flex flex-col"
-          style={{ background: '#111827' }}
-        >
-          {/* Header with icon */}
-          <div
-            className="relative px-6 pt-8 pb-5 text-center"
-            style={{
-              background: `linear-gradient(180deg, ${tierColor}15, transparent)`,
-            }}
-          >
-            <button
-              onClick={onClose}
-              className="absolute top-3 right-3 w-8 h-8 rounded-full bg-gray-800/80 hover:bg-gray-700 flex items-center justify-center text-gray-400 hover:text-white transition-colors"
-            >
-              <X size={16} />
-            </button>
-
+          <div className="rounded-3xl overflow-hidden border border-black/10 max-h-[85vh] flex flex-col bg-white shadow-xl">
+            {/* Header */}
             <div
-              className="w-20 h-20 rounded-2xl mx-auto flex items-center justify-center mb-3"
-              style={{
-                background: `linear-gradient(135deg, ${tierGrad[0]}20, ${tierGrad[1]}10)`,
-                border: `1px solid ${tierGrad[0]}30`,
-                boxShadow: `0 0 30px ${tierColor}15`,
-              }}
+              className="relative px-6 pt-8 pb-5 text-center"
+              style={{ background: `linear-gradient(180deg, ${g1}08, transparent)` }}
             >
-              <Icon size={36} style={{ color: tierColor }} strokeWidth={1.5} />
-            </div>
-
-            <h3 className="text-xl font-bold text-white">{node.title}</h3>
-            <p className="text-xs text-gray-400 mt-1 capitalize">{node.topic.toLowerCase()}</p>
-          </div>
-
-          {/* Body */}
-          <div className="px-6 pb-6 overflow-y-auto">
-            <p className="text-sm text-gray-400 leading-relaxed mb-5 text-center">
-              {node.description}
-            </p>
-
-            {/* Stats */}
-            <div className="flex items-center justify-center gap-6 mb-5">
-              <div className="text-center">
-                <div className="text-2xl font-bold text-white">{np.levelsCompleted.filter(l => l <= maxLevels).length}<span className="text-base text-gray-500">/{maxLevels}</span></div>
-                <div className="text-[10px] text-gray-500 mt-0.5 uppercase tracking-wider">Levels</div>
-              </div>
-              <div className="w-px h-8 bg-gray-700/50" />
-              <div className="text-center">
-                <div className="text-2xl font-bold text-white">{qCount}</div>
-                <div className="text-[10px] text-gray-500 mt-0.5 uppercase tracking-wider">Questions</div>
-              </div>
-              <div className="w-px h-8 bg-gray-700/50" />
-              <div className="text-center">
-                <div className="text-2xl font-bold text-white">{np.score}<span className="text-base text-gray-500">%</span></div>
-                <div className="text-[10px] text-gray-500 mt-0.5 uppercase tracking-wider">Best</div>
-              </div>
-              <div className="w-px h-8 bg-gray-700/50" />
-              <div className="text-center">
-                <div className="text-lg font-bold text-white">⏱</div>
-                <div className="text-[10px] text-gray-500 mt-0.5 uppercase tracking-wider">{formatEstimatedTime(qCount * 1.5)}</div>
-              </div>
-            </div>
-
-            {/* Progress bar */}
-            <div className="mb-5">
-              <div className="flex justify-between text-[10px] text-gray-500 mb-1.5 font-mono">
-                <span>Progress</span>
-                <span>{pct}%</span>
-              </div>
-              <div className="h-2 rounded-full bg-gray-800 overflow-hidden">
-                <div
-                  className="h-full rounded-full transition-all duration-700"
-                  style={{
-                    width: `${pct}%`,
-                    background: pct === 100
-                      ? 'linear-gradient(90deg, #22C55E, #10B981)'
-                      : `linear-gradient(90deg, ${tierColor}, ${tierColor}BB)`,
-                  }}
-                />
-              </div>
-              {/* Level dots */}
-              <div className="flex justify-between mt-2 px-1">
-                {(['Easy', 'Medium', 'Hard', 'Exam'].slice(0, maxLevels)).map((label, i) => (
-                  <div key={i} className="flex flex-col items-center gap-1">
-                    <div
-                      className="w-4 h-4 rounded-full flex items-center justify-center text-[8px]"
-                      style={{
-                        background: np.levelsCompleted.includes(i + 1) ? tierColor : '#1F2937',
-                        border: `1.5px solid ${np.levelsCompleted.includes(i + 1) ? tierColor : '#374151'}`,
-                      }}
-                    >
-                      {np.levelsCompleted.includes(i + 1) ? '✓' : ''}
-                    </div>
-                    <span className="text-[8px] text-gray-600">{label}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* CTA */}
-            {isLocked ? (
-              <div className="w-full py-3.5 rounded-2xl text-center text-sm text-gray-400 bg-gray-800/60 border border-gray-700/50">
-                <p className="font-medium mb-1">Complete first:</p>
-                <p className="text-xs text-gray-500">{unmetPrereqs.join(', ')}</p>
-              </div>
-            ) : (
               <button
-                onClick={() => onEnter(nodeId)}
-                className="w-full py-3.5 rounded-2xl font-bold text-base uppercase tracking-wide
-                           flex items-center justify-center gap-2 transition-all active:scale-[0.98]
-                           hover:brightness-110"
+                onClick={onClose}
+                className="absolute top-3 right-3 w-8 h-8 rounded-full bg-black/[0.05] hover:bg-black/[0.09] flex items-center justify-center text-black/40 hover:text-black transition-colors"
+              >
+                <X size={16} />
+              </button>
+
+              <div
+                className="w-20 h-20 rounded-2xl mx-auto flex items-center justify-center mb-3"
                 style={{
-                  background: tierColor,
-                  color: '#000',
-                  boxShadow: `0 4px 20px ${tierColor}40`,
+                  background: `${g1}12`,
+                  border: `1px solid ${g1}22`,
                 }}
               >
-                <Play size={18} fill="currentColor" />
-                {isStarted ? 'Continue Practice' : 'Start Practice'}
-              </button>
-            )}
+                <Icon size={36} style={{ color: g1 }} strokeWidth={1.5} />
+              </div>
+
+              <h3 className="text-xl font-bold text-black">{node.title}</h3>
+              <p className="text-xs text-black/40 mt-1 capitalize">{node.topic.toLowerCase()}</p>
+            </div>
+
+            {/* Body */}
+            <div className="px-6 pb-6 overflow-y-auto">
+              <p className="text-sm text-black/50 leading-relaxed mb-5 text-center">
+                {node.description}
+              </p>
+
+              {/* Stats */}
+              <div className="flex items-center justify-center gap-6 mb-5">
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-black">
+                    {np.levelsCompleted.filter(l => l <= maxLevels).length}
+                    <span className="text-base text-black/30">/{maxLevels}</span>
+                  </div>
+                  <div className="text-[10px] text-black/35 mt-0.5 uppercase tracking-wider">Levels</div>
+                </div>
+                <div className="w-px h-8 bg-black/8" />
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-black">{qCount}</div>
+                  <div className="text-[10px] text-black/35 mt-0.5 uppercase tracking-wider">Questions</div>
+                </div>
+                <div className="w-px h-8 bg-black/8" />
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-black">{np.score}<span className="text-base text-black/30">%</span></div>
+                  <div className="text-[10px] text-black/35 mt-0.5 uppercase tracking-wider">Best</div>
+                </div>
+                <div className="w-px h-8 bg-black/8" />
+                <div className="text-center">
+                  <div className="text-lg font-bold text-black/50">⏱</div>
+                  <div className="text-[10px] text-black/35 mt-0.5 uppercase tracking-wider">{formatEstimatedTime(qCount * 1.5)}</div>
+                </div>
+              </div>
+
+              {/* Progress bar */}
+              <div className="mb-5">
+                <div className="flex justify-between text-[10px] text-black/35 mb-1.5 font-mono">
+                  <span>Progress</span>
+                  <span>{pct}%</span>
+                </div>
+                <div className="h-2 rounded-full bg-black/8 overflow-hidden">
+                  <div
+                    className="h-full rounded-full transition-all duration-700"
+                    style={{
+                      width: `${pct}%`,
+                      background: pct === 100
+                        ? 'linear-gradient(90deg, #22C55E, #10B981)'
+                        : `linear-gradient(90deg, ${g1}, ${g1}BB)`,
+                    }}
+                  />
+                </div>
+                {/* Level dots */}
+                <div className="flex justify-between mt-2 px-1">
+                  {(['Easy', 'Medium', 'Hard', 'Exam'].slice(0, maxLevels)).map((label, i) => (
+                    <div key={i} className="flex flex-col items-center gap-1">
+                      <div
+                        className="w-4 h-4 rounded-full flex items-center justify-center text-[8px]"
+                        style={{
+                          background: np.levelsCompleted.includes(i + 1) ? g1 : 'rgba(0,0,0,0.06)',
+                          border: `1.5px solid ${np.levelsCompleted.includes(i + 1) ? g1 : 'rgba(0,0,0,0.10)'}`,
+                          color: np.levelsCompleted.includes(i + 1) ? '#fff' : 'transparent',
+                        }}
+                      >
+                        {np.levelsCompleted.includes(i + 1) ? '✓' : ''}
+                      </div>
+                      <span className="text-[8px] text-black/30">{label}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* CTA */}
+              {isLocked ? (
+                <div className="w-full py-3.5 rounded-2xl text-center text-sm text-black/40 bg-black/[0.04] border border-black/8">
+                  <p className="font-medium mb-1">Complete first:</p>
+                  <p className="text-xs text-black/30">{unmetPrereqs.join(', ')}</p>
+                </div>
+              ) : (
+                <button
+                  onClick={() => onEnter(nodeId)}
+                  className="w-full py-3.5 rounded-2xl font-bold text-base uppercase tracking-wide
+                             flex items-center justify-center gap-2 transition-all active:scale-[0.98]
+                             text-white hover:brightness-110"
+                  style={{
+                    background: g1,
+                    boxShadow: `0 4px 16px ${g1}30`,
+                  }}
+                >
+                  <Play size={18} fill="currentColor" />
+                  {isStarted ? 'Continue Practice' : 'Start Practice'}
+                </button>
+              )}
+            </div>
           </div>
-        </div>
         </div>
       </div>
     </>

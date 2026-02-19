@@ -31,33 +31,33 @@ export default function PricingPage() {
   const [openFaq, setOpenFaq] = useState<number | null>(null)
 
   return (
-    <div className="min-h-screen bg-gh-canvas">
+    <div className="min-h-screen bg-white">
       <div className="pt-12 pb-4 text-center px-4">
-        <h1 className="text-4xl font-bold text-white">Pricing</h1>
-        <p className="text-gh-text-secondary mt-2">Simple, transparent pricing for every student</p>
+        <h1 className="text-4xl font-bold text-black">Pricing</h1>
+        <p className="text-black/50 mt-2">Simple, transparent pricing for every student</p>
       </div>
 
       <PricingSection currentPlan={isPro ? 'pro' : 'free'} />
 
       {/* FAQ */}
       <section className="max-w-2xl mx-auto px-4 py-16">
-        <h2 className="text-2xl font-bold text-white text-center mb-8">Frequently Asked Questions</h2>
+        <h2 className="text-2xl font-bold text-black text-center mb-8">Frequently Asked Questions</h2>
         <div className="space-y-3">
           {faqs.map((faq, i) => (
-            <div key={i} className="rounded-xl border border-gh-border bg-gh-surface">
+            <div key={i} className="rounded-xl border border-black/10 bg-white">
               <button
                 onClick={() => setOpenFaq(openFaq === i ? null : i)}
                 className="w-full flex items-center justify-between px-5 py-4 text-left"
               >
-                <span className="text-sm font-medium text-white">{faq.q}</span>
+                <span className="text-sm font-medium text-black">{faq.q}</span>
                 <ChevronDown
-                  className={`w-4 h-4 text-gh-text-muted shrink-0 ml-4 transition-transform ${
+                  className={`w-4 h-4 text-black/35 shrink-0 ml-4 transition-transform ${
                     openFaq === i ? 'rotate-180' : ''
                   }`}
                 />
               </button>
               {openFaq === i && (
-                <p className="px-5 pb-4 text-sm text-gh-text-secondary">{faq.a}</p>
+                <p className="px-5 pb-4 text-sm text-black/55">{faq.a}</p>
               )}
             </div>
           ))}

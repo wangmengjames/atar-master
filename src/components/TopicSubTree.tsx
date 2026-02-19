@@ -6,7 +6,6 @@ import { getTrainingByDifficulty, type TrainingQuestion } from '../data/training
 import { SKILL_TOPIC_COLORS, type Topic } from '../types';
 import type { UserProgress } from '../lib/progress';
 import { getNodeProgress } from '../lib/progress';
-// MathText no longer needed — question previews removed
 import { formatEstimatedTime } from '../lib/utils';
 
 interface Props {
@@ -16,12 +15,12 @@ interface Props {
   onStartLevel: (nodeId: string, level: number) => void;
 }
 
-const LEVEL_NAMES = ['Easy ⭐', 'Medium ⭐⭐', 'Hard ⭐⭐⭐', 'Real Exam Questions'];
+const LEVEL_NAMES = ['Easy', 'Medium', 'Hard', 'Real Exam'];
 const LEVEL_DESCRIPTIONS = [
   'Foundation practice — build your confidence',
   'Intermediate challenge — solidify your skills',
   'Advanced problems — push your limits',
-  'Actual VCE exam questions — prove your mastery!',
+  'Actual VCE exam questions — prove your mastery',
 ];
 
 const DIFFICULTY_KEYS: ('easy' | 'medium' | 'hard')[] = ['easy', 'medium', 'hard'];
@@ -42,7 +41,6 @@ export default function TopicSubTree({ nodeId, progress, onBack, onStartLevel }:
 
   const maxLevels = node.tier >= 3 ? 4 : 3;
 
-  // levels: Easy, Medium, Hard, (Real Exam only for tier >= 3)
   const levels: LevelData[] = useMemo(() => {
     return Array.from({ length: maxLevels }, (_, i) => i + 1).map(level => {
       if (level === 4) {
@@ -58,34 +56,34 @@ export default function TopicSubTree({ nodeId, progress, onBack, onStartLevel }:
   }, [nodeId, examQuestions, maxLevels]);
 
   return (
-    <div className="min-h-full bg-gray-900 p-4 sm:p-6 animate-fade-in">
+    <div className="min-h-full bg-[#FAFAFA] p-4 sm:p-6 animate-fade-in">
       {/* Header */}
       <div className="flex items-center gap-3 mb-6">
         <button
           onClick={onBack}
-          className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-gray-400 hover:text-white bg-gray-800 hover:bg-gray-700 rounded-lg border border-gray-700 transition-colors"
+          className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-black/50 hover:text-black bg-white hover:bg-black/[0.03] rounded-lg border border-black/10 transition-colors"
         >
           <ArrowLeft size={14} />
           Back
         </button>
         <div className="flex-1">
-          <h2 className="text-xl font-bold text-white flex items-center gap-2">
+          <h2 className="text-xl font-bold text-black flex items-center gap-2">
             <span
-              className="w-3 h-3 rounded-full"
+              className="w-3 h-3 rounded-full shrink-0"
               style={{ backgroundColor: topicColor?.primary ?? '#6B7280' }}
             />
             {node.title}
           </h2>
-          <p className="text-sm text-gray-400 mt-0.5">{node.description}</p>
+          <p className="text-sm text-black/45 mt-0.5">{node.description}</p>
         </div>
         <div className="text-right">
-          <div className="text-2xl font-bold text-white">{np.levelsCompleted.filter(l => l <= maxLevels).length}/{maxLevels}</div>
-          <div className="text-xs text-gray-500">levels done</div>
+          <div className="text-2xl font-bold text-black">{np.levelsCompleted.filter(l => l <= maxLevels).length}/{maxLevels}</div>
+          <div className="text-xs text-black/35">levels done</div>
         </div>
       </div>
 
       {/* Levels */}
-      <div className="space-y-4">
+      <div className="space-y-3">
         {levels.map((levelData, i) => {
           const levelNum = i + 1;
           const isCompleted = np.levelsCompleted.includes(levelNum);
@@ -96,43 +94,49 @@ export default function TopicSubTree({ nodeId, progress, onBack, onStartLevel }:
           return (
             <div
               key={levelNum}
-              className={`rounded-xl border transition-all duration-300 ${
+              className={`rounded-xl border transition-all duration-200 ${
                 isLocked
-                  ? 'bg-gray-900 border-gray-800 opacity-50'
+                  ? 'bg-white border-black/6 opacity-40'
                   : isCompleted
-                  ? 'bg-gray-800/50 border-green-800/50'
-                  : 'bg-gray-800 border-gray-700 hover:border-blue-600/50'
+                    ? 'bg-white border-green-200'
+                    : 'bg-white border-black/10 hover:border-black/20'
               }`}
             >
               <div className="flex items-center justify-between p-4">
                 <div className="flex items-center gap-3">
                   <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                    isLocked ? 'bg-gray-800' : isCompleted ? 'bg-green-900/50' : levelData.isExamLevel ? 'bg-orange-900/30' : 'bg-blue-900/30'
+                    isLocked
+                      ? 'bg-black/[0.04]'
+                      : isCompleted
+                        ? 'bg-green-50'
+                        : levelData.isExamLevel
+                          ? 'bg-orange-50'
+                          : 'bg-black/[0.04]'
                   }`}>
                     {isLocked ? (
-                      <Lock size={18} className="text-gray-600" />
+                      <Lock size={18} className="text-black/20" />
                     ) : isCompleted ? (
-                      <CheckCircle2 size={18} className="text-green-400" />
+                      <CheckCircle2 size={18} className="text-green-500" />
                     ) : levelData.isExamLevel ? (
-                      <Flame size={18} className="text-orange-400" />
+                      <Flame size={18} className="text-orange-500" />
                     ) : (
-                      <Play size={18} className="text-blue-400" />
+                      <Play size={18} className="text-black/50" />
                     )}
                   </div>
 
                   <div>
                     <div className="flex items-center gap-2">
-                      <h3 className={`font-semibold ${isLocked ? 'text-gray-600' : 'text-white'}`}>
+                      <h3 className={`font-semibold text-sm ${isLocked ? 'text-black/20' : 'text-black'}`}>
                         {LEVEL_NAMES[i]}
                       </h3>
                       {levelData.isExamLevel && !isLocked && (
-                        <span className="px-1.5 py-0.5 text-[10px] font-bold bg-orange-500/20 text-orange-400 rounded-full">
+                        <span className="px-1.5 py-0.5 text-[10px] font-bold bg-orange-50 text-orange-500 border border-orange-200 rounded-full">
                           REAL EXAMS
                         </span>
                       )}
                     </div>
-                    <p className={`text-xs mt-0.5 ${isLocked ? 'text-gray-700' : 'text-gray-400'}`}>
-                      {LEVEL_DESCRIPTIONS[i]} • {qCount} question{qCount !== 1 ? 's' : ''} • ⏱ {formatEstimatedTime(qCount * 1.5)}
+                    <p className={`text-xs mt-0.5 ${isLocked ? 'text-black/15' : 'text-black/45'}`}>
+                      {LEVEL_DESCRIPTIONS[i]} · {qCount}q · {formatEstimatedTime(qCount * 1.5)}
                     </p>
                   </div>
                 </div>
@@ -140,11 +144,7 @@ export default function TopicSubTree({ nodeId, progress, onBack, onStartLevel }:
                 {!isLocked && qCount > 0 && !isCompleted && (
                   <button
                     onClick={() => onStartLevel(nodeId, levelNum)}
-                    className={`px-4 py-2 text-white text-sm font-medium rounded-lg transition-colors ${
-                      levelData.isExamLevel
-                        ? 'bg-orange-600 hover:bg-orange-500'
-                        : 'bg-blue-600 hover:bg-blue-500'
-                    }`}
+                    className="px-4 py-2 bg-black text-white text-sm font-medium rounded-lg hover:bg-black/85 transition-colors"
                   >
                     Start
                   </button>
@@ -152,17 +152,15 @@ export default function TopicSubTree({ nodeId, progress, onBack, onStartLevel }:
                 {!isLocked && qCount > 0 && isCompleted && (
                   <button
                     onClick={() => onStartLevel(nodeId, levelNum)}
-                    className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-gray-300 text-sm font-medium rounded-lg transition-colors"
+                    className="px-4 py-2 bg-black/[0.05] hover:bg-black/[0.08] text-black/55 text-sm font-medium rounded-lg border border-black/10 transition-colors"
                   >
                     Redo
                   </button>
                 )}
                 {!isLocked && qCount === 0 && (
-                  <span className="text-xs text-gray-600 italic">Coming soon</span>
+                  <span className="text-xs text-black/25 italic">Coming soon</span>
                 )}
               </div>
-
-              {/* Question previews removed — students go straight to practice */}
             </div>
           );
         })}

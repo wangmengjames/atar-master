@@ -113,11 +113,8 @@ export default function SkillTreePage() {
 
     // Handle auto-advance vs normal completion
     if (advance && level < 3) {
-      // Auto-advance to next level
       setSessionLevel(level + 1);
-      // Stay in session view - React will re-render TrainingSession with new level
     } else if (advance && level === 3) {
-      // Topic mastered - mark level 4 (real exam) as completed too
       setProgress(prev2 => {
         const np2 = prev2.nodes[nodeId];
         if (np2 && !np2.levelsCompleted.includes(4)) {
@@ -139,7 +136,6 @@ export default function SkillTreePage() {
       setView('subtree');
       setSessionLevel(0);
     } else {
-      // Normal completion - go back to subtree
       setView('subtree');
       setSessionLevel(0);
     }
@@ -153,7 +149,6 @@ export default function SkillTreePage() {
     }
   }, []);
 
-  // Year level selection: unlock all nodes up to that tier
   const handleYearLevelComplete = useCallback((_yearLevel: number, unlockedNodeIds: string[]) => {
     setProgress(prev => {
       const updated = { ...prev.nodes };
@@ -178,8 +173,9 @@ export default function SkillTreePage() {
     resetOnboarding();
     setShowOnboarding(true);
   }, []);
+
   return (
-    <div className="min-h-screen bg-gray-900 flex flex-col">
+    <div className="min-h-screen bg-[#FAFAFA] flex flex-col">
       {/* Year Level Selector overlay */}
       {showYearSelector && (
         <YearLevelSelector onComplete={handleYearLevelComplete} />
@@ -191,36 +187,36 @@ export default function SkillTreePage() {
       )}
 
       {/* XP Header Bar */}
-      <div className="border-b border-gray-800 bg-gray-900/95 backdrop-blur-sm px-3 sm:px-6 py-2.5 sm:py-3 flex-shrink-0">
+      <div className="border-b border-black/8 bg-white/95 backdrop-blur-sm px-3 sm:px-6 py-2.5 sm:py-3 flex-shrink-0">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2 sm:gap-4">
             {/* Level badge */}
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-blue-600 to-blue-800 flex items-center justify-center border-2 border-blue-500">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-black flex items-center justify-center">
                 <span className="text-white font-bold text-xs sm:text-sm">{progress.level}</span>
               </div>
               <div>
-                <div className="text-[10px] sm:text-xs text-gray-400 font-mono">LVL {progress.level}</div>
+                <div className="text-[10px] sm:text-xs text-black/35 font-mono">LVL {progress.level}</div>
                 <div className="flex items-center gap-1 sm:gap-1.5 mt-0.5">
-                  <Zap size={10} className="text-yellow-400 sm:hidden" />
-                  <Zap size={12} className="text-yellow-400 hidden sm:block" />
-                  <div className="w-16 sm:w-24 h-1.5 rounded-full bg-gray-800 overflow-hidden">
+                  <Zap size={10} className="text-black/35 sm:hidden" />
+                  <Zap size={12} className="text-black/35 hidden sm:block" />
+                  <div className="w-16 sm:w-24 h-1.5 rounded-full bg-black/8 overflow-hidden">
                     <div
-                      className="h-full rounded-full bg-gradient-to-r from-yellow-500 to-yellow-300 transition-all duration-700"
+                      className="h-full rounded-full bg-black transition-all duration-700"
                       style={{ width: `${xpPct}%` }}
                     />
                   </div>
-                  <span className="text-[9px] sm:text-[10px] text-gray-500 font-mono">{progress.totalXP}/{xpNeeded}</span>
+                  <span className="text-[9px] sm:text-[10px] text-black/30 font-mono">{progress.totalXP}/{xpNeeded}</span>
                 </div>
               </div>
             </div>
 
             {/* Streak */}
             {progress.streak > 0 && (
-              <div className="flex items-center gap-1 px-1.5 sm:px-2 py-0.5 sm:py-1 bg-orange-900/30 rounded-lg border border-orange-800/30">
-                <Flame size={12} className="text-orange-400 sm:hidden" />
-                <Flame size={14} className="text-orange-400 hidden sm:block" />
-                <span className="text-[10px] sm:text-xs text-orange-300 font-bold">{progress.streak}</span>
+              <div className="flex items-center gap-1 px-1.5 sm:px-2 py-0.5 sm:py-1 bg-orange-50 rounded-lg border border-orange-200">
+                <Flame size={12} className="text-orange-500 sm:hidden" />
+                <Flame size={14} className="text-orange-500 hidden sm:block" />
+                <span className="text-[10px] sm:text-xs text-orange-600 font-bold">{progress.streak}</span>
               </div>
             )}
           </div>
@@ -228,26 +224,26 @@ export default function SkillTreePage() {
           <div className="flex items-center gap-2 sm:gap-3">
             {/* Overall progress */}
             <div className="hidden sm:flex items-center gap-2">
-              <Trophy size={14} className="text-green-400" />
-              <span className="text-xs text-gray-400 font-mono">{completedCount}/{ALL_NODES.length} skills</span>
-              <span className="text-xs text-gray-500">({overallPct}%)</span>
+              <Trophy size={14} className="text-green-600" />
+              <span className="text-xs text-black/45 font-mono">{completedCount}/{ALL_NODES.length} skills</span>
+              <span className="text-xs text-black/30">({overallPct}%)</span>
             </div>
 
             {/* Mobile compact progress */}
             <div className="sm:hidden flex items-center gap-1">
-              <Trophy size={12} className="text-green-400" />
-              <span className="text-[10px] text-gray-400 font-mono">{overallPct}%</span>
+              <Trophy size={12} className="text-green-600" />
+              <span className="text-[10px] text-black/45 font-mono">{overallPct}%</span>
             </div>
 
-            <div className="h-4 w-px bg-gray-700 hidden sm:block" />
+            <div className="h-4 w-px bg-black/10 hidden sm:block" />
 
-            <span className="text-[10px] sm:text-xs text-gray-500 font-mono hidden sm:inline">{totalQuestions} Q</span>
+            <span className="text-[10px] sm:text-xs text-black/30 font-mono hidden sm:inline">{totalQuestions} Q</span>
 
             <OnboardingHelpButton onClick={handleReplayTutorial} />
 
             <button
               onClick={handleReset}
-              className="flex items-center gap-1 px-1.5 sm:px-2 py-1 text-xs text-gray-500 hover:text-red-400 font-mono rounded border border-gray-800 hover:border-red-800/50 transition-colors"
+              className="flex items-center gap-1 px-1.5 sm:px-2 py-1 text-xs text-black/30 hover:text-red-500 font-mono rounded border border-black/10 hover:border-red-200 transition-colors"
               title="Reset progress"
             >
               <RotateCcw size={12} />
@@ -256,9 +252,9 @@ export default function SkillTreePage() {
         </div>
 
         {/* Overall progress bar */}
-        <div className="mt-2 h-1 rounded-full bg-gray-800 overflow-hidden">
+        <div className="mt-2 h-0.5 rounded-full bg-black/8 overflow-hidden">
           <div
-            className="h-full rounded-full bg-gradient-to-r from-blue-600 to-green-500 transition-all duration-700"
+            className="h-full rounded-full bg-black/60 transition-all duration-700"
             style={{ width: `${overallPct}%` }}
           />
         </div>

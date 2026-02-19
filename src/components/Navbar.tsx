@@ -28,44 +28,44 @@ function UserDropdown() {
     <div className="relative" ref={ref}>
       <button
         onClick={() => setOpen(!open)}
-        className="flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-gh-surface/50 transition"
+        className="flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-black/[0.04] transition"
       >
         {avatarUrl ? (
           <img src={avatarUrl} alt="" className="w-7 h-7 rounded-full" />
         ) : (
-          <div className="w-7 h-7 rounded-full bg-gh-surface flex items-center justify-center">
-            <User size={14} className="text-gh-text-secondary" />
+          <div className="w-7 h-7 rounded-full bg-black/[0.06] flex items-center justify-center">
+            <User size={14} className="text-black/50" />
           </div>
         )}
-        <span className="text-sm text-gh-text-secondary hidden sm:inline">
+        <span className="text-sm text-black/50 hidden sm:inline">
           {user?.user_metadata?.full_name || user?.email?.split('@')[0]}
         </span>
         {isPro && (
-          <span className="px-1.5 py-0.5 text-[10px] font-bold bg-gh-accent-blue/20 text-gh-accent-blue rounded-full">PRO</span>
+          <span className="px-1.5 py-0.5 text-[10px] font-bold bg-green-50 text-green-700 border border-green-200 rounded-full">PRO</span>
         )}
-        <ChevronDown size={14} className="text-gh-text-secondary" />
+        <ChevronDown size={14} className="text-black/35" />
       </button>
 
       {open && (
-        <div className="absolute right-0 top-full mt-1 w-48 bg-gh-surface border border-gh-border rounded-xl shadow-lg py-1 z-50">
+        <div className="absolute right-0 top-full mt-1 w-48 bg-white border border-black/10 rounded-xl shadow-lg py-1 z-50">
           <button
             onClick={() => { navigate('/dashboard'); setOpen(false); }}
-            className="flex items-center gap-2 w-full px-4 py-2 text-sm text-gh-text-primary hover:bg-gh-canvas transition"
+            className="flex items-center gap-2 w-full px-4 py-2 text-sm text-black/75 hover:bg-black/[0.03] transition"
           >
             <BarChart3 size={14} /> Dashboard
           </button>
           {isAdmin && (
             <button
               onClick={() => { navigate('/teacher'); setOpen(false); }}
-              className="flex items-center gap-2 w-full px-4 py-2 text-sm text-gh-text-primary hover:bg-gh-canvas transition"
+              className="flex items-center gap-2 w-full px-4 py-2 text-sm text-black/75 hover:bg-black/[0.03] transition"
             >
               <Shield size={14} /> Teacher Dashboard
             </button>
           )}
-          <div className="border-t border-gh-border my-1" />
+          <div className="border-t border-black/8 my-1" />
           <button
             onClick={async () => { await signOut(); setOpen(false); }}
-            className="flex items-center gap-2 w-full px-4 py-2 text-sm text-red-400 hover:bg-gh-canvas transition"
+            className="flex items-center gap-2 w-full px-4 py-2 text-sm text-red-500 hover:bg-red-50 transition"
           >
             <LogOut size={14} /> Sign Out
           </button>
@@ -96,12 +96,12 @@ export default function Navbar() {
   const dailyDone = useMemo(() => getDailyChallengeState()?.completed ?? false, [location.pathname]);
   const linkBase = 'flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 relative';
   const activeClass = 'bg-black/[0.06] text-black shadow-[inset_0_0_0_1px_rgba(0,0,0,0.08)]';
-  const inactiveClass = 'text-gh-text-secondary hover:text-gh-text-primary hover:bg-gh-surface';
+  const inactiveClass = 'text-black/45 hover:text-black hover:bg-black/[0.04]';
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 border-b border-black/10 bg-white/90 backdrop-blur-md">
       <div className="mx-auto max-w-6xl flex items-center justify-between px-4 sm:px-6 py-3">
-        <NavLink to="/" className="flex items-center gap-2 text-lg font-bold text-gh-text-primary">
+        <NavLink to="/" className="flex items-center gap-2 text-lg font-bold text-black">
           <span className="inline-flex h-7 w-7 items-center justify-center rounded-md border border-black/15 bg-black/[0.03] text-[10px] font-semibold tracking-wide">AM</span>
           ATAR Master
         </NavLink>
@@ -130,7 +130,7 @@ export default function Navbar() {
               )}
             </NavLink>
           ))}
-          <div className="ml-2 pl-2 border-l border-gh-border flex items-center gap-2">
+          <div className="ml-2 pl-2 border-l border-black/10 flex items-center gap-2">
             <ThemeSwitcher />
             {user && <StreakBadge />}
             {user ? (
@@ -144,7 +144,7 @@ export default function Navbar() {
         </div>
 
         {/* Mobile hamburger */}
-        <button onClick={() => setMobileOpen(!mobileOpen)} className="md:hidden p-2 text-gh-text-secondary hover:text-gh-text-primary transition">
+        <button onClick={() => setMobileOpen(!mobileOpen)} className="md:hidden p-2 text-black/45 hover:text-black transition">
           {mobileOpen ? <X size={22} /> : <Menu size={22} />}
         </button>
       </div>
@@ -161,7 +161,7 @@ export default function Navbar() {
               {l.icon} {l.label}
             </NavLink>
           ))}
-          <div className="border-t border-gh-border pt-2 mt-2 flex items-center gap-2">
+          <div className="border-t border-black/10 pt-2 mt-2 flex items-center gap-2">
             {user && <StreakBadge />}
             {user ? (
               <UserDropdown />

@@ -30,7 +30,6 @@ export default function TrainingSession({ nodeId, level, onComplete, onBack }: P
         hints: mq.question.markingGuide || [],
         answer: mq.question.answer || '',
         isMultipleChoice: !!mq.question.options?.length,
-        // Transform ExamQuestion options to TrainingQuestion format
         options: mq.question.options ? mq.question.options.map(opt => ({
           label: opt.label,
           text: opt.text,
@@ -75,16 +74,13 @@ export default function TrainingSession({ nodeId, level, onComplete, onBack }: P
     setResults(prev => ({ ...prev, [currentIdx]: correct }));
     setIsAnswered(true);
     setTimeout(() => setFeedbackVisible(true), 50);
-    // Check speed
     if (correct && (Date.now() - questionStartTime) < 10000) {
       setSpeedAnswerThisSession(true);
     }
-    // Track consecutive correct for auto-advance
     if (correct) {
       const newCount = consecutiveCorrect + 1;
       setConsecutiveCorrect(newCount);
       if (newCount >= ADVANCE_THRESHOLD) {
-        // Trigger advance after a short delay to show feedback
         const nextLvl = level < 3 ? level + 1 : null;
         setAdvanceNextLevel(nextLvl);
         setTimeout(() => setShowAdvanceModal(true), 800);
@@ -92,7 +88,7 @@ export default function TrainingSession({ nodeId, level, onComplete, onBack }: P
     } else {
       setConsecutiveCorrect(0);
     }
-  }, [current, selectedOption, currentIdx, questionStartTime]);
+  }, [current, selectedOption, currentIdx, questionStartTime, consecutiveCorrect, level]);
 
   const handleNext = useCallback(() => {
     if (currentIdx + 1 >= total) {
@@ -113,7 +109,6 @@ export default function TrainingSession({ nodeId, level, onComplete, onBack }: P
       window.dispatchEvent(new Event('streak-updated'));
     });
 
-    // Check achievements
     const progress = loadProgress();
     const streak = getStreak();
     let maxStreak = 0, cur = 0;
@@ -137,12 +132,10 @@ export default function TrainingSession({ nodeId, level, onComplete, onBack }: P
 
   const handleAdvanceDone = useCallback(() => {
     setShowAdvanceModal(false);
-    // Record activity
     import('../lib/streak').then(({ recordActivity }) => {
       recordActivity();
       window.dispatchEvent(new Event('streak-updated'));
     });
-    // Signal advance: pass current score and advance flag
     onComplete(nodeId, level, correctCount, answeredCount, true);
   }, [nodeId, level, correctCount, answeredCount, onComplete]);
 
@@ -152,7 +145,6 @@ export default function TrainingSession({ nodeId, level, onComplete, onBack }: P
       if (phase !== 'quiz' || !current) return;
       const key = e.key.toLowerCase();
 
-      // Option selection via A-E
       if (!isAnswered && current.options) {
         const optIdx = OPTION_KEYS.indexOf(key);
         if (optIdx !== -1 && optIdx < current.options.length) {
@@ -161,7 +153,6 @@ export default function TrainingSession({ nodeId, level, onComplete, onBack }: P
         }
       }
 
-      // Enter to submit or next
       if (key === 'enter') {
         e.preventDefault();
         if (!isAnswered && selectedOption) {
@@ -178,10 +169,10 @@ export default function TrainingSession({ nodeId, level, onComplete, onBack }: P
   // No questions
   if (!current && phase === 'quiz') {
     return (
-      <div className="min-h-full bg-gray-900 flex items-center justify-center p-6">
+      <div className="min-h-full bg-[#FAFAFA] flex items-center justify-center p-6">
         <div className="text-center">
-          <p className="text-gray-400 mb-4">No questions available for this level yet.</p>
-          <button onClick={onBack} className="px-6 py-3 bg-gray-700 hover:bg-gray-600 text-white rounded-xl transition">
+          <p className="text-black/45 mb-4">No questions available for this level yet.</p>
+          <button onClick={onBack} className="px-6 py-3 bg-black text-white rounded-xl hover:bg-black/85 transition">
             Back
           </button>
         </div>
@@ -199,13 +190,13 @@ export default function TrainingSession({ nodeId, level, onComplete, onBack }: P
     const strokeDash = (pct / 100) * circumference;
 
     return (
-      <div className="min-h-full bg-gray-900 flex items-center justify-center p-6">
+      <div className="min-h-full bg-[#FAFAFA] flex items-center justify-center p-6">
         <div className="w-full max-w-lg">
-          <div className="bg-gray-800/60 border border-gray-700/50 rounded-2xl p-8 text-center backdrop-blur">
+          <div className="bg-white border border-black/10 rounded-2xl p-8 text-center">
             {/* Circular progress */}
             <div className="relative w-40 h-40 mx-auto mb-6">
               <svg className="w-full h-full -rotate-90" viewBox="0 0 120 120">
-                <circle cx="60" cy="60" r="54" fill="none" stroke="#1f2937" strokeWidth="8" />
+                <circle cx="60" cy="60" r="54" fill="none" stroke="rgba(0,0,0,0.07)" strokeWidth="8" />
                 <circle
                   cx="60" cy="60" r="54" fill="none"
                   stroke={passed ? '#22c55e' : '#f97316'}
@@ -216,49 +207,51 @@ export default function TrainingSession({ nodeId, level, onComplete, onBack }: P
                 />
               </svg>
               <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <span className="text-3xl font-bold text-white">{correctCount}/{total}</span>
-                <span className="text-sm text-gray-400">{pct}%</span>
+                <span className="text-3xl font-bold text-black">{correctCount}/{total}</span>
+                <span className="text-sm text-black/40">{pct}%</span>
               </div>
             </div>
 
             {/* Pass/Fail badge */}
-            <div className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-sm font-semibold mb-4 ${
-              passed ? 'bg-green-500/20 text-green-400' : 'bg-orange-500/20 text-orange-400'
+            <div className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-sm font-semibold mb-4 border ${
+              passed
+                ? 'bg-green-50 border-green-200 text-green-700'
+                : 'bg-orange-50 border-orange-200 text-orange-700'
             }`}>
               {passed ? <Trophy size={16} /> : <RotateCcw size={16} />}
               {passed ? 'Passed' : 'Not Yet'}
             </div>
 
-            <h2 className="text-2xl font-bold text-white mb-2">
-              {passed ? 'You passed! 🎉' : 'Keep practicing'}
+            <h2 className="text-2xl font-bold text-black mb-2">
+              {passed ? 'You passed!' : 'Keep practicing'}
             </h2>
-            <p className="text-gray-400 mb-6">
-              {passed ? 'Great work — you\'re ready to move on.' : 'You need 70% to pass. You\'ll get there!'}
+            <p className="text-black/50 mb-6">
+              {passed ? "Great work — you're ready to move on." : 'You need 70% to pass. You\'ll get there!'}
             </p>
 
             {/* Score breakdown bars */}
             <div className="space-y-2 mb-8 text-left">
               <div className="flex items-center gap-3">
-                <span className="text-xs text-gray-400 w-16">Correct</span>
-                <div className="flex-1 h-3 bg-gray-900 rounded-full overflow-hidden">
+                <span className="text-xs text-black/45 w-16">Correct</span>
+                <div className="flex-1 h-2 bg-black/6 rounded-full overflow-hidden">
                   <div className="h-full bg-green-500 rounded-full transition-all duration-700" style={{ width: `${total > 0 ? (correctCount / total) * 100 : 0}%` }} />
                 </div>
-                <span className="text-xs text-green-400 w-6 text-right">{correctCount}</span>
+                <span className="text-xs text-green-600 w-6 text-right">{correctCount}</span>
               </div>
               <div className="flex items-center gap-3">
-                <span className="text-xs text-gray-400 w-16">Wrong</span>
-                <div className="flex-1 h-3 bg-gray-900 rounded-full overflow-hidden">
-                  <div className="h-full bg-red-500 rounded-full transition-all duration-700" style={{ width: `${total > 0 ? (incorrectCount / total) * 100 : 0}%` }} />
+                <span className="text-xs text-black/45 w-16">Wrong</span>
+                <div className="flex-1 h-2 bg-black/6 rounded-full overflow-hidden">
+                  <div className="h-full bg-red-400 rounded-full transition-all duration-700" style={{ width: `${total > 0 ? (incorrectCount / total) * 100 : 0}%` }} />
                 </div>
-                <span className="text-xs text-red-400 w-6 text-right">{incorrectCount}</span>
+                <span className="text-xs text-red-500 w-6 text-right">{incorrectCount}</span>
               </div>
               {skippedCount > 0 && (
                 <div className="flex items-center gap-3">
-                  <span className="text-xs text-gray-400 w-16">Skipped</span>
-                  <div className="flex-1 h-3 bg-gray-900 rounded-full overflow-hidden">
-                    <div className="h-full bg-gray-600 rounded-full transition-all duration-700" style={{ width: `${(skippedCount / total) * 100}%` }} />
+                  <span className="text-xs text-black/45 w-16">Skipped</span>
+                  <div className="flex-1 h-2 bg-black/6 rounded-full overflow-hidden">
+                    <div className="h-full bg-black/20 rounded-full transition-all duration-700" style={{ width: `${(skippedCount / total) * 100}%` }} />
                   </div>
-                  <span className="text-xs text-gray-500 w-6 text-right">{skippedCount}</span>
+                  <span className="text-xs text-black/40 w-6 text-right">{skippedCount}</span>
                 </div>
               )}
             </div>
@@ -266,15 +259,13 @@ export default function TrainingSession({ nodeId, level, onComplete, onBack }: P
             <div className="flex gap-3">
               <button
                 onClick={onBack}
-                className="flex-1 px-4 py-3.5 bg-gray-700 hover:bg-gray-600 text-white font-medium rounded-xl transition"
+                className="flex-1 px-4 py-3.5 bg-black/[0.05] hover:bg-black/[0.08] text-black/65 font-medium rounded-xl border border-black/10 transition"
               >
                 Back to Topics
               </button>
               <button
                 onClick={handleFinish}
-                className={`flex-1 px-4 py-3.5 font-medium rounded-xl transition text-white ${
-                  passed ? 'bg-green-600 hover:bg-green-500' : 'bg-orange-600 hover:bg-orange-500'
-                }`}
+                className="flex-1 px-4 py-3.5 bg-black hover:bg-black/85 text-white font-medium rounded-xl transition"
               >
                 {passed ? 'Continue →' : 'Try Again'}
               </button>
@@ -291,93 +282,94 @@ export default function TrainingSession({ nodeId, level, onComplete, onBack }: P
   const progressPct = ((currentIdx + (isAnswered ? 1 : 0)) / total) * 100;
 
   return (
-    <div className="min-h-full bg-gray-900 flex flex-col">
-      {/* ── Sticky Top Bar ── */}
-      <div className="sticky top-0 z-20 bg-gray-900/95 backdrop-blur border-b border-gray-800/50 px-4 sm:px-6 pt-4 pb-3">
+    <div className="min-h-full bg-[#FAFAFA] flex flex-col">
+      {/* Sticky Top Bar */}
+      <div className="sticky top-0 z-20 bg-white/95 backdrop-blur border-b border-black/8 px-4 sm:px-6 pt-4 pb-3">
         <div className="max-w-3xl mx-auto">
           <div className="flex items-center justify-between mb-3">
             <button
               onClick={onBack}
-              className="flex items-center gap-1.5 text-sm text-gray-400 hover:text-white transition-colors"
+              className="flex items-center gap-1.5 text-sm text-black/40 hover:text-black transition-colors"
             >
               <ArrowLeft size={16} />
               <span className="hidden sm:inline">Exit</span>
             </button>
-            <span className="text-sm text-gray-300 font-medium">
-              Question <span className="text-white">{currentIdx + 1}</span> of {total}
+            <span className="text-sm text-black/55 font-medium">
+              Question <span className="text-black font-bold">{currentIdx + 1}</span> of {total}
             </span>
             <div className="flex items-center gap-1.5 text-sm">
-              <span className="text-green-400 font-bold">{correctCount}</span>
-              <span className="text-gray-500">/</span>
-              <span className="text-gray-400">{answeredCount}</span>
-              <Check size={14} className="text-green-400" />
+              <span className="text-green-600 font-bold">{correctCount}</span>
+              <span className="text-black/20">/</span>
+              <span className="text-black/40">{answeredCount}</span>
+              <Check size={14} className="text-green-600" />
             </div>
           </div>
           {/* Progress bar */}
-          <div className="h-1.5 bg-gray-800 rounded-full overflow-hidden">
+          <div className="h-1 bg-black/8 rounded-full overflow-hidden">
             <div
-              className="h-full bg-blue-500 rounded-full transition-all duration-500 ease-out"
+              className="h-full bg-black rounded-full transition-all duration-500 ease-out"
               style={{ width: `${progressPct}%` }}
             />
           </div>
         </div>
       </div>
 
-      {/* ── Main Content ── */}
+      {/* Main Content */}
       <div className="flex-1 px-4 sm:px-6 py-6 sm:py-8">
         <div className="max-w-3xl mx-auto">
 
           {/* Question Card */}
-          <div className="bg-gray-800/50 border border-gray-700/40 rounded-2xl p-5 sm:p-7 mb-5">
+          <div className="bg-white border border-black/10 rounded-2xl p-5 sm:p-7 mb-5">
             <div className="flex items-center justify-between mb-4">
-              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-blue-500/20 text-blue-400">
+              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-black/[0.06] text-black/50">
                 Q{currentIdx + 1}
               </span>
               {current!.marks && (
-                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-700/60 text-gray-400">
+                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-black/[0.04] text-black/40">
                   {current!.marks} {current!.marks === 1 ? 'mark' : 'marks'}
                 </span>
               )}
             </div>
-            <div className="text-lg text-white leading-relaxed">
+            <div className="text-base sm:text-lg text-black leading-relaxed">
               <MathText text={current!.text} />
             </div>
           </div>
 
           {/* Options */}
           {current!.options && current!.options.length > 0 && (
-            <div className="space-y-3 mb-5">
+            <div className="space-y-2.5 mb-5">
               {current!.options.map((opt: { label: string; text: string; correct: boolean }, idx: number) => {
                 const isSelected = selectedOption === opt.label;
-                let border = 'border-gray-700/40';
-                let bg = 'bg-gray-800/30';
-                let labelBg = 'bg-gray-700 text-gray-400';
-                let textColor = 'text-gray-300';
+                let borderClass = 'border-black/10';
+                let bgClass = 'bg-white';
+                let labelBg = 'bg-black/[0.06] text-black/50';
+                let textColor = 'text-black/70';
                 let icon: React.ReactNode = opt.label;
                 let ringClass = '';
 
                 if (isAnswered) {
                   if (opt.correct) {
-                    border = 'border-green-500/60';
-                    bg = 'bg-green-500/10';
+                    borderClass = 'border-green-200';
+                    bgClass = 'bg-green-50';
                     labelBg = 'bg-green-500 text-white';
-                    textColor = 'text-green-200';
+                    textColor = 'text-green-700';
                     icon = <Check size={14} strokeWidth={3} />;
                   } else if (isSelected && !opt.correct) {
-                    border = 'border-red-500/60';
-                    bg = 'bg-red-500/10';
+                    borderClass = 'border-red-200';
+                    bgClass = 'bg-red-50';
                     labelBg = 'bg-red-500 text-white';
-                    textColor = 'text-red-200';
+                    textColor = 'text-red-600';
                     icon = <X size={14} strokeWidth={3} />;
                   } else {
-                    textColor = 'text-gray-500';
+                    textColor = 'text-black/25';
+                    labelBg = 'bg-black/[0.04] text-black/25';
                   }
                 } else if (isSelected) {
-                  border = 'border-blue-500/60';
-                  bg = 'bg-blue-500/10';
-                  labelBg = 'bg-blue-500 text-white';
-                  textColor = 'text-blue-100';
-                  ringClass = 'ring-1 ring-blue-500/30';
+                  borderClass = 'border-black/30';
+                  bgClass = 'bg-black/[0.03]';
+                  labelBg = 'bg-black text-white';
+                  textColor = 'text-black';
+                  ringClass = 'ring-1 ring-black/10';
                 }
 
                 return (
@@ -385,19 +377,18 @@ export default function TrainingSession({ nodeId, level, onComplete, onBack }: P
                     key={opt.label}
                     onClick={() => handleSelect(opt.label)}
                     disabled={isAnswered}
-                    className={`w-full flex items-center gap-4 py-5 px-6 rounded-xl border transition-all duration-200 ${border} ${bg} ${ringClass} ${
-                      !isAnswered ? 'hover:border-blue-500/40 hover:bg-blue-500/5 active:scale-[0.99] cursor-pointer' : ''
+                    className={`w-full flex items-center gap-4 py-4 px-5 rounded-xl border transition-all duration-200 ${borderClass} ${bgClass} ${ringClass} ${
+                      !isAnswered ? 'hover:border-black/20 hover:bg-black/[0.02] active:scale-[0.99] cursor-pointer' : ''
                     }`}
                   >
-                    <div className={`w-9 h-9 rounded-full flex items-center justify-center font-bold text-sm shrink-0 transition-all duration-200 ${labelBg}`}>
+                    <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm shrink-0 transition-all duration-200 ${labelBg}`}>
                       {icon}
                     </div>
                     <span className={`text-left text-base leading-relaxed ${textColor} transition-colors duration-200`}>
                       <MathText text={opt.text} />
                     </span>
-                    {/* Keyboard shortcut hint */}
                     {!isAnswered && idx < OPTION_KEYS.length && (
-                      <span className="ml-auto text-xs text-gray-600 font-mono hidden sm:block">
+                      <span className="ml-auto text-xs text-black/20 font-mono hidden sm:block">
                         {OPTION_KEYS[idx].toUpperCase()}
                       </span>
                     )}
@@ -409,7 +400,7 @@ export default function TrainingSession({ nodeId, level, onComplete, onBack }: P
 
           {/* Keyboard hint */}
           {!isAnswered && current!.options && current!.options.length > 0 && (
-            <p className="text-xs text-gray-600 text-center mb-5 hidden sm:block">
+            <p className="text-xs text-black/25 text-center mb-5 hidden sm:block">
               Press <span className="font-mono">A</span>–<span className="font-mono">{OPTION_KEYS[Math.min(current!.options.length, OPTION_KEYS.length) - 1].toUpperCase()}</span> to select, <span className="font-mono">Enter</span> to submit
             </p>
           )}
@@ -419,15 +410,15 @@ export default function TrainingSession({ nodeId, level, onComplete, onBack }: P
             <div className="mb-5">
               <button
                 onClick={() => setShowHint(prev => !prev)}
-                className="flex items-center gap-2 text-sm text-yellow-500/70 hover:text-yellow-400 transition-colors"
+                className="flex items-center gap-2 text-sm text-amber-500/80 hover:text-amber-600 transition-colors"
               >
                 <Lightbulb size={15} />
                 Need a hint?
                 {showHint ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
               </button>
               {showHint && (
-                <div className="mt-3 p-4 bg-yellow-500/5 border border-yellow-500/20 rounded-xl">
-                  <div className="text-sm text-yellow-200/80 leading-relaxed">
+                <div className="mt-3 p-4 bg-amber-50 border border-amber-200 rounded-xl">
+                  <div className="text-sm text-amber-700 leading-relaxed">
                     <MathText text={current!.hints[0]} />
                   </div>
                 </div>
@@ -441,27 +432,26 @@ export default function TrainingSession({ nodeId, level, onComplete, onBack }: P
               feedbackVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'
             } ${
               isCorrect
-                ? 'bg-green-500/10 border-green-500/30'
-                : 'bg-red-500/10 border-red-500/30'
+                ? 'bg-green-50 border-green-200'
+                : 'bg-red-50 border-red-200'
             }`}>
-              <div className={`text-base font-semibold mb-2 ${isCorrect ? 'text-green-400' : 'text-red-400'}`}>
+              <div className={`text-base font-semibold mb-2 ${isCorrect ? 'text-green-700' : 'text-red-600'}`}>
                 {isCorrect ? '✓ Correct!' : '✗ Incorrect'}
               </div>
               {!isCorrect && correctOption && (
-                <p className="text-sm text-gray-300 mb-2">
-                  The answer is <span className="font-bold text-white">{correctOption.label}</span>
+                <p className="text-sm text-black/60 mb-2">
+                  The answer is <span className="font-bold text-black">{correctOption.label}</span>
                 </p>
               )}
               {current!.answer && (
-                <div className="text-sm text-gray-300 leading-relaxed">
+                <div className="text-sm text-black/55 leading-relaxed">
                   <MathText text={current!.answer} />
                 </div>
               )}
-              {/* Marking guide steps */}
               {current!.hints && current!.hints.length > 1 && (
-                <div className="mt-3 pt-3 border-t border-gray-700/30">
-                  <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Marking Guide</p>
-                  <ol className="list-decimal list-inside space-y-1 text-sm text-gray-400">
+                <div className="mt-3 pt-3 border-t border-black/8">
+                  <p className="text-xs font-semibold text-black/35 uppercase tracking-wide mb-2">Marking Guide</p>
+                  <ol className="list-decimal list-inside space-y-1 text-sm text-black/50">
                     {current!.hints.map((step, i) => (
                       <li key={i}><MathText text={step} /></li>
                     ))}
@@ -476,14 +466,14 @@ export default function TrainingSession({ nodeId, level, onComplete, onBack }: P
             {Array.from({ length: ADVANCE_THRESHOLD }).map((_, i) => (
               <div
                 key={i}
-                className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${
                   i < consecutiveCorrect
-                    ? 'bg-green-400 shadow-sm shadow-green-400/50 scale-110'
-                    : 'bg-gray-700'
+                    ? 'bg-green-500 scale-110'
+                    : 'bg-black/[0.08]'
                 }`}
               />
             ))}
-            <span className="text-xs text-gray-500 ml-2">{consecutiveCorrect}/{ADVANCE_THRESHOLD}</span>
+            <span className="text-xs text-black/30 ml-2">{consecutiveCorrect}/{ADVANCE_THRESHOLD}</span>
           </div>
 
           {/* Action Buttons */}
@@ -491,14 +481,14 @@ export default function TrainingSession({ nodeId, level, onComplete, onBack }: P
             <button
               onClick={handleSubmit}
               disabled={!selectedOption}
-              className="w-full py-4 bg-blue-600 hover:bg-blue-500 disabled:opacity-30 disabled:cursor-not-allowed text-white font-semibold text-base rounded-xl transition-all duration-200 active:scale-[0.99]"
+              className="w-full py-4 bg-black hover:bg-black/85 disabled:opacity-20 disabled:cursor-not-allowed text-white font-semibold text-base rounded-xl transition-all duration-200 active:scale-[0.99]"
             >
               Submit Answer
             </button>
           ) : (
             <button
               onClick={handleNext}
-              className="w-full py-4 bg-blue-600 hover:bg-blue-500 text-white font-semibold text-base rounded-xl transition-all duration-200 flex items-center justify-center gap-2 active:scale-[0.99]"
+              className="w-full py-4 bg-black hover:bg-black/85 text-white font-semibold text-base rounded-xl transition-all duration-200 flex items-center justify-center gap-2 active:scale-[0.99]"
             >
               {currentIdx + 1 >= total ? 'See Results' : 'Next Question'}
               <ArrowRight size={18} />
