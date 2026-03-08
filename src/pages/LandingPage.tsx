@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { ArrowRight, CheckCircle2, Sparkles } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 
 function useReveal() {
@@ -7,139 +8,194 @@ function useReveal() {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const io = new IntersectionObserver(([entry]) => {
+    const element = ref.current;
+    if (!element) return;
+
+    const observer = new IntersectionObserver(([entry]) => {
       if (entry.isIntersecting) setVisible(true);
-    }, { threshold: 0.2 });
-    io.observe(el);
-    return () => io.disconnect();
+    }, { threshold: 0.16 });
+
+    observer.observe(element);
+    return () => observer.disconnect();
   }, []);
 
-  return { ref, visible };
+  return [ref, visible] as const;
 }
 
 export default function LandingPage() {
   const { user } = useAuth();
-  const hero = useReveal();
-  const flow = useReveal();
-  const cta = useReveal();
+  const [heroRef, heroVisible] = useReveal();
+  const [sectionsRef, sectionsVisible] = useReveal();
+  const [ctaRef, ctaVisible] = useReveal();
 
   return (
-    <div className="min-h-screen bg-white text-black">
-      <style>{`
-        @keyframes fadeUp {
-          from { opacity: 0; transform: translateY(18px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes floatSlow {
-          0%, 100% { transform: translateY(0px); }
-          50% { transform: translateY(-12px); }
-        }
-        .fade-in { animation: fadeUp .75s ease-out both; }
-      `}</style>
-
-      {/* Hero */}
-      <section ref={hero.ref} className="relative flex min-h-[88vh] items-center justify-center overflow-hidden px-6 py-24 text-center sm:px-10">
-        <div className="pointer-events-none absolute -left-24 top-20 h-72 w-72 rounded-full bg-black/[0.04] blur-3xl" />
-        <div className="pointer-events-none absolute -right-24 bottom-20 h-72 w-72 rounded-full bg-black/[0.05] blur-3xl" style={{ animation: 'floatSlow 9s ease-in-out infinite' }} />
-
-        <div className={`relative z-10 mx-auto max-w-4xl ${hero.visible ? 'fade-in' : 'opacity-0'}`}>
-          <p className="mb-6 text-xs tracking-[0.24em] text-black/45 sm:text-sm">ATAR MASTER · VCE MATHEMATICAL METHODS</p>
-
-          <h1 className="text-5xl font-semibold leading-[0.94] tracking-tight sm:text-6xl md:text-7xl lg:text-8xl">
-            Learn clearly.
-            <br />
-            <span className="text-black/78">Perform confidently.</span>
-          </h1>
-
-          <p className="mx-auto mt-7 max-w-2xl text-base leading-relaxed text-black/60 sm:text-xl">
-            A calm, focused space for VCE Methods practice — real exams, structured skill progression,
-            and no clutter.
-          </p>
-
-          <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
-            <Link
-              to="/skill-tree"
-              className="w-full rounded-xl bg-black px-7 py-3.5 text-base font-semibold text-white transition hover:bg-black/90 sm:w-auto"
-            >
-              {user ? 'Continue Learning' : 'Start Practicing'}
-            </Link>
-            <Link
-              to="/pricing"
-              className="w-full rounded-xl border border-black/20 bg-white px-7 py-3.5 text-base font-medium text-black transition hover:border-black/35 hover:bg-black/[0.02] sm:w-auto"
-            >
-              View Pricing
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* Scroll anchor strip */}
-      <section className="border-y border-black/10 bg-black/[0.02] px-6 py-8 sm:px-10">
-        <div className="mx-auto grid max-w-5xl grid-cols-2 gap-6 text-center sm:grid-cols-4">
-          <div>
-            <div className="text-2xl font-semibold sm:text-3xl">2,270+</div>
-            <div className="mt-1 text-xs uppercase tracking-widest text-black/45">Practice Qs</div>
-          </div>
-          <div>
-            <div className="text-2xl font-semibold sm:text-3xl">2016–2025</div>
-            <div className="mt-1 text-xs uppercase tracking-widest text-black/45">VCAA Exams</div>
-          </div>
-          <div>
-            <div className="text-2xl font-semibold sm:text-3xl">31</div>
-            <div className="mt-1 text-xs uppercase tracking-widest text-black/45">Skill Nodes</div>
-          </div>
-          <div>
-            <div className="text-2xl font-semibold sm:text-3xl">100%</div>
-            <div className="mt-1 text-xs uppercase tracking-widest text-black/45">Coverage</div>
-          </div>
-        </div>
-      </section>
-
-      {/* Scroll section */}
-      <section ref={flow.ref} className="px-6 py-24 sm:px-10 sm:py-28">
-        <div className={`mx-auto grid max-w-6xl gap-10 md:grid-cols-2 ${flow.visible ? 'fade-in' : 'opacity-0'}`}>
-          <div>
-            <p className="text-xs tracking-[0.22em] text-black/45">FLOW</p>
-            <h2 className="mt-4 text-4xl font-semibold tracking-tight sm:text-5xl">Scroll naturally.
+    <div className="min-h-screen bg-[var(--app-bg)] text-[var(--ink)]">
+      <section ref={heroRef} className="overflow-hidden px-6 pb-20 pt-12 sm:px-10 sm:pb-24 sm:pt-16">
+        <div className="mx-auto grid max-w-6xl gap-12 lg:grid-cols-[minmax(0,1.1fr)_minmax(360px,0.9fr)] lg:items-center">
+          <div className={heroVisible ? 'page-enter' : 'opacity-0'}>
+            <p className="section-kicker">ATAR Master · VCE Mathematical Methods</p>
+            <h1 className="mt-5 max-w-4xl text-5xl font-semibold leading-[0.92] tracking-tight sm:text-6xl lg:text-7xl">
+              Study with less noise.
               <br />
-              <span className="text-black/65">Focus deeply.</span>
+              <span className="text-black/58">Get to confident exam work faster.</span>
+            </h1>
+
+            <p className="mt-6 max-w-2xl text-base leading-8 text-[var(--muted)] sm:text-lg">
+              Built for Methods students who want a calmer workspace: structured skill progression, past VCAA exams,
+              and daily practice without dashboard clutter.
+            </p>
+
+            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+              <Link
+                to="/skill-tree"
+                className="inline-flex items-center justify-center gap-2 rounded-full bg-black px-6 py-3.5 text-sm font-medium text-white transition hover:bg-black/85"
+              >
+                {user ? 'Continue Learning' : 'Start Practicing'}
+                <ArrowRight size={16} />
+              </Link>
+              <Link
+                to="/pricing"
+                className="inline-flex items-center justify-center rounded-full border border-black/10 bg-white px-6 py-3.5 text-sm font-medium text-[var(--ink)] transition hover:border-black/15 hover:bg-[var(--surface)]"
+              >
+                View Pricing
+              </Link>
+            </div>
+
+            <div className="mt-10 flex flex-wrap gap-3 text-sm text-[var(--muted)]">
+              {[
+                '31 skill nodes mapped from Year 8 to VCE',
+                '2016-2025 exam coverage',
+                '2,270+ linked practice questions',
+              ].map((item) => (
+                <span key={item} className="quiet-pill">
+                  {item}
+                </span>
+              ))}
+            </div>
+          </div>
+
+          <div className={`relative ${heroVisible ? 'page-enter' : 'opacity-0'}`}>
+            <div className="soft-panel relative overflow-hidden rounded-[32px] p-6 sm:p-7">
+              <div className="absolute inset-x-0 top-0 h-px bg-[linear-gradient(90deg,rgba(16,163,127,0.4),transparent)]" />
+              <div className="flex items-center justify-between">
+                <div>
+                  <div className="section-kicker">Preview</div>
+                  <h2 className="mt-2 text-2xl font-semibold tracking-tight">A study workspace that stays readable.</h2>
+                </div>
+                <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--surface-2)] text-[var(--accent)]">
+                  <Sparkles size={18} />
+                </span>
+              </div>
+
+              <div className="mt-6 grid gap-3">
+                <div className="rounded-[24px] border border-black/8 bg-white/82 p-5">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <div className="text-sm font-medium text-[var(--ink)]">Skill tree</div>
+                      <div className="mt-1 text-sm leading-6 text-[var(--muted)]">
+                        Follow prerequisites first, then jump directly into the next level of practice.
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-2xl font-semibold tracking-tight">68%</div>
+                      <div className="text-xs text-[var(--muted-soft)]">coverage</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="grid gap-3 sm:grid-cols-2">
+                  {[
+                    ['Daily challenge', 'Short session, fresh questions, fast feedback.'],
+                    ['Exam library', 'Real papers and linked follow-up practice.'],
+                  ].map(([title, copy]) => (
+                    <div key={title} className="rounded-[24px] border border-black/8 bg-white/82 p-5">
+                      <div className="text-sm font-medium text-[var(--ink)]">{title}</div>
+                      <div className="mt-2 text-sm leading-6 text-[var(--muted)]">{copy}</div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="rounded-[24px] border border-black/8 bg-[var(--surface)] p-5">
+                  <div className="text-xs uppercase tracking-[0.18em] text-[var(--muted-soft)]">What students need most</div>
+                  <div className="mt-4 space-y-3">
+                    {[
+                      'One clear next step instead of too many widgets.',
+                      'A clean path from weak topics to exam readiness.',
+                      'Less visual clutter during practice sessions.',
+                    ].map((item) => (
+                      <div key={item} className="flex items-start gap-3 text-sm text-[var(--muted)]">
+                        <CheckCircle2 size={16} className="mt-0.5 text-[var(--accent)]" />
+                        <span>{item}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="border-y border-black/8 bg-white/62 px-6 py-6 sm:px-10">
+        <div className="mx-auto grid max-w-6xl gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          {[
+            ['2,270+', 'Practice questions'],
+            ['2016-2025', 'VCAA exams'],
+            ['31', 'Skill nodes'],
+            ['100%', 'Methods coverage'],
+          ].map(([value, label]) => (
+            <div key={label} className="rounded-[24px] border border-black/8 bg-white/82 p-5">
+              <div className="text-3xl font-semibold tracking-tight text-[var(--ink)]">{value}</div>
+              <div className="mt-2 text-sm text-[var(--muted)]">{label}</div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section ref={sectionsRef} className="px-6 py-20 sm:px-10 sm:py-24">
+        <div className={`mx-auto max-w-6xl ${sectionsVisible ? 'page-enter' : 'opacity-0'}`}>
+          <div className="max-w-2xl">
+            <p className="section-kicker">How It Works</p>
+            <h2 className="mt-3 text-4xl font-semibold tracking-tight sm:text-5xl">
+              One product rhythm from start to finish.
             </h2>
-            <p className="mt-6 max-w-md text-base leading-relaxed text-black/60 sm:text-lg">
-              We keep the top clean and premium, then reveal the rest progressively as you scroll —
-              so students focus on study first, details second.
+            <p className="mt-4 text-base leading-7 text-[var(--muted)] sm:text-lg">
+              The product now follows a simpler flow: choose a node, inspect the practice ladder, and start the next level.
+              Everything is designed to reduce hesitation between intention and action.
             </p>
           </div>
 
-          <div className="space-y-4">
+          <div className="mt-10 grid gap-4 lg:grid-cols-3">
             {[
-              ['Step 1', 'Pick your level and start where you are.'],
-              ['Step 2', 'Train with real exam-style questions.'],
-              ['Step 3', 'Track progress and close weak spots fast.'],
-            ].map(([title, text]) => (
-              <div key={title} className="rounded-2xl border border-black/10 bg-white p-6">
-                <p className="text-sm font-semibold text-black">{title}</p>
-                <p className="mt-2 text-sm text-black/60">{text}</p>
+              ['Choose your map', 'See the full study structure at once, with prerequisites and progress in view.'],
+              ['Open one node', 'The side panel explains what the topic covers, what unlocks it, and what to do next.'],
+              ['Practice immediately', 'Jump into the recommended level without navigating through extra overlays.'],
+            ].map(([title, copy]) => (
+              <div key={title} className="soft-panel rounded-[28px] p-6">
+                <div className="section-kicker">{title}</div>
+                <p className="mt-4 text-sm leading-7 text-[var(--muted)]">{copy}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Final CTA */}
-      <section ref={cta.ref} className="border-t border-black/10 px-6 py-24 text-center sm:px-10">
-        <div className={`mx-auto max-w-3xl ${cta.visible ? 'fade-in' : 'opacity-0'}`}>
-          <h3 className="text-4xl font-semibold tracking-tight sm:text-5xl">Ready when you are.</h3>
-          <p className="mx-auto mt-5 max-w-xl text-black/60 sm:text-lg">
-            Built for VCE Methods students: clear, calm, and exam-focused.
+      <section ref={ctaRef} className="border-t border-black/8 px-6 py-20 sm:px-10 sm:py-24">
+        <div className={`mx-auto max-w-4xl rounded-[32px] border border-black/8 bg-white/88 p-8 text-center shadow-[0_24px_80px_rgba(15,23,42,0.08)] sm:p-10 ${ctaVisible ? 'page-enter' : 'opacity-0'}`}>
+          <p className="section-kicker">Ready When You Are</p>
+          <h3 className="mt-3 text-4xl font-semibold tracking-tight sm:text-5xl">
+            A calmer Methods workflow starts here.
+          </h3>
+          <p className="mx-auto mt-4 max-w-2xl text-base leading-7 text-[var(--muted)] sm:text-lg">
+            Open the skill tree, pick the node you are actually working on, and start the next set immediately.
           </p>
-          <div className="mt-9">
+          <div className="mt-8">
             <Link
               to="/skill-tree"
-              className="inline-block rounded-xl bg-black px-8 py-3.5 text-base font-semibold text-white transition hover:bg-black/90"
+              className="inline-flex items-center gap-2 rounded-full bg-black px-6 py-3.5 text-sm font-medium text-white transition hover:bg-black/85"
             >
               {user ? 'Continue Learning' : 'Start Practicing'}
+              <ArrowRight size={16} />
             </Link>
           </div>
         </div>

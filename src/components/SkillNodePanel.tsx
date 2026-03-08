@@ -1,197 +1,205 @@
-import { useMemo, useEffect, useState } from 'react';
-import {
-  X, Play, Calculator,
-} from 'lucide-react';
+import { useMemo } from 'react';
+import { ArrowRight, Calculator, CheckCircle2, Lock, Play, Sparkles, X } from 'lucide-react';
 import { ALL_NODES } from '../data/skillTreeData';
-import { getNodeQuestionCounts } from '../data/questionMatcher';
-import { getTrainingForNode } from '../data/training';
 import type { UserProgress } from '../lib/progress';
-import { getNodeProgress, computeNodeStatus } from '../lib/progress';
+import { computeNodeStatus, getNodeProgress } from '../lib/progress';
 import { formatEstimatedTime } from '../lib/utils';
-import { TIER_COLORS, NODE_ICON_MAP } from '../data/skillTreeVisuals';
+import { getNodeLevelData, getNodeStudyTotals } from '../lib/skillTree';
+import { NODE_ICON_MAP, TIER_COLORS } from '../data/skillTreeVisuals';
 
 interface Props {
   nodeId: string;
   progress: UserProgress;
   onClose: () => void;
-  onEnter: (nodeId: string) => void;
+  onStartLevel: (nodeId: string, level: number) => void;
 }
 
-export default function SkillNodePanel({ nodeId, progress, onClose, onEnter }: Props) {
-  const node = useMemo(() => ALL_NODES.find(n => n.id === nodeId), [nodeId]);
-  const np = getNodeProgress(progress, nodeId);
-  const examCount = useMemo(() => getNodeQuestionCounts()[nodeId] ?? 0, [nodeId]);
-  const trainingCount = useMemo(() => getTrainingForNode(nodeId).length, [nodeId]);
-  const qCount = trainingCount + examCount;
-  const Icon = NODE_ICON_MAP[nodeId] ?? Calculator;
-  const tierColor = node ? TIER_COLORS[node.tier] ?? ['#60A5FA', '#3B82F6'] : ['#60A5FA', '#3B82F6'];
-  const [g1] = tierColor;
-  const [visible, setVisible] = useState(false);
+const TIER_LABELS = ['Year 8', 'Year 9', 'Year 10', 'Year 11', 'Year 12', 'VCE Exam'];
 
-  useEffect(() => {
-    requestAnimationFrame(() => setVisible(true));
-    return () => setVisible(false);
-  }, [nodeId]);
+export default function SkillNodePanel({ nodeId, progress, onClose, onStartLevel }: Props) {
+  const node = useMemo(() => ALL_NODES.find((item) => item.id === nodeId), [nodeId]);
+  const nodeProgress = getNodeProgress(progress, nodeId);
+  const levelData = useMemo(() => getNodeLevelData(nodeId, progress), [nodeId, progress]);
+  const studyTotals = useMemo(() => getNodeStudyTotals(nodeId), [nodeId]);
+  const Icon = NODE_ICON_MAP[nodeId] ?? Calculator;
 
   if (!node) return null;
 
-  const maxLevels = node.tier >= 3 ? 4 : 3;
-  const pct = Math.round((np.levelsCompleted.filter(l => l <= maxLevels).length / maxLevels) * 100);
-  const isStarted = np.levelsCompleted.length > 0;
-
+  const [accent] = TIER_COLORS[node.tier] ?? ['#0f172a', '#334155'];
   const nodeStatus = computeNodeStatus(nodeId, node.prerequisites, progress);
   const isLocked = nodeStatus === 'locked';
+  const completedLevelCount = levelData.filter((level) => level.isCompleted).length;
+  const completionPct = levelData.length ? Math.round((completedLevelCount / levelData.length) * 100) : 0;
+  const recommendedLevel = levelData.find((level) => level.isUnlocked && !level.isCompleted)
+    ?? levelData.find((level) => level.isUnlocked)
+    ?? null;
+
   const unmetPrereqs = isLocked
-    ? node.prerequisites.filter(pid => {
-        const pp = progress.nodes[pid];
-        return !pp || (pp.status !== 'completed' && pp.status !== 'mastered');
-      }).map(pid => ALL_NODES.find(n => n.id === pid)?.title ?? pid)
+    ? node.prerequisites
+      .filter((prereqId) => {
+        const current = progress.nodes[prereqId];
+        return !current || (current.status !== 'completed' && current.status !== 'mastered');
+      })
+      .map((prereqId) => ALL_NODES.find((item) => item.id === prereqId)?.title ?? prereqId)
     : [];
 
   return (
-    <>
-      {/* Backdrop */}
-      <div
-        className="fixed inset-0 z-40 bg-black/25 backdrop-blur-[2px]"
-        onClick={onClose}
-        style={{ opacity: visible ? 1 : 0, transition: 'opacity 0.2s ease' }}
-      />
+    <div className="flex h-full flex-col bg-white/78">
+      <div className="border-b border-black/8 px-5 py-5">
+        <div className="flex items-start justify-between gap-4">
+          <div className="min-w-0">
+            <span className="quiet-pill">{TIER_LABELS[node.tier]}</span>
+            <h2 className="mt-3 text-2xl font-semibold tracking-tight text-[var(--ink)]">{node.title}</h2>
+            <p className="mt-3 text-sm leading-6 text-[var(--muted)]">{node.description}</p>
+          </div>
 
-      {/* Panel — centered modal */}
-      <div
-        className="fixed z-50 inset-0 flex items-center justify-center p-4"
-        onClick={onClose}
-      >
+          <button
+            onClick={onClose}
+            className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-black/8 bg-white text-[var(--muted)] transition hover:border-black/12 hover:text-[var(--ink)]"
+            aria-label="Clear selection"
+          >
+            <X size={16} />
+          </button>
+        </div>
+
+        <div className="mt-5 grid grid-cols-2 gap-3">
+          {[
+            { label: 'Progress', value: `${completionPct}%`, detail: `${completedLevelCount}/${levelData.length || 0} levels completed` },
+            { label: 'Best score', value: `${nodeProgress.score}%`, detail: 'Best passing result saved' },
+            { label: 'Training', value: `${studyTotals.trainingCount}`, detail: 'Targeted practice questions' },
+            { label: 'Exam', value: `${studyTotals.examCount}`, detail: 'Past exam prompts linked' },
+          ].map((item) => (
+            <div key={item.label} className="rounded-[20px] border border-black/8 bg-[var(--surface)] p-4">
+              <div className="text-xs uppercase tracking-[0.18em] text-[var(--muted-soft)]">{item.label}</div>
+              <div className="mt-2 text-xl font-semibold tracking-tight text-[var(--ink)]">{item.value}</div>
+              <div className="mt-2 text-xs leading-5 text-[var(--muted)]">{item.detail}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="flex-1 space-y-6 overflow-y-auto px-5 py-5">
         <div
-          className="w-full max-w-[380px] max-h-[85vh]"
-          onClick={e => e.stopPropagation()}
+          className="rounded-[24px] border p-5"
           style={{
-            opacity: visible ? 1 : 0,
-            transform: visible ? 'scale(1)' : 'scale(0.96)',
-            transition: 'all 0.25s ease-out',
+            borderColor: isLocked ? 'rgba(15, 23, 42, 0.08)' : `${accent}22`,
+            background: isLocked ? 'rgba(255,255,255,0.92)' : `linear-gradient(180deg, ${accent}12, rgba(255,255,255,0.96))`,
           }}
         >
-          <div className="rounded-3xl overflow-hidden border border-black/10 max-h-[85vh] flex flex-col bg-white shadow-xl">
-            {/* Header */}
-            <div
-              className="relative px-6 pt-8 pb-5 text-center"
-              style={{ background: `linear-gradient(180deg, ${g1}08, transparent)` }}
-            >
-              <button
-                onClick={onClose}
-                className="absolute top-3 right-3 w-8 h-8 rounded-full bg-black/[0.05] hover:bg-black/[0.09] flex items-center justify-center text-black/40 hover:text-black transition-colors"
-              >
-                <X size={16} />
-              </button>
-
-              <div
-                className="w-20 h-20 rounded-2xl mx-auto flex items-center justify-center mb-3"
-                style={{
-                  background: `${g1}12`,
-                  border: `1px solid ${g1}22`,
-                }}
-              >
-                <Icon size={36} style={{ color: g1 }} strokeWidth={1.5} />
-              </div>
-
-              <h3 className="text-xl font-bold text-black">{node.title}</h3>
-              <p className="text-xs text-black/40 mt-1 capitalize">{node.topic.toLowerCase()}</p>
-            </div>
-
-            {/* Body */}
-            <div className="px-6 pb-6 overflow-y-auto">
-              <p className="text-sm text-black/50 leading-relaxed mb-5 text-center">
-                {node.description}
-              </p>
-
-              {/* Stats */}
-              <div className="flex items-center justify-center gap-6 mb-5">
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-black">
-                    {np.levelsCompleted.filter(l => l <= maxLevels).length}
-                    <span className="text-base text-black/30">/{maxLevels}</span>
-                  </div>
-                  <div className="text-[10px] text-black/35 mt-0.5 uppercase tracking-wider">Levels</div>
-                </div>
-                <div className="w-px h-8 bg-black/8" />
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-black">{qCount}</div>
-                  <div className="text-[10px] text-black/35 mt-0.5 uppercase tracking-wider">Questions</div>
-                </div>
-                <div className="w-px h-8 bg-black/8" />
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-black">{np.score}<span className="text-base text-black/30">%</span></div>
-                  <div className="text-[10px] text-black/35 mt-0.5 uppercase tracking-wider">Best</div>
-                </div>
-                <div className="w-px h-8 bg-black/8" />
-                <div className="text-center">
-                  <div className="text-lg font-bold text-black/50">⏱</div>
-                  <div className="text-[10px] text-black/35 mt-0.5 uppercase tracking-wider">{formatEstimatedTime(qCount * 1.5)}</div>
-                </div>
-              </div>
-
-              {/* Progress bar */}
-              <div className="mb-5">
-                <div className="flex justify-between text-[10px] text-black/35 mb-1.5 font-mono">
-                  <span>Progress</span>
-                  <span>{pct}%</span>
-                </div>
-                <div className="h-2 rounded-full bg-black/8 overflow-hidden">
-                  <div
-                    className="h-full rounded-full transition-all duration-700"
-                    style={{
-                      width: `${pct}%`,
-                      background: pct === 100
-                        ? 'linear-gradient(90deg, #22C55E, #10B981)'
-                        : `linear-gradient(90deg, ${g1}, ${g1}BB)`,
-                    }}
-                  />
-                </div>
-                {/* Level dots */}
-                <div className="flex justify-between mt-2 px-1">
-                  {(['Easy', 'Medium', 'Hard', 'Exam'].slice(0, maxLevels)).map((label, i) => (
-                    <div key={i} className="flex flex-col items-center gap-1">
-                      <div
-                        className="w-4 h-4 rounded-full flex items-center justify-center text-[8px]"
-                        style={{
-                          background: np.levelsCompleted.includes(i + 1) ? g1 : 'rgba(0,0,0,0.06)',
-                          border: `1.5px solid ${np.levelsCompleted.includes(i + 1) ? g1 : 'rgba(0,0,0,0.10)'}`,
-                          color: np.levelsCompleted.includes(i + 1) ? '#fff' : 'transparent',
-                        }}
-                      >
-                        {np.levelsCompleted.includes(i + 1) ? '✓' : ''}
-                      </div>
-                      <span className="text-[8px] text-black/30">{label}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* CTA */}
-              {isLocked ? (
-                <div className="w-full py-3.5 rounded-2xl text-center text-sm text-black/40 bg-black/[0.04] border border-black/8">
-                  <p className="font-medium mb-1">Complete first:</p>
-                  <p className="text-xs text-black/30">{unmetPrereqs.join(', ')}</p>
-                </div>
-              ) : (
-                <button
-                  onClick={() => onEnter(nodeId)}
-                  className="w-full py-3.5 rounded-2xl font-bold text-base uppercase tracking-wide
-                             flex items-center justify-center gap-2 transition-all active:scale-[0.98]
-                             text-white hover:brightness-110"
-                  style={{
-                    background: g1,
-                    boxShadow: `0 4px 16px ${g1}30`,
-                  }}
+          <div className="flex items-start justify-between gap-4">
+            <div className="min-w-0">
+              <div className="section-kicker">{isLocked ? 'Locked' : 'Next Focus'}</div>
+              <div className="mt-3 flex items-center gap-3">
+                <div
+                  className="flex h-11 w-11 items-center justify-center rounded-2xl border"
+                  style={{ borderColor: `${accent}20`, background: `${accent}10` }}
                 >
-                  <Play size={18} fill="currentColor" />
-                  {isStarted ? 'Continue Practice' : 'Start Practice'}
-                </button>
-              )}
+                  {isLocked ? <Lock size={18} className="text-[var(--muted)]" /> : <Icon size={18} style={{ color: accent }} />}
+                </div>
+
+                <div>
+                  <div className="text-lg font-semibold tracking-tight text-[var(--ink)]">
+                    {isLocked ? 'Finish prerequisites first' : recommendedLevel?.name ?? 'Ready to review'}
+                  </div>
+                  <div className="mt-1 text-sm text-[var(--muted)]">
+                    {isLocked
+                      ? unmetPrereqs.join(', ')
+                      : recommendedLevel
+                        ? `${recommendedLevel.questionCount} questions · ${formatEstimatedTime(recommendedLevel.questionCount * 1.5)}`
+                        : 'This node has no linked practice yet.'}
+                  </div>
+                </div>
+              </div>
             </div>
+
+            {!isLocked && recommendedLevel && (
+              <button
+                onClick={() => onStartLevel(nodeId, recommendedLevel.level)}
+                className="inline-flex items-center gap-2 rounded-full bg-black px-4 py-2.5 text-sm font-medium text-white transition hover:bg-black/85"
+              >
+                Start
+                <ArrowRight size={14} />
+              </button>
+            )}
+          </div>
+        </div>
+
+        <div>
+          <div className="section-kicker">Practice Path</div>
+          <div className="mt-3 space-y-3">
+            {levelData.map((level) => {
+              const isUnavailable = isLocked || !level.isUnlocked;
+              const actionLabel = level.isCompleted ? 'Redo' : 'Start';
+
+              return (
+                <div
+                  key={level.level}
+                  className={`rounded-[24px] border p-4 transition-all ${
+                    isUnavailable
+                      ? 'border-black/6 bg-white/70 opacity-60'
+                      : level.isCompleted
+                        ? 'border-emerald-200 bg-emerald-50/70'
+                        : 'border-black/10 bg-white hover:border-black/16 hover:bg-white'
+                  }`}
+                >
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-3">
+                        <div
+                          className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full border text-sm font-medium ${
+                            isUnavailable
+                              ? 'border-black/8 bg-black/4 text-black/30'
+                              : level.isCompleted
+                                ? 'border-emerald-200 bg-emerald-100 text-emerald-700'
+                                : 'border-black/10 bg-[var(--surface-2)] text-[var(--ink)]'
+                          }`}
+                        >
+                          {level.isCompleted ? <CheckCircle2 size={16} /> : level.level}
+                        </div>
+
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <h3 className="text-base font-semibold tracking-tight text-[var(--ink)]">{level.name}</h3>
+                            {level.isExamLevel && (
+                              <span className="quiet-pill">Exam</span>
+                            )}
+                            {!isUnavailable && !level.isCompleted && recommendedLevel?.level === level.level && (
+                              <span className="quiet-pill">Recommended</span>
+                            )}
+                          </div>
+                          <p className="mt-1 text-sm leading-6 text-[var(--muted)]">{level.description}</p>
+                        </div>
+                      </div>
+
+                      <div className="mt-3 flex flex-wrap gap-2 text-xs text-[var(--muted)]">
+                        <span className="quiet-pill">{level.questionCount} questions</span>
+                        <span className="quiet-pill">{formatEstimatedTime(level.questionCount * 1.5)}</span>
+                        {level.isCompleted && <span className="quiet-pill">Completed</span>}
+                        {isUnavailable && <span className="quiet-pill">Locked</span>}
+                      </div>
+                    </div>
+
+                    <button
+                      onClick={() => onStartLevel(nodeId, level.level)}
+                      disabled={isUnavailable}
+                      className={`inline-flex items-center gap-2 rounded-full px-3.5 py-2 text-sm font-medium transition ${
+                        isUnavailable
+                          ? 'cursor-not-allowed border border-black/8 bg-black/3 text-black/25'
+                          : level.isCompleted
+                            ? 'border border-black/10 bg-white text-[var(--ink)] hover:border-black/16'
+                            : 'bg-black text-white hover:bg-black/85'
+                      }`}
+                    >
+                      {level.isCompleted ? <Sparkles size={14} /> : <Play size={14} fill="currentColor" />}
+                      {actionLabel}
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 }

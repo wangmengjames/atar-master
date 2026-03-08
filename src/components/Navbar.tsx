@@ -1,6 +1,20 @@
-import { NavLink, useNavigate, useLocation } from 'react-router-dom';
-import { GitBranch, FileText, Dumbbell, BarChart3, DollarSign, LogIn, LogOut, User, Menu, X, Shield, ChevronDown, Zap } from 'lucide-react';
-import { useState, useRef, useEffect, useMemo } from 'react';
+import { NavLink, useNavigate } from 'react-router-dom';
+import {
+  BarChart3,
+  ChevronDown,
+  DollarSign,
+  Dumbbell,
+  FileText,
+  GitBranch,
+  LogIn,
+  LogOut,
+  Menu,
+  Shield,
+  User,
+  X,
+  Zap,
+} from 'lucide-react';
+import { useEffect, useRef, useState, type ReactElement } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { getDailyChallengeState } from '../lib/dailyChallenge';
 import { isAdminUser } from '../lib/constants';
@@ -10,63 +24,74 @@ function UserDropdown() {
   const { user, isPro, signOut } = useAuth();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const isAdmin = isAdminUser(user);
-
-  useEffect(() => {
-    const handler = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
-    };
-    document.addEventListener('mousedown', handler);
-    return () => document.removeEventListener('mousedown', handler);
-  }, []);
-
   const avatarUrl = user?.user_metadata?.avatar_url;
 
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+        setOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
   return (
-    <div className="relative" ref={ref}>
+    <div className="relative" ref={containerRef}>
       <button
-        onClick={() => setOpen(!open)}
-        className="flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-black/[0.04] transition"
+        onClick={() => setOpen((current) => !current)}
+        className="inline-flex items-center gap-2 rounded-full border border-black/8 bg-white/88 px-2.5 py-1.5 text-sm text-[var(--muted)] transition hover:border-black/12 hover:text-[var(--ink)]"
       >
         {avatarUrl ? (
-          <img src={avatarUrl} alt="" className="w-7 h-7 rounded-full" />
+          <img src={avatarUrl} alt="" className="h-7 w-7 rounded-full object-cover" />
         ) : (
-          <div className="w-7 h-7 rounded-full bg-black/[0.06] flex items-center justify-center">
-            <User size={14} className="text-black/50" />
-          </div>
+          <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[var(--surface-2)] text-[var(--muted)]">
+            <User size={14} />
+          </span>
         )}
-        <span className="text-sm text-black/50 hidden sm:inline">
+
+        <span className="hidden max-w-[120px] truncate sm:inline">
           {user?.user_metadata?.full_name || user?.email?.split('@')[0]}
         </span>
-        {isPro && (
-          <span className="px-1.5 py-0.5 text-[10px] font-bold bg-green-50 text-green-700 border border-green-200 rounded-full">PRO</span>
-        )}
+
+        {isPro && <span className="quiet-pill">Pro</span>}
         <ChevronDown size={14} className="text-black/35" />
       </button>
 
       {open && (
-        <div className="absolute right-0 top-full mt-1 w-48 bg-white border border-black/10 rounded-xl shadow-lg py-1 z-50">
+        <div className="absolute right-0 top-full z-50 mt-2 w-56 rounded-[24px] border border-black/8 bg-white/95 p-2 shadow-[0_22px_60px_rgba(15,23,42,0.12)] backdrop-blur">
           <button
             onClick={() => { navigate('/dashboard'); setOpen(false); }}
-            className="flex items-center gap-2 w-full px-4 py-2 text-sm text-black/75 hover:bg-black/[0.03] transition"
+            className="flex w-full items-center gap-2 rounded-2xl px-3 py-2.5 text-sm text-[var(--muted)] transition hover:bg-[var(--surface-2)] hover:text-[var(--ink)]"
           >
-            <BarChart3 size={14} /> Dashboard
+            <BarChart3 size={14} />
+            Dashboard
           </button>
+
           {isAdmin && (
             <button
               onClick={() => { navigate('/teacher'); setOpen(false); }}
-              className="flex items-center gap-2 w-full px-4 py-2 text-sm text-black/75 hover:bg-black/[0.03] transition"
+              className="flex w-full items-center gap-2 rounded-2xl px-3 py-2.5 text-sm text-[var(--muted)] transition hover:bg-[var(--surface-2)] hover:text-[var(--ink)]"
             >
-              <Shield size={14} /> Teacher Dashboard
+              <Shield size={14} />
+              Teacher Dashboard
             </button>
           )}
-          <div className="border-t border-black/8 my-1" />
+
+          <div className="my-2 border-t border-black/8" />
+
           <button
-            onClick={async () => { await signOut(); setOpen(false); }}
-            className="flex items-center gap-2 w-full px-4 py-2 text-sm text-red-500 hover:bg-red-50 transition"
+            onClick={async () => {
+              await signOut();
+              setOpen(false);
+            }}
+            className="flex w-full items-center gap-2 rounded-2xl px-3 py-2.5 text-sm text-red-500 transition hover:bg-red-50"
           >
-            <LogOut size={14} /> Sign Out
+            <LogOut size={14} />
+            Sign Out
           </button>
         </div>
       )}
@@ -74,100 +99,129 @@ function UserDropdown() {
   );
 }
 
-const NAV_LINKS = [
-  { to: '/skill-tree', icon: <GitBranch size={16} />, label: 'Skill Tree' },
-  { to: '/exams', icon: <FileText size={16} />, label: 'Exams' },
-  { to: '/practice', icon: <Dumbbell size={16} />, label: 'Practice' },
-  { to: '/daily', icon: <Zap size={16} />, label: 'Daily', showDot: true },
-  { to: '/dashboard', icon: <BarChart3 size={16} />, label: 'Dashboard' },
-  { to: '/pricing', icon: <DollarSign size={16} />, label: 'Pricing' },
+type NavLinkItem = {
+  to: string;
+  label: string;
+  icon: ReactElement;
+  showDot?: boolean;
+};
+
+const NAV_LINKS: NavLinkItem[] = [
+  { to: '/skill-tree', label: 'Skill Tree', icon: <GitBranch size={16} /> },
+  { to: '/exams', label: 'Exams', icon: <FileText size={16} /> },
+  { to: '/practice', label: 'Practice', icon: <Dumbbell size={16} /> },
+  { to: '/daily', label: 'Daily', icon: <Zap size={16} />, showDot: true },
+  { to: '/dashboard', label: 'Dashboard', icon: <BarChart3 size={16} /> },
+  { to: '/pricing', label: 'Pricing', icon: <DollarSign size={16} /> },
 ];
 
 export default function Navbar() {
   const { user } = useAuth();
-  const location = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
-
-  useEffect(() => {
-    setMobileOpen(false);
-  }, [location.pathname]);
-
-  const dailyDone = useMemo(() => getDailyChallengeState()?.completed ?? false, [location.pathname]);
-  const linkBase = 'flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 relative';
-  const activeClass = 'bg-black/[0.06] text-black shadow-[inset_0_0_0_1px_rgba(0,0,0,0.08)]';
-  const inactiveClass = 'text-black/45 hover:text-black hover:bg-black/[0.04]';
+  const dailyDone = getDailyChallengeState()?.completed ?? false;
+  const closeMobileMenu = () => setMobileOpen(false);
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 border-b border-black/10 bg-white/90 backdrop-blur-md">
-      <div className="mx-auto max-w-6xl flex items-center justify-between px-4 sm:px-6 py-3">
-        <NavLink to="/" className="flex items-center gap-2 text-lg font-bold text-black">
-          <span className="inline-flex h-7 w-7 items-center justify-center rounded-md border border-black/15 bg-black/[0.03] text-[10px] font-semibold tracking-wide">AM</span>
-          ATAR Master
+    <nav className="fixed inset-x-0 top-0 z-50 border-b border-black/8 bg-[rgba(248,246,239,0.88)] backdrop-blur-xl">
+      <div className="mx-auto flex max-w-[1200px] items-center justify-between gap-4 px-4 py-2.5 sm:px-6">
+        <NavLink to="/" className="flex items-center gap-3 text-[var(--ink)]">
+          <span className="flex h-9 w-9 items-center justify-center rounded-full border border-black/10 bg-white/88 text-[11px] font-semibold tracking-[0.2em]">
+            AM
+          </span>
+          <div>
+            <div className="text-sm font-semibold tracking-tight">ATAR Master</div>
+            <div className="text-xs text-[var(--muted-soft)]">Focused VCE Methods practice</div>
+          </div>
         </NavLink>
 
-        {/* Desktop nav */}
-        <div className="hidden md:flex items-center gap-1">
-          {NAV_LINKS.map(l => (
-            <NavLink
-              key={l.to}
-              to={l.to}
-              className={({ isActive }) => `${linkBase} ${isActive ? activeClass : inactiveClass}`}
-            >
-              {({ isActive }) => (
-                <>
-                  <span className={`relative ${isActive ? 'text-black' : ''}`}>
-                    {l.icon}
-                    {l.showDot && !dailyDone && (
-                      <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full" />
+        <div className="hidden items-center gap-3 lg:flex">
+          <div className="inline-flex items-center gap-1 rounded-full border border-black/8 bg-white/86 p-1.5 shadow-[0_12px_30px_rgba(15,23,42,0.05)]">
+            {NAV_LINKS.map((link) => (
+              <NavLink
+                key={link.to}
+                to={link.to}
+                className={({ isActive }) => `relative rounded-full px-3.5 py-2 text-sm font-medium transition ${
+                  isActive
+                    ? 'bg-black text-white'
+                    : 'text-[var(--muted)] hover:bg-[var(--surface-2)] hover:text-[var(--ink)]'
+                }`}
+              >
+                {({ isActive }) => (
+                  <>
+                    {link.label}
+                    {link.showDot && !dailyDone && (
+                      <span className={`absolute right-2 top-2 h-1.5 w-1.5 rounded-full ${isActive ? 'bg-white/80' : 'bg-[var(--accent)]'}`} />
                     )}
-                  </span>
-                  {l.label}
-                  {isActive && (
-                    <span className="absolute -bottom-[13px] left-1/2 -translate-x-1/2 w-8 h-0.5 rounded-full bg-black/70" />
-                  )}
-                </>
-              )}
-            </NavLink>
-          ))}
-          <div className="ml-2 pl-2 border-l border-black/10 flex items-center gap-2">
+                  </>
+                )}
+              </NavLink>
+            ))}
+          </div>
+
+          <div className="flex items-center gap-2">
             {user && <StreakBadge />}
             {user ? (
               <UserDropdown />
             ) : (
-              <NavLink to="/auth" className={({ isActive }) => `${linkBase} ${isActive ? activeClass : inactiveClass}`}>
-                <LogIn size={16} /> Sign In
+              <NavLink
+                to="/auth"
+                className="inline-flex items-center gap-2 rounded-full border border-black/8 bg-white/88 px-4 py-2 text-sm font-medium text-[var(--muted)] transition hover:border-black/12 hover:text-[var(--ink)]"
+              >
+                <LogIn size={14} />
+                Sign In
               </NavLink>
             )}
           </div>
         </div>
 
-        {/* Mobile hamburger */}
-        <button onClick={() => setMobileOpen(!mobileOpen)} className="md:hidden p-2 text-black/45 hover:text-black transition">
-          {mobileOpen ? <X size={22} /> : <Menu size={22} />}
+        <button
+          onClick={() => setMobileOpen((current) => !current)}
+          className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-black/8 bg-white/88 text-[var(--muted)] transition hover:text-[var(--ink)] lg:hidden"
+          aria-label="Toggle navigation"
+        >
+          {mobileOpen ? <X size={18} /> : <Menu size={18} />}
         </button>
       </div>
 
-      {/* Mobile menu */}
       {mobileOpen && (
-        <div className="md:hidden border-t border-black/10 bg-white px-4 pb-4 space-y-1 mobile-menu-enter">
-          {NAV_LINKS.map(l => (
-            <NavLink
-              key={l.to}
-              to={l.to}
-              className={({ isActive }) => `${linkBase} w-full ${isActive ? activeClass : inactiveClass}`}
-            >
-              {l.icon} {l.label}
-            </NavLink>
-          ))}
-          <div className="border-t border-black/10 pt-2 mt-2 flex items-center gap-2">
-            {user && <StreakBadge />}
-            {user ? (
-              <UserDropdown />
-            ) : (
-              <NavLink to="/auth" className={({ isActive }) => `${linkBase} w-full ${isActive ? activeClass : inactiveClass}`}>
-                <LogIn size={16} /> Sign In
+        <div className="border-t border-black/8 px-4 pb-4 pt-2 lg:hidden">
+          <div className="rounded-[24px] border border-black/8 bg-white/92 p-2 shadow-[0_18px_50px_rgba(15,23,42,0.08)]">
+            {NAV_LINKS.map((link) => (
+              <NavLink
+                key={link.to}
+                to={link.to}
+                onClick={closeMobileMenu}
+                className={({ isActive }) => `flex items-center gap-3 rounded-2xl px-3 py-3 text-sm font-medium transition ${
+                  isActive
+                    ? 'bg-black text-white'
+                    : 'text-[var(--muted)] hover:bg-[var(--surface-2)] hover:text-[var(--ink)]'
+                }`}
+              >
+                <span className="relative">
+                  {link.icon}
+                  {link.showDot && !dailyDone && <span className="absolute -right-0.5 top-0 h-1.5 w-1.5 rounded-full bg-[var(--accent)]" />}
+                </span>
+                {link.label}
               </NavLink>
-            )}
+            ))}
+
+            <div className="mt-2 border-t border-black/8 pt-2">
+              <div className="flex items-center gap-2 px-1">
+                {user && <StreakBadge />}
+                {user ? (
+                  <UserDropdown />
+                ) : (
+                  <NavLink
+                    to="/auth"
+                    onClick={closeMobileMenu}
+                    className="flex w-full items-center justify-center gap-2 rounded-2xl border border-black/8 bg-white px-4 py-2.5 text-sm font-medium text-[var(--muted)] transition hover:text-[var(--ink)]"
+                  >
+                    <LogIn size={14} />
+                    Sign In
+                  </NavLink>
+                )}
+              </div>
+            </div>
           </div>
         </div>
       )}

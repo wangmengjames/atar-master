@@ -10,12 +10,12 @@ import {
 } from 'lucide-react';
 
 export const TIER_COLORS: [string, string][] = [
-  ['#6366F1', '#8B5CF6'],
-  ['#A855F7', '#D946EF'],
-  ['#F43F5E', '#EC4899'],
-  ['#3B82F6', '#06B6D4'],
-  ['#14B8A6', '#10B981'],
-  ['#F59E0B', '#EAB308'],
+  ['#5B6576', '#8D99AE'],
+  ['#3F6474', '#6B93A3'],
+  ['#4B5E77', '#7A8DA7'],
+  ['#1F2937', '#4B5563'],
+  ['#215F58', '#4C8A82'],
+  ['#7C5A31', '#B58A58'],
 ];
 
 export const NODE_ICON_MAP: Record<string, LucideIcon> = {

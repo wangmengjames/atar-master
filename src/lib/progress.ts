@@ -35,6 +35,9 @@ export function loadProgress(): UserProgress {
 
 export function saveProgress(p: UserProgress) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(p));
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new Event('progress-change'));
+  }
 }
 
 export function getNodeProgress(p: UserProgress, nodeId: string): NodeProgress {
@@ -43,6 +46,31 @@ export function getNodeProgress(p: UserProgress, nodeId: string): NodeProgress {
 
 export function xpForLevel(level: number): number {
   return level * 100;
+}
+
+export function getLevelFromXP(totalXP: number): number {
+  let level = 1;
+
+  while (totalXP >= xpForLevel(level)) {
+    level += 1;
+  }
+
+  return level;
+}
+
+export function getXPProgress(totalXP: number) {
+  const level = getLevelFromXP(totalXP);
+  const levelStart = level === 1 ? 0 : xpForLevel(level - 1);
+  const levelEnd = xpForLevel(level);
+  const currentXP = Math.max(0, totalXP - levelStart);
+  const neededXP = Math.max(1, levelEnd - levelStart);
+
+  return {
+    level,
+    currentXP,
+    neededXP,
+    progressPct: Math.min(100, Math.round((currentXP / neededXP) * 100)),
+  };
 }
 
 export function computeNodeStatus(

@@ -64,7 +64,7 @@ const TermsPage = lazy(() => import('./pages/TermsPage'));
 
 const FOOTER_PAGES = ['/', '/exams', '/pricing', '/topics', '/privacy', '/terms'];
 
-function PageWrapper({ children }: { children: React.ReactNode }) {
+function PageWrapper({ children }: { children: ReactNode }) {
   const location = useLocation();
   return <div key={location.pathname} className="page-transition">{children}</div>;
 }
@@ -75,7 +75,7 @@ function AppLayout() {
   const showFooter = FOOTER_PAGES.includes(location.pathname) || location.pathname.startsWith('/topics/');
 
   return (
-    <div className="min-h-screen bg-[#FAFAFA] text-black font-sans flex flex-col">
+    <div className="min-h-screen bg-[var(--app-bg)] text-black font-sans flex flex-col">
       {!isLanding && <Navbar />}
       {/* Spacer for fixed navbar */}
       {!isLanding && <div className="h-[57px]" />}
