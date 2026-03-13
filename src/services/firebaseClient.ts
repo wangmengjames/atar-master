@@ -24,6 +24,7 @@ if (firebaseConfig.apiKey && firebaseConfig.projectId) {
     localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() }),
   });
   googleProvider = new GoogleAuthProvider();
+  googleProvider.setCustomParameters({ prompt: 'select_account' });
 }
 
 export { app, auth, db, googleProvider };
