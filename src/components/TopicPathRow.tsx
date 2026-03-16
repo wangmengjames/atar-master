@@ -172,7 +172,7 @@ function ExpandedPanel({
   return (
     <div className="border-t border-black/6 bg-white/40 px-4 py-4">
       {/* Horizontal card row */}
-      <div className="flex gap-3 overflow-x-auto pb-3">
+      <div className="flex gap-3 overflow-x-auto scroll-smooth pb-3">
         {sorted.map((node, i) => {
           const status = getStatus(node, progress);
           const np = getNodeProgress(progress, node.id);
@@ -195,7 +195,7 @@ function ExpandedPanel({
               )}
               <button
                 onClick={() => onSelectNode(node.id)}
-                className={`flex w-[120px] shrink-0 flex-col items-center gap-2 rounded-[20px] border p-3 transition-all ${
+                className={`flex w-[100px] sm:w-[120px] shrink-0 flex-col items-center gap-2 rounded-[20px] border p-3 transition-all ${
                   isSelected
                     ? 'border-black/20 bg-white shadow-sm'
                     : 'border-black/8 bg-white/80 hover:border-black/14 hover:bg-white'
@@ -303,7 +303,7 @@ export default function TopicPathRow({
         </span>
 
         {/* Timeline dots */}
-        <div className="flex items-center gap-0 flex-1 overflow-hidden mx-2">
+        <div className="flex flex-wrap items-center gap-1 flex-1 overflow-hidden mx-2">
           {sorted.map((node, i) => {
             const status = getStatus(node, progress);
             const isRecommended = recommendedNodeId === node.id;
@@ -346,18 +346,23 @@ export default function TopicPathRow({
         </div>
       </button>
 
-      {/* Expanded accordion */}
-      {isExpanded && (
-        <ExpandedPanel
-          nodes={sorted}
-          progress={progress}
-          selectedNodeId={selectedNodeId}
-          onSelectNode={onSelectNode}
-          onStartLevel={onStartLevel}
-          recommendedNodeId={recommendedNodeId}
-          topicColor={topicColor}
-        />
-      )}
+      {/* Expanded accordion — CSS grid animation */}
+      <div
+        className="grid transition-all duration-300 ease-in-out"
+        style={{ gridTemplateRows: isExpanded ? '1fr' : '0fr' }}
+      >
+        <div className="overflow-hidden">
+          <ExpandedPanel
+            nodes={sorted}
+            progress={progress}
+            selectedNodeId={selectedNodeId}
+            onSelectNode={onSelectNode}
+            onStartLevel={onStartLevel}
+            recommendedNodeId={recommendedNodeId}
+            topicColor={topicColor}
+          />
+        </div>
+      </div>
     </div>
   );
 }
