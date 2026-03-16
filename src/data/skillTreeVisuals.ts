@@ -1,5 +1,5 @@
 /**
- * Shared visual constants for the skill tree — used by CivTreeView and SkillNodePanel.
+ * Shared visual constants for the skill tree.
  */
 import {
   Hash, Sigma, BarChart2, Dice5, TrendingUp,
