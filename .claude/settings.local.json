@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dir:*)",
+      "Bash(git -C \"E:\\\\SynologyDrive\\\\Google Drive\\\\Claude\\\\vce-master\" remote -v)",
+      "Bash(npx vite build)",
+      "Bash(git fetch:*)",
+      "Bash(npx:*)",
+      "Bash(chmod:*)",
+      "Bash(npm install:*)",
+      "Bash(git fsck:*)",
+      "Bash(git add:*)",
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nFix OAuth re-login: eliminate race between getSession and onAuthStateChange\n\nThe PKCE code exchange triggered both getSession\\(\\) and onAuthStateChange\nto fire concurrently, causing duplicate ensureProfile\\(\\) calls that raced.\nAdditionally, INITIAL_SESSION event \\(with null session\\) could resolve\nloading before SIGNED_IN event arrived with the actual session.\n\n- Unify both auth paths into a single resolveAuth\\(\\) function with\n  initialResolved flag to prevent double-processing\n- Allow late-arriving sessions to override earlier null-session resolutions\n- Clean ?code= and ?state= from URL after code exchange completes\n  \\(prevents stale code errors on page refresh\\)\n- Reduce grace period from 15s to 8s for faster error feedback\n\nCo-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(git push:*)",
+      "Bash(git commit:*)",
+      "Bash(wc:*)"
+    ]
+  }
+}

@@ -2,8 +2,7 @@ import { useState, useCallback, useEffect, useMemo } from 'react';
 import { ArrowRight, RotateCcw, Sparkles, Trophy, Zap } from 'lucide-react';
 import { ALL_NODES } from '../data/skillTreeData';
 import { getNodeQuestionCounts } from '../data/questionMatcher';
-import CivTreeView from '../components/CivTreeView';
-import SkillNodePanel from '../components/SkillNodePanel';
+import TopicPathRow from '../components/TopicPathRow';
 import TrainingSession from '../components/TrainingSession';
 import YearLevelSelector from '../components/YearLevelSelector';
 import OnboardingTutorial, {
@@ -69,6 +68,7 @@ export default function SkillTreePage() {
 
   const [showYearSelector, setShowYearSelector] = useState(() => !isPro && getStoredYearLevel() === null);
   const [showOnboarding, setShowOnboarding] = useState(() => !isPro && getStoredYearLevel() !== null && !isOnboardingComplete());
+  const [expandedTopic, setExpandedTopic] = useState<string | null>(null);
 
   useEffect(() => {
     saveProgress(progress);
@@ -114,8 +114,17 @@ export default function SkillTreePage() {
     recommendedNode ? getRecommendedLevel(recommendedNode.id, progress) : null
   ), [recommendedNode, progress]);
 
+  const topicGroups = useMemo(() => {
+    const groups: Record<string, typeof ALL_NODES> = {};
+    for (const node of ALL_NODES) {
+      if (!groups[node.topic]) groups[node.topic] = [];
+      groups[node.topic].push(node);
+    }
+    return Object.entries(groups).map(([topic, nodes]) => ({ topic, nodes }));
+  }, []);
+
   const handleSelectNode = useCallback((nodeId: string) => {
-    setSelectedNodeId((current) => (current === nodeId ? null : nodeId));
+    setSelectedNodeId(nodeId);
   }, []);
 
   const handleStartLevel = useCallback((nodeId: string, level: number) => {
@@ -311,59 +320,21 @@ export default function SkillTreePage() {
         </div>
       </header>
 
-      <div className="mx-auto flex max-w-[1400px] flex-col xl:flex-row">
-        <section className="min-w-0 flex-1">
-          <div className="flex flex-col gap-4 border-b border-black/8 px-4 py-4 sm:px-6 lg:flex-row lg:items-end lg:justify-between">
-            <div>
-              <p className="section-kicker">Map</p>
-              <h2 className="mt-2 text-xl font-semibold tracking-tight text-[var(--ink)]">
-                Follow prerequisites, then drill down into each topic.
-              </h2>
-              <p className="mt-2 max-w-2xl text-sm leading-6 text-[var(--muted)]">
-                Each column is a study stage. Cards stay compact so the structure is readable before the details.
-              </p>
-            </div>
-
-            <div className="flex flex-wrap gap-2 text-xs text-[var(--muted)]">
-              {['Locked', 'Ready', 'Completed'].map((label) => (
-                <span key={label} className="quiet-pill">
-                  {label}
-                </span>
-              ))}
-            </div>
-          </div>
-
-          <div className="h-[68vh] min-h-[560px] bg-white/42">
-            <CivTreeView
-              progress={progress}
-              onSelectNode={handleSelectNode}
-              selectedNodeId={selectedNodeId}
-            />
-          </div>
-        </section>
-
-        <aside className="w-full border-t border-black/8 xl:sticky xl:top-[57px] xl:h-[calc(100vh-57px)] xl:w-[400px] xl:shrink-0 xl:border-l xl:border-t-0">
-          {selectedNodeId ? (
-            <SkillNodePanel
-              nodeId={selectedNodeId}
-              progress={progress}
-              onClose={() => setSelectedNodeId(null)}
-              onStartLevel={handleStartLevel}
-            />
-          ) : (
-            <div className="flex h-full items-center justify-center bg-white/72 p-6">
-              <div className="max-w-sm text-center">
-                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-[var(--surface-2)] text-[var(--accent)]">
-                  <Sparkles size={18} />
-                </div>
-                <h3 className="mt-4 text-xl font-semibold tracking-tight text-[var(--ink)]">Pick a node to inspect it</h3>
-                <p className="mt-3 text-sm leading-6 text-[var(--muted)]">
-                  The side panel shows prerequisites, level-by-level practice, and the fastest way to continue.
-                </p>
-              </div>
-            </div>
-          )}
-        </aside>
+      <div className="mx-auto max-w-[1400px] space-y-3 px-4 py-6 sm:px-6">
+        {topicGroups.map(({ topic, nodes: topicNodes }) => (
+          <TopicPathRow
+            key={topic}
+            topicLabel={topic}
+            nodes={topicNodes}
+            progress={progress}
+            isExpanded={expandedTopic === topic}
+            onToggle={() => setExpandedTopic((prev) => (prev === topic ? null : topic))}
+            onSelectNode={handleSelectNode}
+            selectedNodeId={selectedNodeId}
+            onStartLevel={handleStartLevel}
+            recommendedNodeId={recommendedNode?.id ?? null}
+          />
+        ))}
       </div>
     </div>
   );
