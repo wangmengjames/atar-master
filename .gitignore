@@ -7,4 +7,5 @@ public/exam-images/
 .env.local
 .vercel
 .tex-tmp/
-.tex-tmp/
+firebase-debug.log
+firebase-debug.*.log
