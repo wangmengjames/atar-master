@@ -21,6 +21,7 @@ import { MM_2024_EXAM2 } from './mm_2024_exam2';
 import { MM_2025_EXAM1 } from './mm_2025_exam1';
 import { MM_2025_EXAM2 } from './mm_2025_exam2';
 import { SM_2025_EXAM1 } from './sm_2025_exam1';
+import { SM_2025_EXAM2 } from './sm_2025_exam2';
 
 const ALL_EXAMS: ExamPaper[] = [
   MM_2016_EXAM1,
@@ -44,6 +45,7 @@ const ALL_EXAMS: ExamPaper[] = [
   MM_2025_EXAM1,
   MM_2025_EXAM2,
   SM_2025_EXAM1,
+  SM_2025_EXAM2,
 ];
 
 export function getAllExams(): ExamPaper[] {
@@ -76,4 +78,5 @@ export {
   MM_2025_EXAM1,
   MM_2025_EXAM2,
   SM_2025_EXAM1,
+  SM_2025_EXAM2,
 };
