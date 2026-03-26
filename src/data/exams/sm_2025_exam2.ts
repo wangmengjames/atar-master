@@ -381,7 +381,7 @@ export const SM_2025_EXAM2: ExamPaper = {
             topic: Topic.CALCULUS,
             subTopic: "Stationary Points",
             answer: "$y$-coordinate of $P$ in terms of $a$",
-ingGuide: ["A1 – y-coordinate of P in terms of a."]
+            markingGuide: ["A1 – y-coordinate of P in terms of a."]
         },
         {
             id: 'sm-25-2-q1dii',
