@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { ChevronDown } from 'lucide-react'
+import { ChevronDown, Shield, CreditCard, RefreshCcw } from 'lucide-react'
 import PricingSection from '../components/PricingSection'
 import { useAuth } from '../hooks/useAuth'
 
@@ -26,6 +26,12 @@ const faqs = [
   },
 ]
 
+const trustSignals = [
+  { icon: Shield, text: 'Secure payment' },
+  { icon: CreditCard, text: 'All major cards' },
+  { icon: RefreshCcw, text: 'Cancel anytime' },
+]
+
 export default function PricingPage() {
   const { isPro } = useAuth()
   const [openFaq, setOpenFaq] = useState<number | null>(null)
@@ -38,6 +44,16 @@ export default function PricingPage() {
       </div>
 
       <PricingSection currentPlan={isPro ? 'pro' : 'free'} />
+
+      {/* Trust signals */}
+      <div className="flex items-center justify-center gap-8 px-4 pb-12">
+        {trustSignals.map(({ icon: Icon, text }) => (
+          <div key={text} className="flex items-center gap-1.5 text-xs text-black/30">
+            <Icon className="w-3.5 h-3.5" />
+            {text}
+          </div>
+        ))}
+      </div>
 
       {/* FAQ */}
       <section className="max-w-2xl mx-auto px-4 py-16">

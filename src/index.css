@@ -359,3 +359,35 @@
     width: 0%;
   }
 }
+
+/* ── Pricing Pro card ── */
+.pro-card-glow {
+  box-shadow:
+    0 0 30px rgba(212, 168, 68, 0.12),
+    0 0 60px rgba(245, 208, 96, 0.06),
+    0 20px 60px rgba(15, 23, 42, 0.06);
+  z-index: 1;
+}
+
+.pro-card-glow:hover {
+  box-shadow:
+    0 0 40px rgba(212, 168, 68, 0.18),
+    0 0 80px rgba(245, 208, 96, 0.08),
+    0 24px 80px rgba(15, 23, 42, 0.08);
+  transform: translateY(-2px);
+  transition: box-shadow 0.3s ease, transform 0.3s ease;
+}
+
+@keyframes badgeShimmer {
+  0% {
+    background-position: -200% center;
+  }
+  100% {
+    background-position: 200% center;
+  }
+}
+
+.pro-badge-shimmer {
+  background-size: 200% auto;
+  animation: badgeShimmer 3s ease-in-out infinite;
+}
